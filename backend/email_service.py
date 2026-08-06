@@ -1,29 +1,68 @@
-"""
-Minimal email sender. Works with any SMTP provider (Gmail app password,
-SendGrid SMTP relay, Postmark, AWS SES SMTP, etc.) - just set SMTP_* in .env.
+﻿"""
+Email delivery, with two backends:
 
-If SMTP_HOST is unset, emails are logged to the console instead of sent.
-That's fine for local dev; it is NOT fine for production - the app will
-still "work" but nobody will receive password reset emails.
+1. Resend (HTTPS API) - works everywhere, including hosts that block
+   outbound SMTP ports (Render, Railway, Heroku free tiers, etc). Used
+   automatically when RESEND_API_KEY is set. This is the recommended path.
+2. SMTP - only works on hosts that allow outbound SMTP connections (a real
+   VPS typically does; most PaaS free tiers don't). Used when RESEND_API_KEY
+   is unset but SMTP_HOST is set.
+
+If neither is configured, emails are logged instead of sent - fine for local
+dev, not for production.
+
+Delivery failures are always caught and logged, never raised - a broken
+email provider should never turn into a 500 for the person requesting a
+password reset. The generic "if that email is registered..." response in
+auth_routes.py still gets returned either way, so this also avoids leaking
+whether the send actually succeeded (which would itself leak whether the
+account exists).
 """
 import logging
 import smtplib
 from email.message import EmailMessage
 
+import httpx
+
 from config import settings
 
 logger = logging.getLogger("cyberverse.email")
 
+RESEND_API_URL = "https://api.resend.com/emails"
+
 
 def send_email(to: str, subject: str, body: str) -> None:
-    if not settings.smtp_host:
-        logger.warning(
-            "SMTP not configured - logging email instead of sending.\n"
-            "TO: %s\nSUBJECT: %s\nBODY:\n%s",
-            to, subject, body,
-        )
-        return
+    try:
+        if settings.resend_api_key:
+            _send_via_resend(to, subject, body)
+        elif settings.smtp_host:
+            _send_via_smtp(to, subject, body)
+        else:
+            logger.warning(
+                "No email provider configured - logging email instead of sending.\n"
+                "TO: %s\nSUBJECT: %s\nBODY:\n%s",
+                to, subject, body,
+            )
+    except Exception:
+        logger.exception("Failed to send email to %s (subject: %s)", to, subject)
 
+
+def _send_via_resend(to: str, subject: str, body: str) -> None:
+    resp = httpx.post(
+        RESEND_API_URL,
+        headers={"Authorization": f"Bearer {settings.resend_api_key}"},
+        json={
+            "from": settings.resend_from_email,
+            "to": [to],
+            "subject": subject,
+            "text": body,
+        },
+        timeout=15,
+    )
+    resp.raise_for_status()
+
+
+def _send_via_smtp(to: str, subject: str, body: str) -> None:
     msg = EmailMessage()
     msg["From"] = settings.smtp_from_email
     msg["To"] = to

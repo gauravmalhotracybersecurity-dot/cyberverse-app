@@ -1,0 +1,482 @@
+// ===== Config =====
+const API_BASE = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1"
+  ? "http://127.0.0.1:8000"
+  : ""; // same-origin in production if you serve frontend + backend together
+
+// ===== State =====
+let token = localStorage.getItem("cv_token") || null;
+let profile = null;
+let authMode = "login";
+
+// ===== Helpers =====
+async function api(path, options = {}) {
+  const headers = { "Content-Type": "application/json", ...(options.headers || {}) };
+  if (token) headers["Authorization"] = `Bearer ${token}`;
+  const res = await fetch(`${API_BASE}${path}`, { ...options, headers });
+  let data = null;
+  try { data = await res.json(); } catch (_) { /* no body */ }
+  if (!res.ok) {
+    const message = (data && data.detail) ? data.detail : `Request failed (${res.status})`;
+    throw new Error(message);
+  }
+  return data;
+}
+
+function $(sel) { return document.querySelector(sel); }
+function $all(sel) { return document.querySelectorAll(sel); }
+
+function escapeHtml(str) {
+  const div = document.createElement("div");
+  div.textContent = str ?? "";
+  return div.innerHTML;
+}
+
+// ===== Auth screen =====
+$all(".auth-tab").forEach(tab => {
+  tab.addEventListener("click", () => {
+    authMode = tab.dataset.mode;
+    $all(".auth-tab").forEach(t => t.classList.toggle("active", t === tab));
+    $("#signup-fields").classList.toggle("hidden", authMode !== "signup");
+    $("#auth-submit").textContent = authMode === "signup" ? "Create account" : "Log in";
+    $("#auth-error").classList.add("hidden");
+  });
+});
+
+$("#auth-form").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const email = $("#email").value.trim();
+  const password = $("#password").value;
+  const errorEl = $("#auth-error");
+  errorEl.classList.add("hidden");
+
+  const submitBtn = $("#auth-submit");
+  submitBtn.disabled = true;
+
+  try {
+    let result;
+    if (authMode === "signup") {
+      const full_name = $("#full-name").value.trim();
+      result = await api("/api/auth/signup", {
+        method: "POST",
+        body: JSON.stringify({ email, password, full_name }),
+      });
+    } else {
+      result = await api("/api/auth/login", {
+        method: "POST",
+        body: JSON.stringify({ email, password }),
+      });
+    }
+    token = result.access_token;
+    localStorage.setItem("cv_token", token);
+    await enterApp();
+  } catch (err) {
+    errorEl.textContent = err.message;
+    errorEl.classList.remove("hidden");
+  } finally {
+    submitBtn.disabled = false;
+  }
+});
+
+$("#logout-btn").addEventListener("click", () => {
+  token = null;
+  localStorage.removeItem("cv_token");
+  $("#app-shell").classList.add("hidden");
+  $("#auth-screen").classList.remove("hidden");
+});
+
+// ===== Forgot / reset password =====
+function showAuthPanel(panel) {
+  // panel: "login" | "forgot" | "reset"
+  $("#auth-form").classList.toggle("hidden", panel !== "login");
+  $("#forgot-form").classList.toggle("hidden", panel !== "forgot");
+  $("#reset-form").classList.toggle("hidden", panel !== "reset");
+  $(".auth-tabs").classList.toggle("hidden", panel !== "login");
+}
+
+$("#forgot-password-link").addEventListener("click", () => showAuthPanel("forgot"));
+$("#back-to-login-link").addEventListener("click", () => showAuthPanel("login"));
+
+$("#forgot-form").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const email = $("#forgot-email").value.trim();
+  const btn = $("#forgot-submit");
+  const msg = $("#forgot-message");
+  btn.disabled = true;
+  try {
+    const result = await api("/api/auth/forgot-password", {
+      method: "POST",
+      body: JSON.stringify({ email }),
+    });
+    msg.textContent = result.message;
+    msg.classList.remove("hidden");
+  } catch (err) {
+    msg.textContent = err.message;
+    msg.classList.remove("hidden");
+  } finally {
+    btn.disabled = false;
+  }
+});
+
+let pendingResetToken = null;
+
+$("#reset-form").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const new_password = $("#reset-new-password").value;
+  const btn = $("#reset-submit");
+  const msg = $("#reset-message");
+  const errorEl = $("#reset-error");
+  msg.classList.add("hidden");
+  errorEl.classList.add("hidden");
+  btn.disabled = true;
+  try {
+    const result = await api("/api/auth/reset-password", {
+      method: "POST",
+      body: JSON.stringify({ token: pendingResetToken, new_password }),
+    });
+    msg.textContent = `${result.message} Redirecting to log in…`;
+    msg.classList.remove("hidden");
+    setTimeout(() => {
+      window.history.replaceState({}, "", window.location.pathname);
+      showAuthPanel("login");
+    }, 1800);
+  } catch (err) {
+    errorEl.textContent = err.message;
+    errorEl.classList.remove("hidden");
+  } finally {
+    btn.disabled = false;
+  }
+});
+
+// If we arrived via a password-reset email link (?reset_token=...), jump
+// straight to the reset panel.
+(function checkForResetToken() {
+  const params = new URLSearchParams(window.location.search);
+  const t = params.get("reset_token");
+  if (t) {
+    pendingResetToken = t;
+    showAuthPanel("reset");
+  }
+})();
+
+// ===== Navigation =====
+function goToView(view) {
+  $all(".nav-item").forEach(n => n.classList.toggle("active", n.dataset.view === view));
+  $all(".view").forEach(v => v.classList.toggle("active", v.id === `view-${view}`));
+  if (view === "mentor") loadMentorHistory();
+  if (view === "daily") loadDailyBundle();
+}
+$all(".nav-item").forEach(n => n.addEventListener("click", () => goToView(n.dataset.view)));
+$all("[data-goto]").forEach(el => el.addEventListener("click", () => goToView(el.dataset.goto)));
+
+// ===== Enter app / load profile =====
+async function enterApp() {
+  try {
+    profile = await api("/api/profile/me");
+  } catch (err) {
+    // token invalid/expired
+    token = null;
+    localStorage.removeItem("cv_token");
+    $("#auth-error").textContent = "Session expired. Please log in again.";
+    $("#auth-error").classList.remove("hidden");
+    return;
+  }
+  $("#auth-screen").classList.add("hidden");
+  $("#app-shell").classList.remove("hidden");
+  renderStatusBar();
+  renderDashboardSnapshot();
+  populateProfileForm();
+}
+
+function renderStatusBar() {
+  $("#stat-name").textContent = profile.full_name || profile.email.split("@")[0];
+  $("#stat-level").textContent = profile.skill_level.toUpperCase();
+  $("#stat-xp").textContent = profile.xp;
+  $("#stat-streak").textContent = `${profile.streak_days}d`;
+}
+
+function renderDashboardSnapshot() {
+  $("#snap-level").textContent = profile.skill_level;
+  $("#snap-certs").textContent = profile.certifications.length ? profile.certifications.join(", ") : "None yet";
+  $("#snap-weak").textContent = profile.weak_topics.length ? profile.weak_topics.join(", ") : "None identified yet";
+  $("#snap-goal").textContent = profile.learning_goals || "Not set — add one in Profile";
+}
+
+// ===== Profile view =====
+function populateProfileForm() {
+  $("#p-name").value = profile.full_name || "";
+  $("#p-level").value = profile.skill_level;
+  $("#p-certs").value = profile.certifications.join(", ");
+  $("#p-weak").value = profile.weak_topics.join(", ");
+  $("#p-goals").value = profile.learning_goals || "";
+}
+
+$("#p-save").addEventListener("click", async () => {
+  const payload = {
+    full_name: $("#p-name").value.trim(),
+    skill_level: $("#p-level").value,
+    certifications: $("#p-certs").value.split(",").map(s => s.trim()).filter(Boolean),
+    weak_topics: $("#p-weak").value.split(",").map(s => s.trim()).filter(Boolean),
+    learning_goals: $("#p-goals").value.trim(),
+  };
+  profile = await api("/api/profile/me", { method: "PATCH", body: JSON.stringify(payload) });
+  renderStatusBar();
+  renderDashboardSnapshot();
+  const saved = $("#p-saved");
+  saved.classList.remove("hidden");
+  setTimeout(() => saved.classList.add("hidden"), 2000);
+});
+
+// ===== AI Mentor chat =====
+function renderChatLog(history) {
+  const log = $("#chat-log");
+  log.innerHTML = "";
+  if (history.length === 0) {
+    log.innerHTML = `<div class="msg assistant"><span class="msg-tag">MENTOR</span>Hey — I'm your AI Mentor. Ask me to explain a concept, build a study plan, quiz you, or review something you're stuck on.</div>`;
+    return;
+  }
+  history.forEach(m => {
+    const div = document.createElement("div");
+    div.className = `msg ${m.role}`;
+    div.innerHTML = `<span class="msg-tag">${m.role === "user" ? "YOU" : "MENTOR"}</span>${escapeHtml(m.content)}`;
+    log.appendChild(div);
+  });
+  log.scrollTop = log.scrollHeight;
+}
+
+async function loadMentorHistory() {
+  const history = await api("/api/mentor/history");
+  renderChatLog(history);
+}
+
+$("#chat-form").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const input = $("#chat-input");
+  const message = input.value.trim();
+  if (!message) return;
+  input.value = "";
+  input.disabled = true;
+
+  const log = $("#chat-log");
+  const pending = document.createElement("div");
+  pending.className = "msg user";
+  pending.innerHTML = `<span class="msg-tag">YOU</span>${escapeHtml(message)}`;
+  log.appendChild(pending);
+  const thinking = document.createElement("div");
+  thinking.className = "msg assistant";
+  thinking.innerHTML = `<span class="msg-tag">MENTOR</span>Thinking…`;
+  log.appendChild(thinking);
+  log.scrollTop = log.scrollHeight;
+
+  try {
+    const result = await api("/api/mentor/chat", { method: "POST", body: JSON.stringify({ message }) });
+    renderChatLog(result.history);
+    profile.xp += 5;
+    renderStatusBar();
+  } catch (err) {
+    thinking.innerHTML = `<span class="msg-tag">MENTOR</span>Something went wrong: ${escapeHtml(err.message)}`;
+  } finally {
+    input.disabled = false;
+    input.focus();
+  }
+});
+
+// ===== Daily Ops =====
+let dailyLoaded = false;
+async function loadDailyBundle() {
+  if (dailyLoaded) return;
+  $("#daily-date").textContent = new Date().toDateString();
+  $("#daily-loading").classList.remove("hidden");
+  $("#daily-content").innerHTML = "";
+  try {
+    const bundle = await api("/api/daily");
+    dailyLoaded = true;
+    renderDailyBundle(bundle.content);
+  } catch (err) {
+    $("#daily-content").innerHTML = `<div class="daily-card">Couldn't load today's bundle: ${escapeHtml(err.message)}</div>`;
+  } finally {
+    $("#daily-loading").classList.add("hidden");
+  }
+}
+
+function renderDailyBundle(c) {
+  const container = $("#daily-content");
+  container.innerHTML = "";
+
+  const cards = [
+    { eyebrow: "Lesson", title: c.lesson?.title, body: c.lesson?.body },
+    { eyebrow: "News Brief", title: c.news_summary?.headline, body: `${c.news_summary?.summary}\n\nWhy it matters: ${c.news_summary?.why_it_matters}` },
+    { eyebrow: "Challenge", title: c.challenge?.title, body: c.challenge?.description },
+    { eyebrow: "Practical Task", title: c.practical_task?.title, body: c.practical_task?.description },
+    { eyebrow: "Interview Question", title: c.interview_question?.question, body: `What a good answer covers: ${c.interview_question?.what_a_good_answer_covers}` },
+  ];
+  cards.forEach(card => {
+    if (!card.title) return;
+    const el = document.createElement("div");
+    el.className = "daily-card";
+    el.innerHTML = `<span class="eyebrow">${card.eyebrow}</span><h4>${escapeHtml(card.title)}</h4><p>${escapeHtml(card.body || "")}</p>`;
+    container.appendChild(el);
+  });
+
+  if (c.quiz) {
+    const quizEl = document.createElement("div");
+    quizEl.className = "daily-card";
+    quizEl.innerHTML = `<span class="eyebrow">Quiz</span><h4>${escapeHtml(c.quiz.question)}</h4>`;
+    c.quiz.choices.forEach((choice, i) => {
+      const btn = document.createElement("button");
+      btn.className = "quiz-choice";
+      btn.textContent = choice;
+      btn.addEventListener("click", () => {
+        quizEl.querySelectorAll(".quiz-choice").forEach((b, idx) => {
+          b.disabled = true;
+          if (idx === c.quiz.correct_index) b.classList.add("correct");
+        });
+        if (i !== c.quiz.correct_index) btn.classList.add("incorrect");
+        const explain = document.createElement("div");
+        explain.className = "quiz-explanation";
+        explain.textContent = c.quiz.explanation;
+        quizEl.appendChild(explain);
+      });
+      quizEl.appendChild(btn);
+    });
+    container.appendChild(quizEl);
+  }
+}
+
+// ===== Resume Builder =====
+$("#resume-submit").addEventListener("click", async () => {
+  const resume_text = $("#resume-text").value.trim();
+  const target_role = $("#resume-role").value;
+  const fileInput = $("#resume-file");
+  const file = fileInput.files[0];
+
+  if (!file && resume_text.length < 50) {
+    $("#resume-result").innerHTML = `<p style="color:var(--red)">Paste at least a few lines of resume text, or upload a file.</p>`;
+    return;
+  }
+
+  $("#resume-loading").classList.remove("hidden");
+  $("#resume-result").innerHTML = "";
+  $("#resume-submit").disabled = true;
+
+  try {
+    let result;
+    if (file) {
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("target_role", target_role);
+      const headers = {};
+      if (token) headers["Authorization"] = `Bearer ${token}`;
+      const res = await fetch(`${API_BASE}/api/resume/review-upload`, {
+        method: "POST",
+        headers,
+        body: formData,
+      });
+      result = await res.json();
+      if (!res.ok) throw new Error(result.detail || "Upload failed.");
+    } else {
+      result = await api("/api/resume/review", {
+        method: "POST",
+        body: JSON.stringify({ resume_text, target_role }),
+      });
+    }
+    renderResumeResult(result.review);
+    profile.xp += 15;
+    renderStatusBar();
+  } catch (err) {
+    $("#resume-result").innerHTML = `<p style="color:var(--red)">${escapeHtml(err.message)}</p>`;
+  } finally {
+    $("#resume-loading").classList.add("hidden");
+    $("#resume-submit").disabled = false;
+  }
+});
+
+function renderResumeResult(r) {
+  const el = $("#resume-result");
+  const list = (items) => `<ul>${(items || []).map(i => `<li>${escapeHtml(i)}</li>`).join("")}</ul>`;
+  el.innerHTML = `
+    <div class="score-row">
+      <div class="score-box"><div class="score-num">${r.overall_score}</div><div class="score-label">Overall</div></div>
+      <div class="score-box"><div class="score-num">${r.ats_score}</div><div class="score-label">ATS</div></div>
+    </div>
+    <h4>Strengths</h4>${list(r.strengths)}
+    <h4>Gaps</h4>${list(r.gaps)}
+    <h4>Missing skills for target role</h4>${list(r.missing_skills_for_target_role)}
+    <h4>ATS issues</h4>${list(r.ats_issues)}
+    <h4>Rewritten bullets</h4>
+    ${(r.rewritten_bullets || []).map(b => `<div class="bullet-pair"><div class="orig">${escapeHtml(b.original)}</div><div class="improved">${escapeHtml(b.improved)}</div></div>`).join("")}
+  `;
+}
+
+// ===== Interview Coach =====
+let currentInterviewSessionId = null;
+
+$("#interview-start").addEventListener("click", async () => {
+  const role = $("#interview-role").value;
+  $("#interview-start").disabled = true;
+  try {
+    const result = await api("/api/interview/start", { method: "POST", body: JSON.stringify({ role }) });
+    currentInterviewSessionId = result.session_id;
+    $("#interview-setup").classList.add("hidden");
+    $("#interview-session").classList.remove("hidden");
+    renderInterviewLog(result.turns);
+  } catch (err) {
+    alert(err.message);
+  } finally {
+    $("#interview-start").disabled = false;
+  }
+});
+
+function renderInterviewLog(turns) {
+  const log = $("#interview-log");
+  log.innerHTML = "";
+  turns.forEach(t => {
+    if (t.feedback) {
+      const fb = document.createElement("div");
+      fb.className = "msg feedback";
+      fb.innerHTML = `<span class="msg-tag">FEEDBACK · Score ${t.feedback.score}/10</span>
+        <strong>Strengths:</strong> ${escapeHtml((t.feedback.strengths || []).join("; "))}<br/>
+        <strong>Improve:</strong> ${escapeHtml((t.feedback.improvements || []).join("; "))}`;
+      log.appendChild(fb);
+    }
+    const div = document.createElement("div");
+    div.className = `msg ${t.speaker === "interviewer" ? "assistant" : "user"}`;
+    div.innerHTML = `<span class="msg-tag">${t.speaker === "interviewer" ? "INTERVIEWER" : "YOU"}</span>${escapeHtml(t.content)}`;
+    log.appendChild(div);
+  });
+  log.scrollTop = log.scrollHeight;
+}
+
+$("#interview-form").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const input = $("#interview-input");
+  const answer = input.value.trim();
+  if (!answer || !currentInterviewSessionId) return;
+  input.value = "";
+  input.disabled = true;
+
+  try {
+    const result = await api(`/api/interview/${currentInterviewSessionId}/respond`, {
+      method: "POST",
+      body: JSON.stringify({ answer }),
+    });
+    renderInterviewLog(result.turns);
+    profile.xp += result.is_complete ? 25 : 5;
+    renderStatusBar();
+    if (result.is_complete) {
+      input.placeholder = "Interview complete.";
+      $("#interview-form").querySelector("button").disabled = true;
+    }
+  } catch (err) {
+    alert(err.message);
+  } finally {
+    input.disabled = false;
+    input.focus();
+  }
+});
+
+// ===== Boot =====
+(async function boot() {
+  if (token) {
+    await enterApp();
+  }
+})();

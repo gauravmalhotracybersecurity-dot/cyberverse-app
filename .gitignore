@@ -1,0 +1,9 @@
+backend/.env
+.env
+backend/venv/
+backend/__pycache__/
+backend/**/__pycache__/
+backend/cyberverse.db
+backend/ci_test.db
+backend/.pytest_cache/
+.DS_Store

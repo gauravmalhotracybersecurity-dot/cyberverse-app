@@ -1,0 +1,47 @@
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: cyberverse
+      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}"
+      POSTGRES_DB: cyberverse
+    volumes:
+      - cyberverse_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U cyberverse"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "8000:8000"
+    environment:
+      ENVIRONMENT: production
+      DATABASE_URL: "postgresql://cyberverse:${POSTGRES_PASSWORD}@db:5432/cyberverse"
+      JWT_SECRET: "${JWT_SECRET:?set JWT_SECRET in .env, e.g. python3 -c 'import secrets; print(secrets.token_hex(32))'}"
+      ANTHROPIC_API_KEY: "${ANTHROPIC_API_KEY:?set ANTHROPIC_API_KEY in .env}"
+      ANTHROPIC_MODEL: ${ANTHROPIC_MODEL:-claude-sonnet-4-6}
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-}
+      APP_BASE_URL: ${APP_BASE_URL:-http://localhost:8000}
+      SMTP_HOST: ${SMTP_HOST:-}
+      SMTP_PORT: ${SMTP_PORT:-587}
+      SMTP_USER: ${SMTP_USER:-}
+      SMTP_PASSWORD: ${SMTP_PASSWORD:-}
+      SMTP_FROM_EMAIL: ${SMTP_FROM_EMAIL:-no-reply@cyberverse.ai}
+    healthcheck:
+      test: ["CMD", "python3", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/api/health').read()"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  cyberverse_pgdata:

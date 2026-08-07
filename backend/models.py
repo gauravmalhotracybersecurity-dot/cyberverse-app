@@ -1,4 +1,4 @@
-import datetime as dt
+﻿import datetime as dt
 
 from sqlalchemy import (
     Column, Integer, String, Text, DateTime, ForeignKey, JSON
@@ -57,6 +57,7 @@ class DailyBundle(Base):
     date = Column(String, nullable=False)  # YYYY-MM-DD
     content = Column(JSON, nullable=False)  # {lesson, quiz, news, challenge, interview_question, task}
     created_at = Column(DateTime, default=now)
+    emailed_at = Column(DateTime, nullable=True)
 
 
 class ResumeReview(Base):

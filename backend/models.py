@@ -103,11 +103,3 @@ class Achievement(Base):
     title = Column(String, nullable=False) # 'Security+', 'SOC Analyst at Dell'
     date_achieved = Column(String, default=dt.date.today().isoformat())
 
-class Achievement(Base):
-    __tablename__ = "achievements"
-
-    id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
-    type = Column(String, nullable=False)
-    title = Column(String, nullable=False)
-    date_achieved = Column(String, default=dt.date.today().isoformat())

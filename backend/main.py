@@ -12,8 +12,6 @@ from database import Base, engine
 from rate_limit import limiter
 from routers import (
     achievement_routes,
-    achievement_routes,
-    achievement_routes,
     auth_routes,
     profile_routes,
     mentor_routes,
@@ -71,8 +69,6 @@ async def security_headers(request: Request, call_next):
 
 
 app.include_router(auth_routes.router)
-app.include_router(achievement_routes.router)
-app.include_router(achievement_routes.router)
 app.include_router(achievement_routes.router)
 app.include_router(profile_routes.router)
 app.include_router(mentor_routes.router)

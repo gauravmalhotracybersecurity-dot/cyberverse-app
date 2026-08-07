@@ -93,3 +93,12 @@ class InterviewTurn(Base):
     created_at = Column(DateTime, default=now)
 
     session = relationship("InterviewSession", back_populates="turns")
+
+class Achievement(Base):
+    __tablename__ = "achievements"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    type = Column(String, nullable=False)  # 'certification', 'interview', 'hired'
+    title = Column(String, nullable=False) # 'Security+', 'SOC Analyst at Dell'
+    date_achieved = Column(String, default=dt.date.today().isoformat())

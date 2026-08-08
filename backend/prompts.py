@@ -91,6 +91,7 @@ Schema:
 {{
   "feedback": {{"strengths": [string,...], "improvements": [string,...], "score": integer 0-10}} or null (null only for the very first question, before any answer exists),
   "next_question": string or null (null if the interview is now complete),
+  "weak_topics": [string, ...] (0-3 short topics the candidate struggled with, e.g. "SIEM alert triage"; empty list if none),
   "is_complete": boolean,
   "closing_remarks": string or null (only set when is_complete is true — a short overall performance summary)
 }}"""

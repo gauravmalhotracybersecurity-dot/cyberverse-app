@@ -10,6 +10,7 @@ from database import get_db
 from prompts import resume_review_system_prompt
 from rate_limit import limiter
 from resume_parsing import extract_resume_text
+from weak_topics import merge_weak_topics
 
 router = APIRouter(prefix="/api/resume", tags=["resume"])
 
@@ -27,6 +28,7 @@ async def _run_review(resume_text: str, target_role: str, user: models.User, db:
     record = models.ResumeReview(user_id=user.id, resume_text=resume_text, review=review)
     db.add(record)
     user.xp += 15
+    merge_weak_topics(user, review.get("missing_skills_for_target_role"))
     db.commit()
     db.refresh(record)
 

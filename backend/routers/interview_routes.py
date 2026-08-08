@@ -9,6 +9,7 @@ from config import settings
 from database import get_db
 from prompts import interview_system_prompt
 from rate_limit import limiter
+from weak_topics import merge_weak_topics
 
 router = APIRouter(prefix="/api/interview", tags=["interview"])
 
@@ -103,6 +104,7 @@ async def respond(
         raise HTTPException(status_code=502, detail=str(e))
 
     candidate_turn.feedback = result.get("feedback")
+    merge_weak_topics(user, result.get("weak_topics"))
 
     is_complete = bool(result.get("is_complete")) or force_wrap_up
     if is_complete:

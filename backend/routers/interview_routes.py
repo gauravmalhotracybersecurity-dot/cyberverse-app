@@ -33,6 +33,11 @@ async def start_interview(
     user: models.User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
+
+    if not user.is_pro:
+        total_sessions = db.query(models.InterviewSession).filter(models.InterviewSession.user_id == user.id).count()
+        if total_sessions >= 3:
+            raise HTTPException(status_code=403, detail="Free tier limit reached (3 interviews). Upgrade to Pro for unlimited mock interviews.")
     session = models.InterviewSession(user_id=user.id, role=payload.role, status="active")
     db.add(session)
     db.flush()

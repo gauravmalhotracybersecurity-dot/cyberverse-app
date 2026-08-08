@@ -1,4 +1,4 @@
-﻿import datetime as dt
+import datetime as dt
 
 from sqlalchemy import (
     Column, Integer, String, Text, DateTime, ForeignKey, JSON
@@ -30,6 +30,7 @@ class User(Base):
     # --- Gamification (Feature Roadmap: XP, streak, rank) ---
     xp = Column(Integer, default=0)
     streak_days = Column(Integer, default=0)
+    is_pro = Column(Boolean, default=False)
     last_active_date = Column(String, default="")  # YYYY-MM-DD
 
     mentor_messages = relationship("MentorMessage", back_populates="user", cascade="all, delete-orphan")

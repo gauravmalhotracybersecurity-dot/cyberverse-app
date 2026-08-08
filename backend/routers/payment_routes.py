@@ -1,0 +1,58 @@
+from fastapi import APIRouter, Request, HTTPException, Depends
+from sqlalchemy.orm import Session
+from sqlalchemy import func
+import hmac, hashlib, json, logging
+from config import settings
+from database import get_db
+import models
+
+logger = logging.getLogger("cyberverse.payments")
+router = APIRouter(prefix="/api/webhooks", tags=["webhooks"])
+
+
+def _verify(body: bytes, signature: str) -> bool:
+    expected = hmac.new(
+        settings.razorpay_webhook_secret.encode(), body, hashlib.sha256
+    ).hexdigest()
+    return hmac.compare_digest(expected, signature)
+
+
+@router.post("/razorpay")
+async def razorpay_webhook(request: Request, db: Session = Depends(get_db)):
+    body = await request.body()
+    signature = request.headers.get("X-Razorpay-Signature", "")
+    if not signature or not _verify(body, signature):
+        logger.warning("Razorpay webhook rejected: bad signature.")
+        raise HTTPException(status_code=400, detail="Invalid signature")
+
+    try:
+        payload = json.loads(body)
+    except Exception:
+        raise HTTPException(status_code=400, detail="Bad JSON")
+
+    event = payload.get("event", "")
+    if event not in ("payment_link.paid", "payment.captured"):
+        return {"status": "ignored", "event": event}
+
+    # Robust extraction of customer email across Razorpay payload shapes
+    pl = payload.get("payload", {}).get("payment_link", {}) or {}
+    entity = pl.get("entity", pl) if isinstance(pl, dict) else {}
+    customer = entity.get("customer", {}) if isinstance(entity, dict) else {}
+    email = (customer.get("email") or "").strip().lower()
+
+    if not email:
+        pay = payload.get("payload", {}).get("payment", {}) or {}
+        pay_entity = pay.get("entity", pay) if isinstance(pay, dict) else {}
+        email = (pay_entity.get("email") or "").strip().lower()
+
+    if not email:
+        logger.warning("Webhook received but no customer email found.")
+        return {"status": "no_email"}
+
+    user = db.query(models.User).filter(func.lower(models.User.email) == email).first()
+    if user and not user.is_pro:
+        user.is_pro = True
+        db.commit()
+        logger.info("User %s upgraded to Pro automatically.", email)
+        return {"status": "upgraded", "email": email}
+    return {"status": "already_pro_or_unknown", "email": email}

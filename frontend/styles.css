@@ -338,3 +338,11 @@ textarea { resize: vertical; font-family: var(--sans); }
 .bullet-pair { background: var(--panel-alt); border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; margin-bottom: 8px; font-size: 13px; }
 .bullet-pair .orig { color: var(--muted); text-decoration: line-through; margin-bottom: 4px; }
 .bullet-pair .improved { color: var(--cyan); }
+
+/* ===== Achievements UI ===== */
+.ach-list { display: flex; flex-direction: column; gap: 12px; margin-top: 16px; }
+.ach-item { display: flex; align-items: center; gap: 16px; padding: 12px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 6px; }
+.ach-badge { font-size: 1.8rem; }
+.ach-details { display: flex; flex-direction: column; }
+.ach-details strong { font-size: 1rem; color: var(--text-main, #fff); }
+.ach-meta { font-size: 0.75rem; color: var(--text-muted, #888); font-family: 'IBM Plex Mono', monospace; text-transform: uppercase; margin-top: 4px; letter-spacing: 0.5px; }

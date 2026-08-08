@@ -1,4 +1,4 @@
-// ===== Config =====
+﻿// ===== Config =====
 const API_BASE = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1"
   ? "http://127.0.0.1:8000"
   : ""; // same-origin in production if you serve frontend + backend together
@@ -133,7 +133,7 @@ $("#reset-form").addEventListener("submit", async (e) => {
       method: "POST",
       body: JSON.stringify({ token: pendingResetToken, new_password }),
     });
-    msg.textContent = `${result.message} Redirecting to log in…`;
+    msg.textContent = `${result.message} Redirecting to log inâ€¦`;
     msg.classList.remove("hidden");
     setTimeout(() => {
       window.history.replaceState({}, "", window.location.pathname);
@@ -164,6 +164,7 @@ function goToView(view) {
   $all(".view").forEach(v => v.classList.toggle("active", v.id === `view-${view}`));
   if (view === "mentor") loadMentorHistory();
   if (view === "daily") loadDailyBundle();
+  if (view === "achievements") loadAchievements();
 }
 $all(".nav-item").forEach(n => n.addEventListener("click", () => goToView(n.dataset.view)));
 $all("[data-goto]").forEach(el => el.addEventListener("click", () => goToView(el.dataset.goto)));
@@ -198,7 +199,7 @@ function renderDashboardSnapshot() {
   $("#snap-level").textContent = profile.skill_level;
   $("#snap-certs").textContent = profile.certifications.length ? profile.certifications.join(", ") : "None yet";
   $("#snap-weak").textContent = profile.weak_topics.length ? profile.weak_topics.join(", ") : "None identified yet";
-  $("#snap-goal").textContent = profile.learning_goals || "Not set — add one in Profile";
+  $("#snap-goal").textContent = profile.learning_goals || "Not set â€” add one in Profile";
 }
 
 // ===== Profile view =====
@@ -231,7 +232,7 @@ function renderChatLog(history) {
   const log = $("#chat-log");
   log.innerHTML = "";
   if (history.length === 0) {
-    log.innerHTML = `<div class="msg assistant"><span class="msg-tag">MENTOR</span>Hey — I'm your AI Mentor. Ask me to explain a concept, build a study plan, quiz you, or review something you're stuck on.</div>`;
+    log.innerHTML = `<div class="msg assistant"><span class="msg-tag">MENTOR</span>Hey â€” I'm your AI Mentor. Ask me to explain a concept, build a study plan, quiz you, or review something you're stuck on.</div>`;
     return;
   }
   history.forEach(m => {
@@ -263,7 +264,7 @@ $("#chat-form").addEventListener("submit", async (e) => {
   log.appendChild(pending);
   const thinking = document.createElement("div");
   thinking.className = "msg assistant";
-  thinking.innerHTML = `<span class="msg-tag">MENTOR</span>Thinking…`;
+  thinking.innerHTML = `<span class="msg-tag">MENTOR</span>Thinkingâ€¦`;
   log.appendChild(thinking);
   log.scrollTop = log.scrollHeight;
 
@@ -433,7 +434,7 @@ function renderInterviewLog(turns) {
     if (t.feedback) {
       const fb = document.createElement("div");
       fb.className = "msg feedback";
-      fb.innerHTML = `<span class="msg-tag">FEEDBACK · Score ${t.feedback.score}/10</span>
+      fb.innerHTML = `<span class="msg-tag">FEEDBACK Â· Score ${t.feedback.score}/10</span>
         <strong>Strengths:</strong> ${escapeHtml((t.feedback.strengths || []).join("; "))}<br/>
         <strong>Improve:</strong> ${escapeHtml((t.feedback.improvements || []).join("; "))}`;
       log.appendChild(fb);
@@ -480,3 +481,60 @@ $("#interview-form").addEventListener("submit", async (e) => {
     await enterApp();
   }
 })();
+
+// ===== Achievements =====
+async function loadAchievements() {
+  const listEl = $("#ach-list");
+  if (!listEl) return;
+  listEl.innerHTML = "Loading...";
+  try {
+    const achievements = await api("/api/achievements");
+    if (!achievements || achievements.length === 0) {
+      listEl.innerHTML = "<p>No achievements logged yet. Claim your first win!</p>";
+      return;
+    }
+    listEl.innerHTML = "";
+    achievements.forEach(a => {
+      const badge = a.type === "hired" ? "🎉" : a.type === "certification" ? "📜" : "💼";
+      const xp = a.type === "hired" ? 100 : a.type === "certification" ? 50 : 20;
+      const div = document.createElement("div");
+      div.className = "ach-item";
+      div.innerHTML = `<span class="ach-badge">${badge}</span>
+                       <div class="ach-details">
+                         <strong>${escapeHtml(a.title)}</strong>
+                         <span class="ach-meta">${a.type.toUpperCase()} · +${xp} XP</span>
+                       </div>`;
+      listEl.appendChild(div);
+    });
+  } catch (err) {
+    listEl.innerHTML = `<p style="color:var(--red)">Failed to load: ${escapeHtml(err.message)}</p>`;
+  }
+}
+
+$("#ach-submit").addEventListener("click", async () => {
+  const type = $("#ach-type").value;
+  const title = $("#ach-title").value.trim();
+  if (!title) return alert("Please enter a title.");
+
+  const btn = $("#ach-submit");
+  btn.disabled = true;
+  try {
+    const result = await api("/api/achievements", {
+      method: "POST",
+      body: JSON.stringify({ type, title })
+    });
+    $("#ach-title").value = "";
+    $("#ach-saved").classList.remove("hidden");
+    setTimeout(() => $("#ach-saved").classList.add("hidden"), 3000);
+
+    if (profile) {
+      profile.xp += result.xp_awarded;
+      renderStatusBar();
+    }
+    loadAchievements();
+  } catch (err) {
+    alert("Error: " + err.message);
+  } finally {
+    btn.disabled = false;
+  }
+});

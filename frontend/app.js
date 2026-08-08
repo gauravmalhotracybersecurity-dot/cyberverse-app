@@ -184,6 +184,7 @@ async function enterApp() {
   $("#auth-screen").classList.add("hidden");
   $("#app-shell").classList.remove("hidden");
   renderStatusBar();
+  checkProStatus();
   renderDashboardSnapshot();
   populateProfileForm();
 }
@@ -221,6 +222,7 @@ $("#p-save").addEventListener("click", async () => {
   };
   profile = await api("/api/profile/me", { method: "PATCH", body: JSON.stringify(payload) });
   renderStatusBar();
+  checkProStatus();
   renderDashboardSnapshot();
   const saved = $("#p-saved");
   saved.classList.remove("hidden");
@@ -273,6 +275,7 @@ $("#chat-form").addEventListener("submit", async (e) => {
     renderChatLog(result.history);
     profile.xp += 5;
     renderStatusBar();
+  checkProStatus();
   } catch (err) {
     thinking.innerHTML = `<span class="msg-tag">MENTOR</span>Something went wrong: ${escapeHtml(err.message)}`;
   } finally {
@@ -383,6 +386,7 @@ $("#resume-submit").addEventListener("click", async () => {
     renderResumeResult(result.review);
     profile.xp += 15;
     renderStatusBar();
+  checkProStatus();
   } catch (err) {
     $("#resume-result").innerHTML = `<p style="color:var(--red)">${escapeHtml(err.message)}</p>`;
   } finally {
@@ -463,6 +467,7 @@ $("#interview-form").addEventListener("submit", async (e) => {
     renderInterviewLog(result.turns);
     profile.xp += result.is_complete ? 25 : 5;
     renderStatusBar();
+  checkProStatus();
     if (result.is_complete) {
       input.placeholder = "Interview complete.";
       $("#interview-form").querySelector("button").disabled = true;
@@ -530,6 +535,7 @@ $("#ach-submit").addEventListener("click", async () => {
     if (profile) {
       profile.xp += result.xp_awarded;
       renderStatusBar();
+  checkProStatus();
     }
     loadAchievements();
   } catch (err) {
@@ -538,3 +544,17 @@ $("#ach-submit").addEventListener("click", async () => {
     btn.disabled = false;
   }
 });
+// ===== Paywall UI Logic =====
+function showPaywall() {
+  const modal = document.getElementById('paywall-modal');
+  if (modal) modal.classList.remove('hidden');
+}
+document.getElementById('go-pro-btn').addEventListener('click', showPaywall);
+
+// Hide the Go Pro button if the user is already Pro
+function checkProStatus() {
+  const proBtn = document.getElementById('go-pro-btn');
+  if (proBtn && profile) {
+    proBtn.style.display = profile.is_pro ? 'none' : 'flex';
+  }
+}

@@ -1,3 +1,4 @@
+from sqlalchemy import Boolean
 import datetime as dt
 
 from sqlalchemy import (

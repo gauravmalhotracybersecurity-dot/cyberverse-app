@@ -194,6 +194,8 @@ function renderStatusBar() {
   $("#stat-level").textContent = profile.skill_level.toUpperCase();
   $("#stat-xp").textContent = profile.xp;
   $("#stat-streak").textContent = `${profile.streak_days}d`;
+  const proBadge = $("#pro-badge");
+  if (proBadge) proBadge.classList.toggle("hidden", !profile.is_pro);
 }
 
 function renderDashboardSnapshot() {
@@ -414,6 +416,7 @@ function renderResumeResult(r) {
 
 // ===== Interview Coach =====
 let currentInterviewSessionId = null;
+      $("#interview-new").classList.add("hidden");
 
 $("#interview-start").addEventListener("click", async () => {
   const role = $("#interview-role").value;
@@ -471,6 +474,7 @@ $("#interview-form").addEventListener("submit", async (e) => {
     if (result.is_complete) {
       input.placeholder = "Interview complete.";
       $("#interview-form").querySelector("button").disabled = true;
+      $("#interview-new").classList.remove("hidden");
     }
   } catch (err) {
     alert(err.message);
@@ -558,3 +562,25 @@ function checkProStatus() {
     proBtn.style.display = profile.is_pro ? 'none' : 'flex';
   }
 }
+$("#interview-new").addEventListener("click", () => {
+  currentInterviewSessionId = null;
+      $("#interview-new").classList.add("hidden");
+  $("#interview-session").classList.add("hidden");
+  $("#interview-setup").classList.remove("hidden");
+  $("#interview-new").classList.add("hidden");
+  const btn = $("#interview-form").querySelector("button");
+  btn.disabled = false;
+  $("#interview-input").placeholder = "Type your answer…";
+  $("#interview-input").disabled = false;
+});
+
+$("#interview-new").addEventListener("click", () => {
+  currentInterviewSessionId = null;
+  $("#interview-session").classList.add("hidden");
+  $("#interview-setup").classList.remove("hidden");
+  $("#interview-new").classList.add("hidden");
+  const btn = $("#interview-form").querySelector("button");
+  btn.disabled = false;
+  $("#interview-input").placeholder = "Type your answer…";
+  $("#interview-input").disabled = false;
+});

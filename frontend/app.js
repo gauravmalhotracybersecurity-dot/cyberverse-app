@@ -416,7 +416,6 @@ function renderResumeResult(r) {
 
 // ===== Interview Coach =====
 let currentInterviewSessionId = null;
-      $("#interview-new").classList.add("hidden");
 
 $("#interview-start").addEventListener("click", async () => {
   const role = $("#interview-role").value;
@@ -553,7 +552,7 @@ function showPaywall() {
   const modal = document.getElementById('paywall-modal');
   if (modal) modal.classList.remove('hidden');
 }
-document.getElementById('go-pro-btn').addEventListener('click', showPaywall);
+const _proBtn = document.getElementById('go-pro-btn'); if (_proBtn) _proBtn.addEventListener('click', showPaywall);
 
 // Hide the Go Pro button if the user is already Pro
 function checkProStatus() {
@@ -562,7 +561,7 @@ function checkProStatus() {
     proBtn.style.display = profile.is_pro ? 'none' : 'flex';
   }
 }
-$("#interview-new").addEventListener("click", () => {
+const _newBtn = $("#interview-new"); if (_newBtn) _newBtn.addEventListener("click", () => {
   currentInterviewSessionId = null;
       $("#interview-new").classList.add("hidden");
   $("#interview-session").classList.add("hidden");
@@ -574,7 +573,7 @@ $("#interview-new").addEventListener("click", () => {
   $("#interview-input").disabled = false;
 });
 
-$("#interview-new").addEventListener("click", () => {
+const _newBtn = $("#interview-new"); if (_newBtn) _newBtn.addEventListener("click", () => {
   currentInterviewSessionId = null;
   $("#interview-session").classList.add("hidden");
   $("#interview-setup").classList.remove("hidden");

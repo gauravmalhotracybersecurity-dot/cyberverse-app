@@ -133,7 +133,7 @@ $("#reset-form").addEventListener("submit", async (e) => {
       method: "POST",
       body: JSON.stringify({ token: pendingResetToken, new_password }),
     });
-    msg.textContent = `${result.message} Redirecting to log inΓÇª`;
+    msg.textContent = `${result.message} Redirecting to log in…`;
     msg.classList.remove("hidden");
     setTimeout(() => {
       window.history.replaceState({}, "", window.location.pathname);
@@ -200,7 +200,7 @@ function renderDashboardSnapshot() {
   $("#snap-level").textContent = profile.skill_level;
   $("#snap-certs").textContent = profile.certifications.length ? profile.certifications.join(", ") : "None yet";
   $("#snap-weak").textContent = profile.weak_topics.length ? profile.weak_topics.join(", ") : "None identified yet";
-  $("#snap-goal").textContent = profile.learning_goals || "Not set ΓÇö add one in Profile";
+  $("#snap-goal").textContent = profile.learning_goals || "Not set — add one in Profile";
 }
 
 // ===== Profile view =====
@@ -234,7 +234,7 @@ function renderChatLog(history) {
   const log = $("#chat-log");
   log.innerHTML = "";
   if (history.length === 0) {
-    log.innerHTML = `<div class="msg assistant"><span class="msg-tag">MENTOR</span>Hey ΓÇö I'm your AI Mentor. Ask me to explain a concept, build a study plan, quiz you, or review something you're stuck on.</div>`;
+    log.innerHTML = `<div class="msg assistant"><span class="msg-tag">MENTOR</span>Hey — I'm your AI Mentor. Ask me to explain a concept, build a study plan, quiz you, or review something you're stuck on.</div>`;
     return;
   }
   history.forEach(m => {
@@ -266,7 +266,7 @@ $("#chat-form").addEventListener("submit", async (e) => {
   log.appendChild(pending);
   const thinking = document.createElement("div");
   thinking.className = "msg assistant";
-  thinking.innerHTML = `<span class="msg-tag">MENTOR</span>ThinkingΓÇª`;
+  thinking.innerHTML = `<span class="msg-tag">MENTOR</span>Thinking…`;
   log.appendChild(thinking);
   log.scrollTop = log.scrollHeight;
 
@@ -438,7 +438,7 @@ function renderInterviewLog(turns) {
     if (t.feedback) {
       const fb = document.createElement("div");
       fb.className = "msg feedback";
-      fb.innerHTML = `<span class="msg-tag">FEEDBACK ┬╖ Score ${t.feedback.score}/10</span>
+      fb.innerHTML = `<span class="msg-tag">FEEDBACK · Score ${t.feedback.score}/10</span>
         <strong>Strengths:</strong> ${escapeHtml((t.feedback.strengths || []).join("; "))}<br/>
         <strong>Improve:</strong> ${escapeHtml((t.feedback.improvements || []).join("; "))}`;
       log.appendChild(fb);
@@ -500,14 +500,14 @@ async function loadAchievements() {
     }
     listEl.innerHTML = "";
     achievements.forEach(a => {
-      const badge = a.type === "hired" ? "≡ƒÄë" : a.type === "certification" ? "≡ƒô£" : "≡ƒÆ╝";
+      const badge = a.type === "hired" ? "🎉" : a.type === "certification" ? "📜" : "💼";
       const xp = a.type === "hired" ? 100 : a.type === "certification" ? 50 : 20;
       const div = document.createElement("div");
       div.className = "ach-item";
       div.innerHTML = `<span class="ach-badge">${badge}</span>
                        <div class="ach-details">
                          <strong>${escapeHtml(a.title)}</strong>
-                         <span class="ach-meta">${a.type.toUpperCase()} ┬╖ +${xp} XP</span>
+                         <span class="ach-meta">${a.type.toUpperCase()} · +${xp} XP</span>
                        </div>`;
       listEl.appendChild(div);
     });

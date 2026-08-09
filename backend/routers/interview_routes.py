@@ -25,6 +25,35 @@ def _history_as_messages(session: models.InterviewSession) -> list[dict]:
     return msgs
 
 
+def _get_past_questions(user_id: int, db: Session, limit: int = 10) -> list[str]:
+    turns = (
+        db.query(models.InterviewTurn.content)
+        .join(models.InterviewSession)
+        .filter(
+            models.InterviewSession.user_id == user_id,
+            models.InterviewTurn.speaker == "interviewer"
+        )
+        .order_by(models.InterviewTurn.id.desc())
+        .limit(limit)
+        .all()
+    )
+    return [t[0] for t in turns]
+
+
+@router.get("/active")
+async def get_active_interview(
+    user: models.User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    session = (
+        db.query(models.InterviewSession)
+        .filter(models.InterviewSession.user_id == user.id, models.InterviewSession.status == "active")
+        .order_by(models.InterviewSession.created_at.desc())
+        .first()
+    )
+    if not session:
+        raise HTTPException(status_code=404, detail="No active session.")
+    return {"session_id": session.id, "role": session.role, "turns": [{"speaker": t.speaker, "content": t.content, "feedback": t.feedback} for t in session.turns]}
 @router.post("/start", response_model=schemas.InterviewStartResponse)
 @limiter.limit(settings.rate_limit_interview)
 async def start_interview(
@@ -44,7 +73,7 @@ async def start_interview(
 
     try:
         result = await call_claude_json(
-            system=interview_system_prompt(payload.role),
+            system=interview_system_prompt(payload.role, _get_past_questions(user.id, db)),
             messages=[{"role": "user", "content": "Begin the interview with your first question."}],
             max_tokens=800,
         )
@@ -100,7 +129,7 @@ async def respond(
 
     try:
         result = await call_claude_json(
-            system=interview_system_prompt(session.role),
+            system=interview_system_prompt(session.role, _get_past_questions(user.id, db)),
             messages=history_messages,
             max_tokens=900,
         )

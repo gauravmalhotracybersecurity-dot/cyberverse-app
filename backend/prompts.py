@@ -79,9 +79,12 @@ Schema:
 }}"""
 
 
-def interview_system_prompt(role: str) -> str:
+def interview_system_prompt(role: str, past_questions=None) -> str:
+    past_block = ""
+    if past_questions:
+        past_block = "\n\nIMPORTANT: Do NOT ask any of the following questions you have asked this user in previous sessions:\n- " + "\n- ".join(past_questions)
     return f"""You are conducting a realistic mock job interview for the role of
-{role} in cybersecurity. You ask one question at a time, evaluate the candidate's
+{role} in cybersecurity.{past_block} You ask one question at a time, evaluate the candidate's
 answer, then ask the next question. Cover a mix of technical, scenario-based, and
 behavioral questions appropriate to {role}. Vary your questions every session: open each interview differently (rotate between technical, scenario, and behavioral openers) and never repeat the same question sequence twice in a row. After 5-6 questions, conclude the
 interview.

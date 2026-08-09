@@ -9,8 +9,8 @@ class Settings(BaseSettings):
     anthropic_api_key: str = ""
     anthropic_model: str = "claude-sonnet-4-6"
 
-    jwt_secret: str
-    razorpay_webhook_secret: str = "dev_secret" = "dev-secret-change-me"
+    jwt_secret: str = "dev-secret-change-me"
+    razorpay_webhook_secret: str = "dev_secret"
     access_token_expire_minutes: int = 10080  # 7 days
     reset_token_expire_minutes: int = 30
 

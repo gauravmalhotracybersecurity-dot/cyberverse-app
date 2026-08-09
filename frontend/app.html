@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>CyberVerse AI — Learn. Practice. Get Certified. Get Hired.</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+<!-- ============ AUTH SCREEN ============ -->
+<div id="auth-screen" class="auth-screen">
+  <div class="auth-card">
+    <div class="brand">
+      <span class="brand-mark">&gt;_</span>
+      <span class="brand-name">CYBERVERSE<span class="accent">.AI</span></span>
+    </div>
+    <p class="brand-tagline">Learn. Practice. Get Certified. Get Hired.</p>
+
+    <div class="auth-tabs">
+      <button class="auth-tab active" data-mode="login">Log in</button>
+      <button class="auth-tab" data-mode="signup">Create account</button>
+    </div>
+
+    <form id="auth-form" class="auth-form">
+      <div id="signup-fields" class="hidden">
+        <label>Full name</label>
+        <input type="text" id="full-name" placeholder="Jordan Rivera" />
+      </div>
+      <label>Email</label>
+      <input type="email" id="email" placeholder="you@domain.com" required />
+      <label>Password</label>
+      <input type="password" id="password" placeholder="At least 8 characters" required minlength="8" />
+      <button type="submit" class="btn-primary" id="auth-submit">Log in</button>
+      <p id="auth-error" class="form-error hidden"></p>
+      <button type="button" id="forgot-password-link" class="link-btn">Forgot your password?</button>
+    </form>
+
+    <form id="forgot-form" class="auth-form hidden">
+      <p class="view-sub" style="margin:0 0 4px">Enter your email and we'll send a reset link.</p>
+      <label>Email</label>
+      <input type="email" id="forgot-email" placeholder="you@domain.com" required />
+      <button type="submit" class="btn-primary" id="forgot-submit">Send reset link</button>
+      <p id="forgot-message" class="hint hidden"></p>
+      <button type="button" id="back-to-login-link" class="link-btn">Back to log in</button>
+    </form>
+
+    <form id="reset-form" class="auth-form hidden">
+      <p class="view-sub" style="margin:0 0 4px">Choose a new password.</p>
+      <label>New password</label>
+      <input type="password" id="reset-new-password" placeholder="At least 8 characters" required minlength="8" />
+      <button type="submit" class="btn-primary" id="reset-submit">Reset password</button>
+      <p id="reset-message" class="hint hidden"></p>
+      <p id="reset-error" class="form-error hidden"></p>
+    </form>
+  </div>
+</div>
+
+<!-- ============ APP SHELL ============ -->
+<div id="app-shell" class="app-shell hidden">
+
+  <aside class="sidebar">
+    <div class="brand brand-sm">
+      <span class="brand-mark">&gt;_</span>
+      <span class="brand-name">CYBERVERSE<span class="accent">.AI</span></span>
+    </div>
+
+    <nav class="nav">
+      <button class="nav-item active" data-view="dashboard"><span class="nav-ico">◧</span>Dashboard</button>
+      <button class="nav-item" data-view="mentor"><span class="nav-ico">◆</span>AI Mentor</button>
+      <button class="nav-item" data-view="daily"><span class="nav-ico">⟳</span>Daily Ops</button>
+      <button class="nav-item" data-view="resume"><span class="nav-ico">▤</span>Resume Builder</button>
+      <button class="nav-item" data-view="interview"><span class="nav-ico">◎</span>Interview Coach</button>
+      <button class="nav-item" data-view="achievements"><span class="nav-ico">🏆</span>Achievements</button>
+      <button class="nav-item" data-view="profile"><span class="nav-ico">⚙</span>Profile</button>
+    </nav>
+
+    <button id="go-pro-btn" class="nav-item pro-btn" style="background:linear-gradient(45deg,#f5af19,#f12711);color:#fff;font-weight:600;display:none;margin-bottom:10px;">⭐ Upgrade to Pro</button>
+    <button id="logout-btn" class="logout-btn">Log out →</button>
+  </aside>
+
+  <main class="main">
+
+    <!-- status readout bar: the signature element -->
+    <div class="status-bar">
+      <div class="status-item">
+        <span class="status-dot"></span>
+        <span class="status-label">SESSION ACTIVE</span>
+      </div>
+      <div class="status-item"><span class="status-label">OPERATOR</span><span class="status-value" id="stat-name">—</span><span id="pro-badge" class="pro-badge hidden">PRO</span></div>
+      <div class="status-item"><span class="status-label">LEVEL</span><span class="status-value" id="stat-level">—</span></div>
+      <div class="status-item"><span class="status-label">XP</span><span class="status-value accent" id="stat-xp">0</span></div>
+      <div class="status-item"><span class="status-label">STREAK</span><span class="status-value warn" id="stat-streak">0d</span></div>
+    </div>
+
+    <!-- ---- DASHBOARD ---- -->
+    <section class="view active" id="view-dashboard">
+      <h1 class="view-title">Dashboard</h1>
+      <p class="view-sub">Your mission control. Pick up where you left off.</p>
+
+      <div class="grid grid-3">
+        <div class="card card-action" data-goto="mentor">
+          <div class="card-ico">◆</div>
+          <h3>Ask the AI Mentor</h3>
+          <p>Explain a concept, build a study plan, or quiz yourself.</p>
+        </div>
+        <div class="card card-action" data-goto="daily">
+          <div class="card-ico">⟳</div>
+          <h3>Today's Learning Bundle</h3>
+          <p>One lesson, one quiz, one challenge, one news brief.</p>
+        </div>
+        <div class="card card-action" data-goto="interview">
+          <div class="card-ico">◎</div>
+          <h3>Run a Mock Interview</h3>
+          <p>SOC Analyst, GRC Consultant, Security Engineer, and more.</p>
+        </div>
+      </div>
+
+      <div class="grid grid-2" style="margin-top:20px">
+        <div class="card">
+          <h3>Learning paths</h3>
+          <div class="path-group">
+            <span class="path-tag beginner">Beginner</span>
+            <span class="chip">Networking</span><span class="chip">Linux</span><span class="chip">Windows</span><span class="chip">Python</span><span class="chip">Cyber Basics</span>
+          </div>
+          <div class="path-group">
+            <span class="path-tag intermediate">Intermediate</span>
+            <span class="chip">CEH</span><span class="chip">Security+</span><span class="chip">SOC Analyst</span><span class="chip">GRC</span><span class="chip">Cloud Security</span>
+          </div>
+          <div class="path-group">
+            <span class="path-tag advanced">Advanced</span>
+            <span class="chip">CISSP</span><span class="chip">OSCP</span><span class="chip">ISO 27001 Lead Auditor</span><span class="chip">Red Team</span><span class="chip">Malware Analysis</span>
+          </div>
+        </div>
+        <div class="card">
+          <h3>Your profile snapshot</h3>
+          <dl class="kv" id="dashboard-profile">
+            <dt>Skill level</dt><dd id="snap-level">—</dd>
+            <dt>Certifications</dt><dd id="snap-certs">—</dd>
+            <dt>Weak topics</dt><dd id="snap-weak">—</dd>
+            <dt>Goal</dt><dd id="snap-goal">—</dd>
+          </dl>
+          <button class="btn-secondary" data-goto="profile">Edit profile</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ---- AI MENTOR ---- -->
+    <section class="view" id="view-mentor">
+      <h1 class="view-title">AI Mentor</h1>
+      <p class="view-sub">Explain SQL Injection like I'm 10. Build a CEH study plan. Test my ISO 27001 knowledge.</p>
+
+      <div class="chat-shell">
+        <div class="chat-log" id="chat-log"></div>
+        <form id="chat-form" class="chat-input-row">
+          <input type="text" id="chat-input" placeholder="Ask your mentor anything…" autocomplete="off" required />
+          <button type="submit" class="btn-primary">Send</button>
+        </form>
+      </div>
+    </section>
+
+    <!-- ---- DAILY OPS ---- -->
+    <section class="view" id="view-daily">
+      <h1 class="view-title">Daily Ops</h1>
+      <p class="view-sub" id="daily-date">Today's bundle</p>
+      <div id="daily-loading" class="loading hidden">Compiling today's briefing…</div>
+      <div id="daily-content" class="daily-grid"></div>
+    </section>
+
+    <!-- ---- RESUME BUILDER ---- -->
+    <section class="view" id="view-resume">
+      <h1 class="view-title">AI Resume Builder</h1>
+      <p class="view-sub">Paste your resume text. Get a score, gaps, ATS issues, and rewritten bullets.</p>
+
+      <div class="grid grid-2">
+        <div class="card">
+          <label>Target role</label>
+          <select id="resume-role">
+            <option>SOC Analyst</option>
+            <option>GRC Consultant</option>
+            <option>Security Engineer</option>
+            <option>Penetration Tester</option>
+            <option>Cloud Security Engineer</option>
+            <option>ISO 27001 Auditor</option>
+          </select>
+          <label style="margin-top:12px">Resume text</label>
+          <textarea id="resume-text" rows="12" placeholder="Paste the full text of your resume here…"></textarea>
+          <div class="or-divider"><span>or</span></div>
+          <label>Upload a file (.pdf, .docx, .txt)</label>
+          <input type="file" id="resume-file" accept=".pdf,.docx,.txt" />
+          <button id="resume-submit" class="btn-primary" style="margin-top:12px">Review resume</button>
+        </div>
+        <div class="card" id="resume-result-card">
+          <h3>Review</h3>
+          <div id="resume-loading" class="loading hidden">Scoring your resume…</div>
+          <div id="resume-result" class="resume-result">Submit a resume to see feedback here.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ---- INTERVIEW COACH ---- -->
+    <section class="view" id="view-interview">
+      <h1 class="view-title">Interview Coach</h1>
+      <p class="view-sub">A realistic mock interview with turn-by-turn feedback.</p>
+
+      <div id="interview-setup" class="card">
+        <label>Role</label>
+        <select id="interview-role">
+          <option>SOC Analyst</option>
+          <option>GRC Consultant</option>
+          <option>Security Engineer</option>
+          <option>ISO 27001 Auditor</option>
+          <option>Penetration Tester</option>
+        </select>
+        <button id="interview-start" class="btn-primary" style="margin-top:12px">Start interview</button>
+      </div>
+
+      <div id="interview-session" class="chat-shell hidden">
+        <div class="chat-log" id="interview-log"></div>
+        <form id="interview-form" class="chat-input-row">
+          <input type="text" id="interview-input" placeholder="Type your answer…" autocomplete="off" required />
+          <button type="submit" class="btn-primary">Answer</button>
+        </form>
+      </div>
+    </section>
+
+        <!-- ---- ACHIEVEMENTS ---- -->
+    <section class="view" id="view-achievements">
+      <h1 class="view-title">Achievements</h1>
+      <p class="view-sub">Log your certifications, interviews, and job offers. Track your wins.</p>
+      <div class="grid grid-2">
+        <div class="card">
+          <h3>Log a New Win</h3>
+          <label>Type</label>
+          <select id="ach-type">
+            <option value="certification">Certification (+50 XP)</option>
+            <option value="interview">Interview (+20 XP)</option>
+            <option value="hired">Got Hired! (+100 XP)</option>
+          </select>
+          <label style="margin-top:12px">Title / Details</label>
+          <input type="text" id="ach-title" placeholder="e.g., Security+, SOC Analyst at Dell" required />
+          <button id="ach-submit" class="btn-primary" style="margin-top:14px">Log it & Claim XP</button>
+          <p id="ach-saved" class="hint hidden" style="color:var(--accent)">Logged successfully! XP awarded.</p>
+        </div>
+        <div class="card">
+          <h3>Your Wins Wall</h3>
+          <div id="ach-list" class="ach-list">Loading achievements...</div>
+        </div>
+      </div>
+    </section>
+    <!-- ---- PROFILE ---- -->
+    <section class="view" id="view-profile">
+      <h1 class="view-title">Profile</h1>
+      <p class="view-sub">This is what your AI Mentor remembers about you.</p>
+
+      <div class="card" style="max-width:560px">
+        <label>Full name</label>
+        <input type="text" id="p-name" />
+
+        <label style="margin-top:12px">Skill level</label>
+        <select id="p-level">
+          <option value="beginner">Beginner</option>
+          <option value="intermediate">Intermediate</option>
+          <option value="advanced">Advanced</option>
+        </select>
+
+        <label style="margin-top:12px">Certifications (comma separated)</label>
+        <input type="text" id="p-certs" placeholder="Security+, CEH" />
+
+        <label style="margin-top:12px">Weak topics (comma separated)</label>
+        <input type="text" id="p-weak" placeholder="SQL Injection, Firewalls" />
+
+        <label style="margin-top:12px">Learning goals</label>
+        <textarea id="p-goals" rows="3" placeholder="Become a SOC Analyst in 6 months"></textarea>
+
+        <button id="p-save" class="btn-primary" style="margin-top:14px">Save profile</button>
+        <p id="p-saved" class="hint hidden">Saved.</p>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<script src="app.js"></script>
+<div id="paywall-modal" class="modal-overlay hidden">
+  <div class="modal-card">
+    <button class="modal-close" onclick="document.getElementById('paywall-modal').classList.add('hidden')">&times;</button>
+    <h2 style="margin-top:0">Unlock CyberVerse Pro 👑</h2>
+    <p style="color:var(--text-muted)">You've reached your free tier limit (3 interviews / 3 resume reviews).</p>
+    <ul style="text-align:left; margin:20px 0; padding-left:20px; color:var(--text-main)">
+      <li style="margin-bottom:8px"><strong>Unlimited</strong> Mock Interviews</li>
+      <li style="margin-bottom:8px"><strong>Unlimited</strong> Resume Reviews</li>
+      <li style="margin-bottom:8px"><strong>Advanced</strong> AI Mentor Memory</li>
+    </ul>
+    <div class="price-tag" style="font-size:2.5rem; font-weight:700; color:var(--accent); text-align:center; margin:20px 0;">499 <span style="font-size:1rem; color:var(--text-muted); font-weight:400;">/ lifetime access</span></div>
+    <a href="https://rzp.io/rzp/grLgSpo" target="_blank" class="btn-primary" style="width:100%; text-align:center; font-size:1.1rem; text-decoration:none;">Pay 499 & Unlock</a>
+    <p class="modal-sub" style="text-align:center; margin-top:16px; font-size:0.85rem; color:var(--text-muted);">Your Pro access activates <strong>automatically</strong> within seconds of a successful payment. No emails needed.</p>
+  </div>
+</div>
+</body>
+</html>

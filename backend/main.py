@@ -92,3 +92,9 @@ if settings.frontend_dir and os.path.isdir(settings.frontend_dir):
     logger.info("Serving frontend from %s", settings.frontend_dir)
 else:
     logger.info("No frontend_dir found - API-only mode (serve the frontend separately).")
+
+from fastapi.responses import FileResponse
+
+@app.get("/app", include_in_schema=False)
+def serve_app():
+    return FileResponse("frontend/app.html")

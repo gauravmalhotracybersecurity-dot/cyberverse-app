@@ -53,6 +53,7 @@ class ProfileResponse(BaseModel):
     learning_goals: str
     xp: int
     streak_days: int
+    is_pro: bool
 
     class Config:
         from_attributes = True

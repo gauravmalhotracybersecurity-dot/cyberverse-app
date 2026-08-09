@@ -89,7 +89,7 @@
         <span class="status-dot"></span>
         <span class="status-label">SESSION ACTIVE</span>
       </div>
-      <div class="status-item"><span class="status-label">OPERATOR</span><span class="status-value" id="stat-name">—</span></div>
+      <div class="status-item"><span class="status-label">OPERATOR</span><span class="status-value" id="stat-name">—</span><span id="pro-badge" class="pro-badge hidden">PRO</span></div>
       <div class="status-item"><span class="status-label">LEVEL</span><span class="status-value" id="stat-level">—</span></div>
       <div class="status-item"><span class="status-label">XP</span><span class="status-value accent" id="stat-xp">0</span></div>
       <div class="status-item"><span class="status-label">STREAK</span><span class="status-value warn" id="stat-streak">0d</span></div>
@@ -222,6 +222,7 @@
         <form id="interview-form" class="chat-input-row">
           <input type="text" id="interview-input" placeholder="Type your answer…" autocomplete="off" required />
           <button type="submit" class="btn-primary">Answer</button>
+        <button id="interview-new" class="btn-secondary hidden" style="margin-top:12px">Start a new interview</button>
         </form>
       </div>
     </section>

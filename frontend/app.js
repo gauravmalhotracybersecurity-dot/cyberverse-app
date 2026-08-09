@@ -194,6 +194,8 @@ function renderStatusBar() {
   $("#stat-level").textContent = profile.skill_level.toUpperCase();
   $("#stat-xp").textContent = profile.xp;
   $("#stat-streak").textContent = `${profile.streak_days}d`;
+  const proBadge = $("#pro-badge");
+  if (proBadge) proBadge.classList.toggle("hidden", !profile.is_pro);
 }
 
 function renderDashboardSnapshot() {
@@ -471,6 +473,7 @@ $("#interview-form").addEventListener("submit", async (e) => {
     if (result.is_complete) {
       input.placeholder = "Interview complete.";
       $("#interview-form").querySelector("button").disabled = true;
+      const _in = $("#interview-new"); if (_in) _in.classList.remove("hidden");
     }
   } catch (err) {
     alert(err.message);
@@ -558,3 +561,14 @@ function checkProStatus() {
     proBtn.style.display = profile.is_pro ? 'none' : 'flex';
   }
 }
+const _newBtn = $("#interview-new");
+if (_newBtn) _newBtn.addEventListener("click", () => {
+  currentInterviewSessionId = null;
+  $("#interview-session").classList.add("hidden");
+  $("#interview-setup").classList.remove("hidden");
+  _newBtn.classList.add("hidden");
+  const btn = $("#interview-form").querySelector("button");
+  btn.disabled = false;
+  $("#interview-input").placeholder = "Type your answer...";
+  $("#interview-input").disabled = false;
+});

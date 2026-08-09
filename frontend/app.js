@@ -194,8 +194,6 @@ function renderStatusBar() {
   $("#stat-level").textContent = profile.skill_level.toUpperCase();
   $("#stat-xp").textContent = profile.xp;
   $("#stat-streak").textContent = `${profile.streak_days}d`;
-  const proBadge = $("#pro-badge");
-  if (proBadge) proBadge.classList.toggle("hidden", !profile.is_pro);
 }
 
 function renderDashboardSnapshot() {
@@ -473,7 +471,6 @@ $("#interview-form").addEventListener("submit", async (e) => {
     if (result.is_complete) {
       input.placeholder = "Interview complete.";
       $("#interview-form").querySelector("button").disabled = true;
-      $("#interview-new").classList.remove("hidden");
     }
   } catch (err) {
     alert(err.message);
@@ -552,7 +549,7 @@ function showPaywall() {
   const modal = document.getElementById('paywall-modal');
   if (modal) modal.classList.remove('hidden');
 }
-const _proBtn = document.getElementById('go-pro-btn'); if (_proBtn) _proBtn.addEventListener('click', showPaywall);
+document.getElementById('go-pro-btn').addEventListener('click', showPaywall);
 
 // Hide the Go Pro button if the user is already Pro
 function checkProStatus() {
@@ -561,25 +558,3 @@ function checkProStatus() {
     proBtn.style.display = profile.is_pro ? 'none' : 'flex';
   }
 }
-const _newBtn = $("#interview-new"); if (_newBtn) _newBtn.addEventListener("click", () => {
-  currentInterviewSessionId = null;
-      $("#interview-new").classList.add("hidden");
-  $("#interview-session").classList.add("hidden");
-  $("#interview-setup").classList.remove("hidden");
-  $("#interview-new").classList.add("hidden");
-  const btn = $("#interview-form").querySelector("button");
-  btn.disabled = false;
-  $("#interview-input").placeholder = "Type your answer…";
-  $("#interview-input").disabled = false;
-});
-
-const _newBtn = $("#interview-new"); if (_newBtn) _newBtn.addEventListener("click", () => {
-  currentInterviewSessionId = null;
-  $("#interview-session").classList.add("hidden");
-  $("#interview-setup").classList.remove("hidden");
-  $("#interview-new").classList.add("hidden");
-  const btn = $("#interview-form").querySelector("button");
-  btn.disabled = false;
-  $("#interview-input").placeholder = "Type your answer…";
-  $("#interview-input").disabled = false;
-});

@@ -386,6 +386,19 @@ $("#resume-submit").addEventListener("click", async () => {
       });
     }
     renderResumeResult(result.review);
+    setTimeout(() => {
+      const el = $("#resume-result");
+      if (el && !$("#res-sc-download")) {
+        el.innerHTML += `<div style="margin-top:24px; display:flex; gap:10px; justify-content:center; flex-wrap:wrap;">
+          <button id="res-sc-download" class="btn-primary" style="flex:1; min-width:200px;">📥 Download Resume Scorecard</button>
+          <button id="res-sc-copy" class="btn-secondary" style="flex:1; min-width:200px;">📋 Copy LinkedIn Post</button>
+        </div>`;
+        const score = result.review.overall_score;
+        const role = $("#resume-role").value;
+        $("#res-sc-download").onclick = () => downloadResumeScorecard(score, role);
+        $("#res-sc-copy").onclick = () => copyResumeSharePost(score, role);
+      }
+    }, 100);
     profile.xp += 15;
     renderStatusBar();
   checkProStatus();
@@ -636,5 +649,49 @@ function copySharePost(sc) {
   navigator.clipboard.writeText(text).then(() => {
     const b = $("#sc-copy"); b.textContent = "✅ Copied! Paste it on LinkedIn";
     setTimeout(() => { b.textContent = "📋 Copy LinkedIn Post"; }, 2500);
+  });
+}
+
+
+// ===== Resume Share Card (CV-102) =====
+function downloadResumeScorecard(score, role) {
+  const c = document.createElement("canvas");
+  c.width = 1080; c.height = 1350;
+  const x = c.getContext("2d");
+  x.fillStyle = "#0a0a0a"; x.fillRect(0, 0, 1080, 1350);
+  x.strokeStyle = "#00ffcc"; x.lineWidth = 6; x.strokeRect(40, 40, 1000, 1270);
+  x.textAlign = "left";
+  x.fillStyle = "#00ffcc"; x.font = "bold 46px Consolas, monospace";
+  x.fillText(">_ CYBERVERSE.AI", 80, 150);
+  x.fillStyle = "#888"; x.font = "30px Arial";
+  x.fillText("AI RESUME REVIEW SCORECARD", 80, 200);
+  x.textAlign = "center";
+  x.fillStyle = "#ffffff"; x.font = "bold 280px Consolas, monospace";
+  x.fillText(String(score), 540, 640);
+  x.fillStyle = "#888"; x.font = "44px Arial";
+  x.fillText("/ 100", 540, 710);
+  x.fillStyle = "#00ffcc"; x.font = "bold 58px Arial";
+  x.fillText("TARGET: " + String(role).toUpperCase(), 540, 830);
+  x.fillStyle = "#dddddd"; x.font = "40px Arial";
+  x.fillText("The AI found my exact missing skills", 540, 950);
+  x.fillText("and rewrote my weak bullets.", 540, 1010);
+  x.fillStyle = "#ffffff"; x.font = "bold 44px Arial";
+  x.fillText("Can your resume beat mine?", 540, 1150);
+  x.fillStyle = "#00ffcc"; x.font = "bold 48px Consolas, monospace";
+  x.fillText("app.grcwithgaurav.com", 540, 1225);
+  const a = document.createElement("a");
+  a.download = "cyberverse-resume-scorecard.png";
+  a.href = c.toDataURL("image/png");
+  a.click();
+}
+
+function copyResumeSharePost(score, role) {
+  const tag = String(role).replace(/[^a-zA-Z0-9]/g, "");
+  const text = "My resume scored " + score + "/100 for a " + role + " role on CyberVerse AI 📄\n\nThe AI found the exact skills I was missing and rewrote my weak bullets like a real recruiter.\n\nCan your resume beat mine? 👇\nhttps://app.grcwithgaurav.com\n\n#cybersecurity #resume #" + tag + " #jobsearch";
+  navigator.clipboard.writeText(text).then(() => {
+    const b = $("#res-sc-copy"); 
+    const orig = b.textContent;
+    b.textContent = "✅ Copied! Paste it on LinkedIn";
+    setTimeout(() => { b.textContent = orig; }, 2500);
   });
 }

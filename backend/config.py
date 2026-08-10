@@ -1,4 +1,5 @@
 from pydantic_settings import BaseSettings, SettingsConfigDict
+from pydantic import model_validator
 
 
 class Settings(BaseSettings):
@@ -45,3 +46,13 @@ class Settings(BaseSettings):
 
 
 settings = Settings()
+
+
+    @model_validator(mode="after")
+    def validate_prod_secrets(self):
+        if self.environment == "production" and self.jwt_secret == "dev-secret-change-me":
+            raise ValueError("FATAL: JWT_SECRET must be set in production environment variables.")
+        if self.environment == "production" and self.app_base_url == "http://127.0.0.1:8080":
+            import logging
+            logging.getLogger("cyberverse").warning("WARNING: APP_BASE_URL is not set. Password reset emails will point to localhost!")
+        return self

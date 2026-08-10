@@ -45,8 +45,6 @@ class Settings(BaseSettings):
         return [o.strip() for o in self.allowed_origins.split(",") if o.strip()]
 
 
-settings = Settings()
-
 
     @model_validator(mode="after")
     def validate_prod_secrets(self):
@@ -56,3 +54,7 @@ settings = Settings()
             import logging
             logging.getLogger("cyberverse").warning("WARNING: APP_BASE_URL is not set. Password reset emails will point to localhost!")
         return self
+
+settings = Settings()
+
+

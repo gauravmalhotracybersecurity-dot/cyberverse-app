@@ -21,7 +21,7 @@ def get_stats(user: models.User = Depends(get_current_user), db: Session = Depen
     completed = db.query(func.count(models.InterviewSession.id)).filter(models.InterviewSession.status == "completed").scalar() or 0
     total_resumes = db.query(func.count(models.ResumeReview.id)).scalar() or 0
     mentor_msgs = db.query(func.count(models.MentorMessage.id)).scalar() or 0
-    active_today = db.query(func.count(models.User.id)).filter(models.User.last_active_date == today).scalar() or 0
+    active_today = db.query(func.count(models.User.id)).filter(models.User.last_active_date == today.isoformat()).scalar() or 0
 
     series = []
     for i in range(6, -1, -1):

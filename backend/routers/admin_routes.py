@@ -12,7 +12,7 @@ router = APIRouter(prefix="/api/admin", tags=["admin"])
 
 @router.get("/stats")
 def get_stats(user: models.User = Depends(get_current_user), db: Session = Depends(get_db)):
-    if user.email.lower() != settings.admin_email.lower():
+    if user.email.lower() not in [e.strip().lower() for e in settings.admin_email.split(",")]:
         raise HTTPException(status_code=403, detail="Admin only.")
     today = date.today()
     total_users = db.query(func.count(models.User.id)).scalar() or 0

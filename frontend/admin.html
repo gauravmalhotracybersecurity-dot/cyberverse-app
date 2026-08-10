@@ -60,7 +60,7 @@ async function doLogin(){
 async function load(){
   if(!token) return;
   const r = await fetch("/api/admin/stats",{headers:{Authorization:"Bearer "+token}});
-  if(!r.ok){$("login").classList.remove("hidden");$("dash").classList.add("hidden");return;}
+  if(!r.ok){$("login").classList.remove("hidden");$("dash").classList.add("hidden");$("err").textContent = r.status===403 ? "Logged in, but this account is not an admin." : "Session error - log in again.";return;}
   const s = await r.json();
   $("login").classList.add("hidden");
   $("dash").classList.remove("hidden");

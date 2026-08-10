@@ -100,3 +100,18 @@ from fastapi.responses import FileResponse
 @app.get("/app", include_in_schema=False)
 def serve_app():
     return FileResponse("frontend/app.html")
+
+def _ensure_extra_columns():
+    try:
+        from sqlalchemy import text
+        from database import engine
+        import models as _m
+        t = _m.InterviewSession.__table__.name
+        with engine.connect() as conn:
+            conn.execute(text(f"ALTER TABLE {t} ADD COLUMN IF NOT EXISTS overall_score integer;"))
+            conn.commit()
+    except Exception as e:
+        import logging
+        logging.getLogger("cyberverse").warning("startup migration skipped: %s", e)
+
+_ensure_extra_columns()

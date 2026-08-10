@@ -475,6 +475,7 @@ $("#interview-form").addEventListener("submit", async (e) => {
       $("#interview-form").querySelector("button").disabled = true;
       const _in = $("#interview-new"); if (_in) _in.classList.remove("hidden");
     }
+    if (result.is_complete && result.overall_score != null) showScorecard(result.overall_score, result.role, result.verdict);
   } catch (err) {
     alert(err.message);
   } finally {
@@ -572,3 +573,68 @@ if (_newBtn) _newBtn.addEventListener("click", () => {
   $("#interview-input").placeholder = "Type your answer...";
   $("#interview-input").disabled = false;
 });
+
+
+// ===== Shareable Scorecard =====
+let _sc = null;
+function showScorecard(score, role, verdict) {
+  _sc = { score: score, role: role || "Cyber Security", verdict: verdict || "" };
+  $("#sc-score").textContent = score;
+  $("#sc-role").textContent = _sc.role;
+  $("#sc-verdict").textContent = _sc.verdict;
+  $("#scorecard-modal").classList.remove("hidden");
+}
+const _scDl = $("#sc-download");
+if (_scDl) _scDl.addEventListener("click", () => { if (_sc) downloadScorecard(_sc); });
+const _scCp = $("#sc-copy");
+if (_scCp) _scCp.addEventListener("click", () => { if (_sc) copySharePost(_sc); });
+
+function wrapText(ctx, text, x, y, maxW, lh) {
+  const words = String(text || "").split(" ");
+  let line = "";
+  for (const w of words) {
+    const t = line + w + " ";
+    if (ctx.measureText(t).width > maxW && line) { ctx.fillText(line.trim(), x, y); line = w + " "; y += lh; }
+    else line = t;
+  }
+  if (line) ctx.fillText(line.trim(), x, y);
+}
+
+function downloadScorecard(sc) {
+  const c = document.createElement("canvas");
+  c.width = 1080; c.height = 1350;
+  const x = c.getContext("2d");
+  x.fillStyle = "#0a0a0a"; x.fillRect(0, 0, 1080, 1350);
+  x.strokeStyle = "#00ffcc"; x.lineWidth = 6; x.strokeRect(40, 40, 1000, 1270);
+  x.textAlign = "left";
+  x.fillStyle = "#00ffcc"; x.font = "bold 46px Consolas, monospace";
+  x.fillText(">_ CYBERVERSE.AI", 80, 150);
+  x.fillStyle = "#888"; x.font = "30px Arial";
+  x.fillText("AI MOCK INTERVIEW SCORECARD", 80, 200);
+  x.textAlign = "center";
+  x.fillStyle = "#ffffff"; x.font = "bold 280px Consolas, monospace";
+  x.fillText(String(sc.score), 540, 640);
+  x.fillStyle = "#888"; x.font = "44px Arial";
+  x.fillText("/ 100", 540, 710);
+  x.fillStyle = "#00ffcc"; x.font = "bold 58px Arial";
+  x.fillText(String(sc.role).toUpperCase(), 540, 830);
+  x.fillStyle = "#dddddd"; x.font = "36px Arial";
+  wrapText(x, sc.verdict, 540, 920, 840, 50);
+  x.fillStyle = "#ffffff"; x.font = "bold 44px Arial";
+  x.fillText("Can you beat my score?", 540, 1150);
+  x.fillStyle = "#00ffcc"; x.font = "bold 48px Consolas, monospace";
+  x.fillText("app.grcwithgaurav.com", 540, 1225);
+  const a = document.createElement("a");
+  a.download = "cyberverse-scorecard.png";
+  a.href = c.toDataURL("image/png");
+  a.click();
+}
+
+function copySharePost(sc) {
+  const tag = String(sc.role).replace(/[^a-zA-Z0-9]/g, "");
+  const text = "I just scored " + sc.score + "/100 on the " + sc.role + " AI mock interview on CyberVerse AI 🎯\n\nThe AI grilled me like a real recruiter and told me exactly what to fix.\n\nCan you beat my score? 👇\nhttps://app.grcwithgaurav.com\n\n#cybersecurity #" + tag + " #AI #jobsearch";
+  navigator.clipboard.writeText(text).then(() => {
+    const b = $("#sc-copy"); b.textContent = "✅ Copied! Paste it on LinkedIn";
+    setTimeout(() => { b.textContent = "📋 Copy LinkedIn Post"; }, 2500);
+  });
+}

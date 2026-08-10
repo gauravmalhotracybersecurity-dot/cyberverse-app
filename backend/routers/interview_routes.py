@@ -121,7 +121,7 @@ async def respond(
     history_messages = _history_as_messages(session)
     instruction = (
         "The candidate just answered. Evaluate their answer, then, since this was the "
-        f"final question ({MAX_TURNS} answered), set is_complete true and give closing_remarks."
+        f"final question ({MAX_TURNS} answered), set is_complete true, give closing_remarks, an overall_score (integer 0-100), and a one-line verdict."
         if force_wrap_up
         else "The candidate just answered. Evaluate their answer, then ask the next question."
     )
@@ -143,6 +143,7 @@ async def respond(
     is_complete = bool(result.get("is_complete")) or force_wrap_up
     if is_complete:
         session.status = "completed"
+        session.overall_score = result.get("overall_score")
         closing = result.get("closing_remarks") or "Interview complete. Nice work."
         db.add(models.InterviewTurn(session_id=session.id, speaker="interviewer", content=closing))
         user.xp += 25
@@ -155,5 +156,6 @@ async def respond(
     db.refresh(session)
 
     return schemas.InterviewRespondResponse(
-        session_id=session.id, turns=session.turns, is_complete=is_complete
+        session_id=session.id, turns=session.turns, is_complete=is_complete,
+        overall_score=session.overall_score, verdict=result.get("verdict"), role=session.role
     )

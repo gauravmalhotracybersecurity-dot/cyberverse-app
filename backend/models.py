@@ -83,6 +83,7 @@ class InterviewSession(Base):
 
     turns = relationship("InterviewTurn", back_populates="session", cascade="all, delete-orphan")
 
+    overall_score = Column(Integer, nullable=True)
 
 class InterviewTurn(Base):
     __tablename__ = "interview_turns"

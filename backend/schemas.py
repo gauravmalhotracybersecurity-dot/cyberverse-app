@@ -127,3 +127,6 @@ class InterviewRespondResponse(BaseModel):
     session_id: int
     turns: list[InterviewTurnOut]
     is_complete: bool
+    overall_score: int | None = None
+    verdict: str | None = None
+    role: str | None = None

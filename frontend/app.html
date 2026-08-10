@@ -284,6 +284,20 @@
   </main>
 </div>
 
+<div id="scorecard-modal" class="modal-overlay hidden">
+  <div class="modal-card">
+    <button class="modal-close" onclick="document.getElementById('scorecard-modal').classList.add('hidden')">&times;</button>
+    <h2 style="margin-top:0">Interview Complete! 🎉</h2>
+    <div style="text-align:center;margin:12px 0">
+      <span id="sc-score" style="font-size:4rem;font-weight:800;color:#00ffcc">0</span><span style="color:#888;font-size:1.2rem">/100</span>
+    </div>
+    <div id="sc-role" style="text-align:center;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#fff"></div>
+    <p id="sc-verdict" style="text-align:center;color:#aaa;margin:12px 0 20px"></p>
+    <button id="sc-download" class="btn-primary" style="width:100%;margin-bottom:10px">📥 Download Scorecard (PNG)</button>
+    <button id="sc-copy" class="btn-secondary" style="width:100%">📋 Copy LinkedIn Post</button>
+    <p style="text-align:center;color:#666;font-size:.8rem;margin-top:14px">Share it on LinkedIn - your network sees your score, we get a user. Win-win. 🚀</p>
+  </div>
+</div>
 <script src="app.js"></script>
 <div id="paywall-modal" class="modal-overlay hidden">
   <div class="modal-card">

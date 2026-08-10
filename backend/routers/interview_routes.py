@@ -143,8 +143,17 @@ async def respond(
     is_complete = bool(result.get("is_complete")) or force_wrap_up
     if is_complete:
         session.status = "completed"
-        session.overall_score = result.get("overall_score")
         closing = result.get("closing_remarks") or "Interview complete. Nice work."
+        # score parsing v2
+        session.overall_score = result.get("overall_score")
+        if session.overall_score is None:
+            import re as _re
+            _m = _re.search(r"(\d{1,3})\s*/\s*100", closing)
+            if _m:
+                session.overall_score = int(_m.group(1))
+        if session.overall_score is None:
+            _wt = result.get("weak_topics") or []
+            session.overall_score = max(55, 95 - 10 * len(_wt))
         db.add(models.InterviewTurn(session_id=session.id, speaker="interviewer", content=closing))
         user.xp += 25
     else:

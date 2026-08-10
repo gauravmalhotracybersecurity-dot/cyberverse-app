@@ -1,9 +1,6 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.responses import StreamingResponse
-import io
-from reportlab.pdfgen import canvas
-from fastapi import Depends, HTTPException, Request
-from fastapi.responses import StreamingResponse
+from sqlalchemy.orm import Session
 import io
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import landscape, A4

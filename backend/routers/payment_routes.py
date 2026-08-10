@@ -49,10 +49,26 @@ async def razorpay_webhook(request: Request, db: Session = Depends(get_db)):
         logger.warning("Webhook received but no customer email found.")
         return {"status": "no_email"}
 
+    # Extract amount in paise (99900 = 999 INR)
+    amount = entity.get("amount", 0) if isinstance(entity, dict) else 0
+    
     user = db.query(models.User).filter(func.lower(models.User.email) == email).first()
-    if user and not user.is_pro:
-        user.is_pro = True
-        db.commit()
-        logger.info("User %s upgraded to Pro automatically.", email)
-        return {"status": "upgraded", "email": email}
+    if user:
+        upgraded = False
+        if amount == 99900: # Premium Tier
+            if not user.is_premium:
+                user.is_pro = True
+                user.is_premium = True
+                upgraded = True
+                logger.info("User %s upgraded to PREMIUM.", email)
+        elif amount == 49900: # Pro Tier
+            if not user.is_pro:
+                user.is_pro = True
+                upgraded = True
+                logger.info("User %s upgraded to Pro.", email)
+        
+        if upgraded:
+            db.commit()
+            return {"status": "upgraded", "email": email, "tier": "Premium" if amount == 99900 else "Pro"}
+            
     return {"status": "already_pro_or_unknown", "email": email}

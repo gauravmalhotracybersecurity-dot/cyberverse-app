@@ -11,6 +11,7 @@ class Settings(BaseSettings):
 
     jwt_secret: str = "dev-secret-change-me"
     razorpay_webhook_secret: str = "dev_secret"
+    admin_email: str = "gauravmalhotra.cybersecurity@gmail.com"
     access_token_expire_minutes: int = 10080  # 7 days
     reset_token_expire_minutes: int = 30
 

@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Founder Console — CyberVerse AI</title>
+<style>
+body{background:#0a0a0a;color:#eee;font-family:'Segoe UI',system-ui,sans-serif;margin:0;padding:32px}
+h1{font-family:Consolas,monospace;color:#00ffcc}
+.card{background:#151515;border:1px solid #222;border-radius:12px;padding:20px;margin-bottom:16px}
+input{background:#0f0f0f;border:1px solid #333;color:#eee;border-radius:8px;padding:10px;margin-right:8px}
+button{background:#00ffcc;color:#000;border:0;border-radius:8px;padding:10px 18px;font-weight:700;cursor:pointer}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:16px}
+.stat{background:#151515;border:1px solid #222;border-radius:12px;padding:16px}
+.stat .v{font-size:1.6rem;font-weight:800;color:#00ffcc}
+.stat .l{color:#888;font-size:.75rem;text-transform:uppercase;letter-spacing:1px}
+.bars{display:flex;align-items:flex-end;gap:8px;height:120px;margin-top:12px}
+.barwrap{flex:1;display:flex;flex-direction:column;justify-content:flex-end}
+.bar{background:linear-gradient(180deg,#00ffcc,#007a5e);border-radius:4px 4px 0 0;min-height:4px}
+.bar-l{color:#888;font-size:.65rem;text-align:center;margin-top:4px}
+table{width:100%;border-collapse:collapse;font-size:.9rem}
+td,th{padding:8px;border-bottom:1px solid #222;text-align:left}
+.pro{color:#f5af19;font-weight:700}
+.hidden{display:none}
+</style>
+</head>
+<body>
+<h1>&gt;_ FOUNDER CONSOLE</h1>
+<div id="login" class="card">
+<input id="email" placeholder="admin email"/>
+<input id="password" type="password" placeholder="password"/>
+<button onclick="doLogin()">Load stats</button>
+<p id="err" style="color:#f66"></p>
+</div>
+<div id="dash" class="hidden">
+<div class="grid">
+<div class="stat"><div class="v" id="s-users">0</div><div class="l">Total users</div></div>
+<div class="stat"><div class="v" id="s-pro">0</div><div class="l">Pro users</div></div>
+<div class="stat"><div class="v" id="s-conv">0%</div><div class="l">Conversion</div></div>
+<div class="stat"><div class="v" id="s-int">0</div><div class="l">Interviews</div></div>
+<div class="stat"><div class="v" id="s-res">0</div><div class="l">Resume reviews</div></div>
+<div class="stat"><div class="v" id="s-men">0</div><div class="l">Mentor msgs</div></div>
+<div class="stat"><div class="v" id="s-act">0</div><div class="l">Active today</div></div>
+</div>
+<div class="card" style="margin-top:16px"><strong>Signups — last 7 days</strong><div class="bars" id="bars"></div></div>
+<div class="card"><strong>Recent signups</strong>
+<table><thead><tr><th>Email</th><th>Name</th><th>Plan</th><th>Date</th></tr></thead><tbody id="rows"></tbody></table></div>
+</div>
+<script>
+const $ = id => document.getElementById(id);
+let token = localStorage.getItem("token") || localStorage.getItem("cv_token") || localStorage.getItem("access_token");
+async function doLogin(){
+  const r = await fetch("/api/auth/login",{method:"POST",headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({email:$("email").value,password:$("password").value})});
+  const d = await r.json().catch(()=>({}));
+  if(!r.ok){$("err").textContent=d.detail||"Login failed";return;}
+  token = d.access_token || d.token;
+  load();
+}
+async function load(){
+  if(!token) return;
+  const r = await fetch("/api/admin/stats",{headers:{Authorization:"Bearer "+token}});
+  if(!r.ok){$("login").classList.remove("hidden");$("dash").classList.add("hidden");return;}
+  const s = await r.json();
+  $("login").classList.add("hidden");
+  $("dash").classList.remove("hidden");
+  $("s-users").textContent=s.total_users;
+  $("s-pro").textContent=s.pro_users;
+  $("s-conv").textContent=s.pro_conversion+"%";
+  $("s-int").textContent=s.completed_interviews+"/"+s.total_interviews;
+  $("s-res").textContent=s.total_resumes;
+  $("s-men").textContent=s.mentor_messages;
+  $("s-act").textContent=s.active_today;
+  const max = Math.max(1, ...s.signup_series.map(x=>x.count));
+  $("bars").innerHTML = s.signup_series.map(x=>
+    `<div class="barwrap"><div class="bar" style="height:${(x.count/max)*100}%"></div><div class="bar-l">${x.date.slice(5)} (${x.count})</div></div>`).join("");
+  $("rows").innerHTML = s.recent_signups.map(u=>
+    `<tr><td>${u.email}</td><td>${u.full_name||""}</td><td class="${u.is_pro?"pro":""}">${u.is_pro?"PRO":"Free"}</td><td>${u.created_at}</td></tr>`).join("");
+}
+if (token) load();
+</script>
+</body>
+</html>

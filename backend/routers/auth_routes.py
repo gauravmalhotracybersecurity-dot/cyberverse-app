@@ -11,7 +11,7 @@ from auth import (
     verify_password_reset_token,
 )
 from database import get_db
-from email_service import send_password_reset_email
+from email_service import send_password_reset_email, send_welcome_email
 from rate_limit import limiter
 from config import settings
 
@@ -33,6 +33,8 @@ def signup(request: Request, payload: schemas.SignupRequest, db: Session = Depen
     db.add(user)
     db.commit()
     db.refresh(user)
+
+    send_welcome_email(user.email, user.full_name or "")
 
     token = create_access_token(user.id)
     return schemas.TokenResponse(access_token=token)

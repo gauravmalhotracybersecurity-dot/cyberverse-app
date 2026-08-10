@@ -696,3 +696,19 @@ function copyResumeSharePost(score, role) {
     setTimeout(() => { b.textContent = orig; }, 2500);
   });
 }
+
+
+// ===== Mobile drawer =====
+(function () {
+  const btn = document.getElementById("mobile-menu-btn");
+  const sb = document.querySelector(".app-shell .sidebar");
+  const bd = document.getElementById("sidebar-backdrop");
+  if (!btn || !sb) return;
+  const close = () => { sb.classList.remove("open"); if (bd) bd.classList.add("hidden"); };
+  btn.addEventListener("click", () => {
+    sb.classList.toggle("open");
+    if (bd) bd.classList.toggle("hidden", !sb.classList.contains("open"));
+  });
+  if (bd) bd.addEventListener("click", close);
+  document.querySelectorAll(".nav-item").forEach(n => n.addEventListener("click", () => { if (window.innerWidth <= 860) close(); }));
+})();

@@ -48,6 +48,7 @@ td,th{padding:8px;border-bottom:1px solid #222;text-align:left}
 </div>
 <script>
 const $ = id => document.getElementById(id);
+const esc = v => String(v ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]));
 let token = localStorage.getItem("token") || localStorage.getItem("cv_token") || localStorage.getItem("access_token");
 async function doLogin(){
   const r = await fetch("/api/auth/login",{method:"POST",headers:{"Content-Type":"application/json"},
@@ -75,7 +76,7 @@ async function load(){
   $("bars").innerHTML = s.signup_series.map(x=>
     `<div class="barwrap"><div class="bar" style="height:${(x.count/max)*100}%"></div><div class="bar-l">${x.date.slice(5)} (${x.count})</div></div>`).join("");
   $("rows").innerHTML = s.recent_signups.map(u=>
-    `<tr><td>${u.email}</td><td>${u.full_name||""}</td><td class="${u.is_pro?"pro":""}">${u.is_pro?"PRO":"Free"}</td><td>${u.created_at}</td></tr>`).join("");
+    `<tr><td>${esc(u.email)}</td><td>${esc(u.full_name)}</td><td class="${u.is_pro?"pro":""}">${u.is_pro?"PRO":"Free"}</td><td>${u.created_at}</td></tr>`).join("");
 }
 if (token) load();
 </script>

@@ -33,9 +33,9 @@ def create_access_token(user_id: int) -> str:
     return jwt.encode(payload, settings.jwt_secret, algorithm="HS256")
 
 
-def create_password_reset_token(user_id: int) -> str:
+def create_password_reset_token(user_id: int, nonce: str) -> str:
     expire = dt.datetime.utcnow() + dt.timedelta(minutes=settings.reset_token_expire_minutes)
-    payload = {"sub": str(user_id), "exp": expire, "purpose": "password_reset"}
+    payload = {"sub": str(user_id), "exp": expire, "purpose": "password_reset", "nonce": nonce}
     return jwt.encode(payload, settings.jwt_secret, algorithm="HS256")
 
 
@@ -47,7 +47,7 @@ def verify_password_reset_token(token: str) -> int:
         raise ValueError("Invalid or expired reset link.")
     if payload.get("purpose") != "password_reset":
         raise ValueError("Invalid or expired reset link.")
-    return int(payload["sub"])
+    return int(payload["sub"]), payload.get("nonce")
 
 
 def get_current_user(

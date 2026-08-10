@@ -110,6 +110,8 @@ def _ensure_extra_columns():
         t = _m.InterviewSession.__table__.name
         with engine.connect() as conn:
             conn.execute(text(f"ALTER TABLE {t} ADD COLUMN IF NOT EXISTS overall_score integer;\nALTER TABLE {t} ADD COLUMN IF NOT EXISTS nudge_sent_at timestamp;\nALTER TABLE {t} ADD COLUMN IF NOT EXISTS created_at timestamp DEFAULT CURRENT_TIMESTAMP;"))
+            u = _m.User.__table__.name
+            conn.execute(text(f"ALTER TABLE {u} ADD COLUMN IF NOT EXISTS is_verified boolean NOT NULL DEFAULT true;\nALTER TABLE {u} ADD COLUMN IF NOT EXISTS reset_nonce varchar;\nALTER TABLE {u} ADD COLUMN IF NOT EXISTS verify_nonce varchar;"))
             conn.commit()
     except Exception as e:
         import logging

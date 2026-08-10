@@ -115,3 +115,14 @@ def send_interview_nudge_email(to: str, full_name: str, role: str) -> None:
         f"- The CyberVerse AI Interviewer"
     )
     send_email(to, subject, body)
+
+
+def send_verification_email(to: str, link: str) -> None:
+    subject = "Verify your CyberVerse AI email"
+    body = (
+        "Welcome to CyberVerse AI!\n\n"
+        "Click the link below to verify your email address and activate your account:\n"
+        f"{link}\n\n"
+        "If you didn't create this account, you can safely ignore this email."
+    )
+    send_email(to, subject, body)

@@ -66,6 +66,12 @@ $("#auth-form").addEventListener("submit", async (e) => {
         body: JSON.stringify({ email, password }),
       });
     }
+    if (!result.access_token) {
+      errorEl.textContent = result.message || "Check your inbox to verify your email, then log in.";
+      errorEl.classList.remove("hidden");
+      showAuthPanel("login");
+      return;
+    }
     token = result.access_token;
     localStorage.setItem("cv_token", token);
     await enterApp();
@@ -711,4 +717,20 @@ function copyResumeSharePost(score, role) {
   });
   if (bd) bd.addEventListener("click", close);
   document.querySelectorAll(".nav-item").forEach(n => n.addEventListener("click", () => { if (window.innerWidth <= 860) close(); }));
+})();
+
+
+// ===== Email verification deep link =====
+(function checkForVerifyToken() {
+  const v = new URLSearchParams(window.location.search).get("verify");
+  if (!v) return;
+  window.history.replaceState({}, "", window.location.pathname);
+  fetch(`${API_BASE}/api/auth/verify-email`, {
+    method: "POST", headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ token: v }),
+  }).then(r => r.json()).then(d => {
+    const el = $("#auth-error");
+    el.textContent = d.message || d.detail || "Email verified. You can log in now.";
+    el.classList.remove("hidden");
+  });
 })();

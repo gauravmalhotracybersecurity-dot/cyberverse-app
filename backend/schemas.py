@@ -130,3 +130,7 @@ class InterviewRespondResponse(BaseModel):
     overall_score: int | None = None
     verdict: str | None = None
     role: str | None = None
+
+
+class VerifyEmailRequest(BaseModel):
+    token: str

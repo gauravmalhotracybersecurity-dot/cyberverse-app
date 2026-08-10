@@ -86,3 +86,18 @@ def send_password_reset_email(to: str, reset_token: str) -> None:
         f"If you didn't request this, you can safely ignore this email."
     )
     send_email(to, "Reset your CyberVerse AI password", body)
+
+
+def send_welcome_email(to: str, full_name: str) -> None:
+    first_name = full_name.split()[0] if full_name else "there"
+    subject = f"Welcome to CyberVerse AI, {first_name}!"
+    body = (
+        f"Hey {first_name},\n\n"
+        "Welcome to CyberVerse AI! I'm Gaurav, the founder.\n\n"
+        "Here is your 3-step quick start plan:\n\n"
+        "1. Upload your resume: The AI will review it like a recruiter.\n"
+        "2. Check Daily Ops: Get a personalized lesson and quiz every morning.\n"
+        "3. Start a mock interview: Try a 5-question interview.\n\n"
+        "Best,\nGaurav\nFounder, CyberVerse AI"
+    )
+    send_email(to, subject, body)

@@ -415,8 +415,8 @@ function renderResumeResult(r) {
   const list = (items) => `<ul>${(items || []).map(i => `<li>${escapeHtml(i)}</li>`).join("")}</ul>`;
   el.innerHTML = `
     <div class="score-row">
-      <div class="score-box"><div class="score-num">${r.overall_score}</div><div class="score-label">Overall</div></div>
-      <div class="score-box"><div class="score-num">${r.ats_score}</div><div class="score-label">ATS</div></div>
+      <div class="score-box"><div class="score-num">${escapeHtml(r.overall_score)}</div><div class="score-label">Overall</div></div>
+      <div class="score-box"><div class="score-num">${escapeHtml(r.ats_score)}</div><div class="score-label">ATS</div></div>
     </div>
     <h4>Strengths</h4>${list(r.strengths)}
     <h4>Gaps</h4>${list(r.gaps)}
@@ -453,7 +453,7 @@ function renderInterviewLog(turns) {
     if (t.feedback) {
       const fb = document.createElement("div");
       fb.className = "msg feedback";
-      fb.innerHTML = `<span class="msg-tag">FEEDBACK · Score ${t.feedback.score}/10</span>
+      fb.innerHTML = `<span class="msg-tag">FEEDBACK · Score ${escapeHtml(t.feedback.score)}/10</span>
         <strong>Strengths:</strong> ${escapeHtml((t.feedback.strengths || []).join("; "))}<br/>
         <strong>Improve:</strong> ${escapeHtml((t.feedback.improvements || []).join("; "))}`;
       log.appendChild(fb);

@@ -192,6 +192,7 @@ async function enterApp() {
   renderStatusBar();
   checkProStatus();
   renderDashboardSnapshot();
+  renderOnboarding();
   populateProfileForm();
 }
 
@@ -232,6 +233,7 @@ $("#p-save").addEventListener("click", async () => {
   renderStatusBar();
   checkProStatus();
   renderDashboardSnapshot();
+  renderOnboarding(); toast("Profile saved ✓");
   const saved = $("#p-saved");
   saved.classList.remove("hidden");
   setTimeout(() => saved.classList.add("hidden"), 2000);
@@ -392,6 +394,7 @@ $("#resume-submit").addEventListener("click", async () => {
       });
     }
     renderResumeResult(result.review);
+    localStorage.setItem("cv_onb_resume", "1"); renderOnboarding();
     setTimeout(() => {
       const el = $("#resume-result");
       if (el && !$("#res-sc-download")) {
@@ -446,7 +449,7 @@ $("#interview-start").addEventListener("click", async () => {
     $("#interview-session").classList.remove("hidden");
     renderInterviewLog(result.turns);
   } catch (err) {
-    alert(err.message);
+    toast(err.message, "error");
   } finally {
     $("#interview-start").disabled = false;
   }
@@ -493,10 +496,11 @@ $("#interview-form").addEventListener("submit", async (e) => {
       input.placeholder = "Interview complete.";
       $("#interview-form").querySelector("button").disabled = true;
       const _in = $("#interview-new"); if (_in) _in.classList.remove("hidden");
+      localStorage.setItem("cv_onb_interview", "1"); renderOnboarding();
     }
     if (result.is_complete && result.overall_score != null) showScorecard(result.overall_score, result.role, result.verdict);
   } catch (err) {
-    alert(err.message);
+    toast(err.message, "error");
   } finally {
     input.disabled = false;
     input.focus();
@@ -542,7 +546,7 @@ async function loadAchievements() {
 $("#ach-submit").addEventListener("click", async () => {
   const type = $("#ach-type").value;
   const title = $("#ach-title").value.trim();
-  if (!title) return alert("Please enter a title.");
+  if (!title) return toast("Please enter a title.", "error");
 
   const btn = $("#ach-submit");
   btn.disabled = true;
@@ -562,7 +566,7 @@ $("#ach-submit").addEventListener("click", async () => {
     }
     loadAchievements();
   } catch (err) {
-    alert("Error: " + err.message);
+    toast("Error: " + err.message, "error");
   } finally {
     btn.disabled = false;
   }
@@ -734,3 +738,48 @@ function copyResumeSharePost(score, role) {
     el.classList.remove("hidden");
   });
 })();
+
+
+// ===== Toast system =====
+function toast(msg, type) {
+  let host = document.getElementById("toast-host");
+  if (!host) {
+    host = document.createElement("div");
+    host.id = "toast-host";
+    host.style.cssText = "position:fixed;bottom:24px;right:24px;z-index:200;display:flex;flex-direction:column;gap:10px;";
+    document.body.appendChild(host);
+  }
+  const t = document.createElement("div");
+  t.textContent = msg;
+  t.style.cssText = "background:#151515;color:#fff;border:1px solid " + (type === "error" ? "#ff5555" : "#00ffcc") + ";border-radius:10px;padding:12px 18px;font-size:.9rem;box-shadow:0 6px 24px rgba(0,0,0,.5);max-width:320px;";
+  host.appendChild(t);
+  setTimeout(() => { t.style.opacity = "0"; t.style.transition = "opacity .4s"; setTimeout(() => t.remove(), 400); }, 3500);
+}
+
+// ===== Onboarding checklist =====
+function renderOnboarding() {
+  const card = $("#onboarding-card");
+  if (!card || !profile) return;
+  if (localStorage.getItem("cv_onb_dismissed")) { card.classList.add("hidden"); return; }
+  card.classList.remove("hidden");
+  const steps = [
+    { done: !!(profile.learning_goals || (profile.certifications || []).length), label: "Set your goal & skill level", view: "profile" },
+    { done: localStorage.getItem("cv_onb_resume") === "1", label: "Get your resume reviewed", view: "resume" },
+    { done: localStorage.getItem("cv_onb_interview") === "1", label: "Finish your first mock interview", view: "interview" },
+  ];
+  const doneCount = steps.filter(x => x.done).length;
+  $("#onb-progress").textContent = doneCount + "/3";
+  if (doneCount === 3) {
+    $("#onb-steps").innerHTML = '<div style="color:var(--accent);font-weight:700">🎉 All set! You are officially ahead of 90% of candidates. Keep the streak alive!</div>';
+  } else {
+    $("#onb-steps").innerHTML = steps.map(x =>
+      '<div style="display:flex;align-items:center;gap:10px">' +
+      '<span style="color:' + (x.done ? "var(--accent)" : "#555") + ';font-weight:700">' + (x.done ? "✓" : "○") + '</span>' +
+      '<span style="color:' + (x.done ? "#888" : "#fff") + ';' + (x.done ? "text-decoration:line-through;" : "") + '">' + x.label + '</span>' +
+      (x.done ? "" : '<button class="btn-secondary" data-onb-goto="' + x.view + '" style="margin-left:auto;padding:6px 12px">Do it →</button>') +
+      '</div>').join("");
+    $("#onb-steps").querySelectorAll("[data-onb-goto]").forEach(b => b.addEventListener("click", () => goToView(b.dataset.onbGoto)));
+  }
+  const d = $("#onb-dismiss");
+  if (d) d.onclick = () => { localStorage.setItem("cv_onb_dismissed", "1"); card.classList.add("hidden"); };
+}

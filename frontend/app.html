@@ -115,6 +115,14 @@
     <section class="view active" id="view-dashboard">
       <h1 class="view-title">Dashboard</h1>
       <p class="view-sub">Your mission control. Pick up where you left off.</p>
+      <div class="card" id="onboarding-card" style="margin-bottom:20px;border:1px solid var(--accent);">
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <h3 style="margin:0">🚀 Get started <span id="onb-progress" style="color:var(--accent);font-size:.9rem"></span></h3>
+          <button id="onb-dismiss" style="background:none;border:none;color:#666;cursor:pointer;font-size:.8rem">Hide</button>
+        </div>
+        <div id="onb-steps" style="margin-top:12px;display:flex;flex-direction:column;gap:10px"></div>
+      </div>
+
 
       <div class="grid grid-3">
         <div class="card card-action" data-goto="mentor">

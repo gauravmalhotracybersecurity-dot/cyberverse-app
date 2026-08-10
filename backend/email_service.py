@@ -78,7 +78,7 @@ def _send_via_smtp(to: str, subject: str, body: str) -> None:
 
 
 def send_password_reset_email(to: str, reset_token: str) -> None:
-    reset_link = f"{settings.app_base_url}/?reset_token={reset_token}"
+    reset_link = f"{settings.app_base_url}/app.html?reset_token={reset_token}"
     body = (
         f"We received a request to reset your CyberVerse AI password.\n\n"
         f"Reset it here (expires in {settings.reset_token_expire_minutes} minutes):\n"

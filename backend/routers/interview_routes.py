@@ -154,6 +154,9 @@ async def respond(
         if session.overall_score is None:
             _wt = result.get("weak_topics") or []
             session.overall_score = max(55, 95 - 10 * len(_wt))
+        verdict_text = result.get("verdict") or ""
+        if not verdict_text:
+            verdict_text = (closing.split(". ")[0].strip() + ".")[:160]
         db.add(models.InterviewTurn(session_id=session.id, speaker="interviewer", content=closing))
         user.xp += 25
     else:
@@ -166,5 +169,5 @@ async def respond(
 
     return schemas.InterviewRespondResponse(
         session_id=session.id, turns=session.turns, is_complete=is_complete,
-        overall_score=session.overall_score, verdict=result.get("verdict"), role=session.role
+        overall_score=session.overall_score, verdict=verdict_text, role=session.role
     )

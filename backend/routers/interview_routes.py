@@ -149,6 +149,7 @@ async def respond(
     merge_weak_topics(user, result.get("weak_topics"))
 
     is_complete = bool(result.get("is_complete")) or force_wrap_up
+    verdict_text = None
     if is_complete:
         session.status = "completed"
         closing = result.get("closing_remarks") or "Interview complete. Nice work."

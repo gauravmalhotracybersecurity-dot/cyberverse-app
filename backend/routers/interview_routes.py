@@ -2,7 +2,11 @@ from fastapi import APIRouter
 from fastapi.responses import StreamingResponse
 import io
 from reportlab.pdfgen import canvas
-from reportlab.lib.pagesizes import landscape, A4, Depends, HTTPException, Request
+from fastapi import Depends, HTTPException, Request
+from fastapi.responses import StreamingResponse
+import io
+from reportlab.pdfgen import canvas
+from reportlab.lib.pagesizes import landscape, A4
 from sqlalchemy.orm import Session
 
 import models

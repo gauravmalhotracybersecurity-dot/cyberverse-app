@@ -592,6 +592,7 @@ if (_newBtn) _newBtn.addEventListener("click", () => {
 let _sc = null;
 function showScorecard(score, role, verdict) {
   _sc = { score: score, role: role || "Cyber Security", verdict: verdict || "" };
+  const certBtn = $("#sc-cert"); if (certBtn) { certBtn.classList.toggle("hidden", !profile.is_premium); certBtn.onclick = () => window.open(`${API_BASE}/api/interview/${currentInterviewSessionId}/certificate`, "_blank"); }
   $("#sc-score").textContent = score;
   $("#sc-role").textContent = _sc.role;
   $("#sc-verdict").textContent = _sc.verdict;

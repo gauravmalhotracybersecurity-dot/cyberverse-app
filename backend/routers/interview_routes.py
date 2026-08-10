@@ -1,4 +1,8 @@
-from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi import APIRouter
+from fastapi.responses import StreamingResponse
+import io
+from reportlab.pdfgen import canvas
+from reportlab.lib.pagesizes import landscape, A4, Depends, HTTPException, Request
 from sqlalchemy.orm import Session
 
 import models
@@ -171,3 +175,35 @@ async def respond(
         session_id=session.id, turns=session.turns, is_complete=is_complete,
         overall_score=session.overall_score, verdict=verdict_text, role=session.role
     )
+
+
+@router.get("/{session_id}/certificate")
+def get_certificate(session_id: int, user: models.User = Depends(get_current_user), db: Session = Depends(get_db)):
+    if not user.is_premium:
+        raise HTTPException(status_code=403, detail="Premium feature only. Upgrade to 999.")
+    session = db.query(models.InterviewSession).filter(models.InterviewSession.id == session_id, models.InterviewSession.user_id == user.id).first()
+    if not session or session.status != "completed" or not session.overall_score:
+        raise HTTPException(status_code=404, detail="Session not found or not completed.")
+    
+    packet = io.BytesIO()
+    c = canvas.Canvas(packet, pagesize=landscape(A4))
+    w, h = landscape(A4)
+    c.setStrokeColorRGB(0, 0.5, 0.4)
+    c.setLineWidth(3)
+    c.rect(40, 40, w - 80, h - 80, stroke=1, fill=0)
+    c.setFont("Helvetica-Bold", 42); c.setFillColorRGB(0, 0.5, 0.4)
+    c.drawCentredString(w/2, h - 100, "CyberVerse AI")
+    c.setFillColorRGB(0, 0, 0)
+    c.setFont("Helvetica", 28)
+    c.drawCentredString(w/2, h - 160, "Certificate of Completion")
+    c.setFont("Helvetica", 18)
+    name = user.full_name or user.email.split("@")[0]
+    c.drawCentredString(w/2, h - 240, f"This certifies that {name}")
+    c.drawCentredString(w/2, h - 280, f"has successfully completed the {session.role} Mock Interview")
+    c.setFont("Helvetica-Bold", 24)
+    c.drawCentredString(w/2, h - 340, f"Score: {session.overall_score}/100")
+    c.setFont("Helvetica", 14)
+    c.drawCentredString(w/2, 80, "app.grcwithgaurav.com")
+    c.showPage(); c.save()
+    packet.seek(0)
+    return StreamingResponse(packet, media_type="application/pdf", headers={"Content-Disposition": f"attachment; filename=cyberverse_{session.id}.pdf"})

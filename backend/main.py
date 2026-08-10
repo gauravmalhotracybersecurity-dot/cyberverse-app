@@ -108,10 +108,45 @@ def _ensure_extra_columns():
         import models as _m
         t = _m.InterviewSession.__table__.name
         with engine.connect() as conn:
-            conn.execute(text(f"ALTER TABLE {t} ADD COLUMN IF NOT EXISTS overall_score integer;"))
+            conn.execute(text(f"ALTER TABLE {t} ADD COLUMN IF NOT EXISTS overall_score integer;\nALTER TABLE {t} ADD COLUMN IF NOT EXISTS nudge_sent_at timestamp;\nALTER TABLE {t} ADD COLUMN IF NOT EXISTS created_at timestamp DEFAULT CURRENT_TIMESTAMP;"))
             conn.commit()
     except Exception as e:
         import logging
         logging.getLogger("cyberverse").warning("startup migration skipped: %s", e)
 
 _ensure_extra_columns()
+
+
+import threading, time
+from datetime import datetime, timedelta
+from database import SessionLocal
+from email_service import send_interview_nudge_email
+import logging
+
+def _nudge_loop():
+    time.sleep(60) # wait 1 min after startup
+    logging.getLogger("cyberverse").info("Nudge loop started.")
+    while True:
+        time.sleep(1800) # check every 30 minutes
+        db = SessionLocal()
+        try:
+            cutoff = datetime.utcnow() - timedelta(hours=2)
+            max_age = datetime.utcnow() - timedelta(hours=48) # don't nag for week-old sessions
+            abandoned = db.query(models.InterviewSession).filter(
+                models.InterviewSession.status == "active",
+                models.InterviewSession.created_at < cutoff,
+                models.InterviewSession.created_at > max_age,
+                models.InterviewSession.nudge_sent_at == None
+            ).all()
+            for sess in abandoned:
+                user = db.query(models.User).filter(models.User.id == sess.user_id).first()
+                if user:
+                    send_interview_nudge_email(user.email, user.full_name or "there", sess.role)
+                    sess.nudge_sent_at = datetime.utcnow()
+            db.commit()
+        except Exception as e:
+            logging.getLogger("cyberverse").error(f"Nudge loop error: {e}")
+        finally:
+            db.close()
+
+threading.Thread(target=_nudge_loop, daemon=True).start()

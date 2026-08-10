@@ -101,3 +101,17 @@ def send_welcome_email(to: str, full_name: str) -> None:
         "Best,\nGaurav\nFounder, CyberVerse AI"
     )
     send_email(to, subject, body)
+
+
+def send_interview_nudge_email(to: str, full_name: str, role: str) -> None:
+    first_name = full_name.split()[0] if full_name else "there"
+    subject = f"Your {role} interviewer is waiting for you 🎙️"
+    body = (
+        f"Hey {first_name},\n\n"
+        f"You started a {role} mock interview on CyberVerse AI a couple of hours ago but didn't finish it.\n\n"
+        f"The best way to get hired is to practice under pressure. Jump back in and finish your 6 questions now. It only takes 10 minutes, and you will get a score out of 100 at the end.\n\n"
+        f"Log in and finish it here: {settings.app_base_url}/app.html\n\n"
+        f"You've got this.\n"
+        f"- The CyberVerse AI Interviewer"
+    )
+    send_email(to, subject, body)

@@ -1,3 +1,4 @@
+from datetime import datetime
 from sqlalchemy import Boolean
 import datetime as dt
 
@@ -84,6 +85,8 @@ class InterviewSession(Base):
     turns = relationship("InterviewTurn", back_populates="session", cascade="all, delete-orphan")
 
     overall_score = Column(Integer, nullable=True)
+    nudge_sent_at = Column(DateTime, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
 
 class InterviewTurn(Base):
     __tablename__ = "interview_turns"

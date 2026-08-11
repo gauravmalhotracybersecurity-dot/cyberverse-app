@@ -89,7 +89,7 @@ if (token) load();
   try {
     const t = localStorage.getItem("cv_token");
     const r = await fetch("/api/analytics/funnel", { headers: { Authorization: "Bearer " + t } });
-    if (!r.ok) return;
+    if (!r.ok) { document.getElementById("funnel").textContent = "HTTP " + r.status + " — " + (await r.text()).slice(0, 400); return; }
     const f = await r.json();
     document.getElementById("funnel").textContent =
       "Visitors (unique)     " + f.visitors + "\n" +
@@ -101,7 +101,7 @@ if (token) load();
       "Payment clicks        " + f.payment_clicked + "\n" +
       "CTF solves            " + f.ctf_solved + "\n" +
       "Share copies          " + f.share_copied;
-  } catch (e) {}
+  } catch (e) { document.getElementById("funnel").textContent = "Fetch error: " + e; }
 })();
 </script>
 </body>

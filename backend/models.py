@@ -1,5 +1,5 @@
 from datetime import datetime
-from sqlalchemy import Boolean
+from sqlalchemy import Date, Boolean
 import datetime as dt
 
 from sqlalchemy import (

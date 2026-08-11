@@ -153,3 +153,17 @@ def _nudge_loop():
             db.close()
 
 threading.Thread(target=_nudge_loop, daemon=True).start()
+
+
+def _ensure_streak_freeze_column():
+    try:
+        from sqlalchemy import text
+        from database import engine
+        with engine.connect() as conn:
+            conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS streak_freeze_used_today boolean DEFAULT false;"))
+            conn.commit()
+    except Exception as e:
+        import logging
+        logging.getLogger("cyberverse").warning("streak freeze migration skipped: %s", e)
+
+_ensure_streak_freeze_column()

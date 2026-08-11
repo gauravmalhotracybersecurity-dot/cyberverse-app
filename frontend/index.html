@@ -211,6 +211,13 @@ h1,h2,h3,.view-title,.hero h1 { font-family:'Space Grotesk',Inter,sans-serif; le
 </footer>
 </div>
 
+<script>
+(function(){
+  var sid = localStorage.getItem("cv_sid");
+  if (!sid) { sid = Math.random().toString(36).slice(2,10); localStorage.setItem("cv_sid", sid); }
+  fetch("/api/analytics/event", {method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({name:"pageview",path:location.pathname,sid:sid})}).catch(function(){});
+})();
+</script>
 </body>
 </html>
 

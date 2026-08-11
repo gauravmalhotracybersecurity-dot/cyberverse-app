@@ -21,6 +21,7 @@ from routers import (
     resume_routes,
     interview_routes,
     ctf_routes,
+    analytics_routes,
 )
 
 logging.basicConfig(
@@ -82,6 +83,7 @@ app.include_router(daily_routes.router)
 app.include_router(resume_routes.router)
 app.include_router(interview_routes.router)
 app.include_router(ctf_routes.router)
+app.include_router(analytics_routes.router)
 
 
 @app.get("/api/health")
@@ -260,3 +262,19 @@ def _ensure_ctf_columns():
         logging.getLogger("cyberverse").warning("ctf migration skipped: %s", e)
 
 _ensure_ctf_columns()
+
+
+def _ensure_events_table():
+    try:
+        from sqlalchemy import text
+        from database import engine
+        with engine.connect() as conn:
+            conn.execute(text("CREATE TABLE IF NOT EXISTS events (id SERIAL PRIMARY KEY, user_id integer, sid varchar, name varchar, path varchar, created_at timestamp DEFAULT CURRENT_TIMESTAMP);"))
+            conn.execute(text("CREATE INDEX IF NOT EXISTS ix_events_name ON events(name);"))
+            conn.execute(text("CREATE INDEX IF NOT EXISTS ix_events_created ON events(created_at);"))
+            conn.commit()
+    except Exception as e:
+        import logging
+        logging.getLogger("cyberverse").warning("events table migration skipped: %s", e)
+
+_ensure_events_table()

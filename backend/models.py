@@ -117,3 +117,13 @@ class Achievement(Base):
     title = Column(String, nullable=False) # 'Security+', 'SOC Analyst at Dell'
     date_achieved = Column(String, default=dt.date.today().isoformat())
 
+
+
+class Event(Base):
+    __tablename__ = "events"
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, nullable=True)
+    sid = Column(String, nullable=True)
+    name = Column(String, index=True)
+    path = Column(String, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)

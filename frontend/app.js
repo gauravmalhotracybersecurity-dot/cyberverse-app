@@ -72,6 +72,7 @@ $("#auth-form").addEventListener("submit", async (e) => {
       showAuthPanel("login");
       return;
     }
+    cvTrack(authMode === "signup" ? "signup" : "login");
     token = result.access_token;
     localStorage.setItem("cv_token", token);
     await enterApp();
@@ -399,6 +400,7 @@ $("#resume-submit").addEventListener("click", async () => {
     }
     renderResumeResult(result.review);
     localStorage.setItem("cv_onb_resume", "1"); renderOnboarding();
+    cvTrack("resume_reviewed");
     setTimeout(() => {
       const el = $("#resume-result");
       if (el && !$("#res-sc-download")) {
@@ -449,6 +451,7 @@ $("#interview-start").addEventListener("click", async () => {
   try {
     const result = await api("/api/interview/start", { method: "POST", body: JSON.stringify({ role }) });
     currentInterviewSessionId = result.session_id;
+    cvTrack("interview_started");
     $("#interview-setup").classList.add("hidden");
     $("#interview-session").classList.remove("hidden");
     renderInterviewLog(result.turns);
@@ -501,6 +504,7 @@ $("#interview-form").addEventListener("submit", async (e) => {
       $("#interview-form").querySelector("button").disabled = true;
       const _in = $("#interview-new"); if (_in) _in.classList.remove("hidden");
       localStorage.setItem("cv_onb_interview", "1"); renderOnboarding();
+      cvTrack("interview_completed");
     }
     if (result.is_complete && result.overall_score != null) showScorecard(result.overall_score, result.role, result.verdict);
   } catch (err) {
@@ -577,6 +581,7 @@ $("#ach-submit").addEventListener("click", async () => {
 });
 // ===== Paywall UI Logic =====
 function showPaywall() {
+  cvTrack("paywall_shown");
   const modal = document.getElementById('paywall-modal');
   if (modal) modal.classList.remove('hidden');
 }
@@ -661,6 +666,7 @@ function downloadScorecard(sc) {
 function copySharePost(sc) {
   const tag = String(sc.role).replace(/[^a-zA-Z0-9]/g, "");
   const text = "I just scored " + sc.score + "/100 on the " + sc.role + " AI mock interview on CyberVerse AI 🎯\n\nThe AI grilled me like a real recruiter and told me exactly what to fix.\n\nCan you beat my score? 👇\nhttps://app.grcwithgaurav.com\n\n#cybersecurity #" + tag + " #AI #jobsearch";
+  cvTrack("share_copied");
   navigator.clipboard.writeText(text).then(() => {
     const b = $("#sc-copy"); b.textContent = "✅ Copied! Paste it on LinkedIn";
     setTimeout(() => { b.textContent = "📋 Copy LinkedIn Post"; }, 2500);
@@ -703,6 +709,7 @@ function downloadResumeScorecard(score, role) {
 function copyResumeSharePost(score, role) {
   const tag = String(role).replace(/[^a-zA-Z0-9]/g, "");
   const text = "My resume scored " + score + "/100 for a " + role + " role on CyberVerse AI 📄\n\nThe AI found the exact skills I was missing and rewrote my weak bullets like a real recruiter.\n\nCan your resume beat mine? 👇\nhttps://app.grcwithgaurav.com\n\n#cybersecurity #resume #" + tag + " #jobsearch";
+  cvTrack("share_copied");
   navigator.clipboard.writeText(text).then(() => {
     const b = $("#res-sc-copy"); 
     const orig = b.textContent;
@@ -901,6 +908,7 @@ if (_ctfBtn) _ctfBtn.addEventListener("click", async () => {
       fb.style.color = "var(--green)";
       fb.textContent = "✅ Correct! " + (r.xp ? "+" + r.xp + " XP" + (r.xp > 10 ? " (speed bonus!)" : "") : "(already counted today)") + " - " + r.explain;
       if (r.xp) { profile.xp += r.xp; renderStatusBar(); }
+      cvTrack("ctf_solved");
       loadCTF();
     } else {
       fb.style.color = "var(--amber)";
@@ -908,3 +916,21 @@ if (_ctfBtn) _ctfBtn.addEventListener("click", async () => {
     }
   } catch (e) { toast(e.message, "error"); }
 });
+
+
+// ===== Analytics tracker =====
+(function () {
+  let sid = localStorage.getItem("cv_sid");
+  if (!sid) { sid = Math.random().toString(36).slice(2, 10); localStorage.setItem("cv_sid", sid); }
+  window.cvTrack = function (name) {
+    try {
+      fetch(`${API_BASE}/api/analytics/event`, {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, path: location.pathname, sid })
+      }).catch(() => {});
+    } catch (e) {}
+  };
+  cvTrack("pageview");
+  document.querySelectorAll('#paywall-modal a[target="_blank"]').forEach(a =>
+    a.addEventListener("click", () => cvTrack("payment_clicked")));
+})();

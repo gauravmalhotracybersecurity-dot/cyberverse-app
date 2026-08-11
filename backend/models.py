@@ -37,6 +37,9 @@ class User(Base):
 
     mentor_messages = relationship("MentorMessage", back_populates="user", cascade="all, delete-orphan")
 
+    is_verified = Column(Boolean, default=False)
+    reset_nonce = Column(String, nullable=True)
+    verify_nonce = Column(String, nullable=True)
 
 class MentorMessage(Base):
     """Rolling conversation history the AI Mentor uses as short-term memory."""

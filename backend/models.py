@@ -43,6 +43,8 @@ class User(Base):
     streak_freeze_used_today = Column(Boolean, default=False)
     day3_email_sent_at = Column(DateTime, nullable=True)
     day7_email_sent_at = Column(DateTime, nullable=True)
+    ctf_solves = Column(Integer, default=0)
+    ctf_last_solved_date = Column(Date, nullable=True)
 
 class MentorMessage(Base):
     """Rolling conversation history the AI Mentor uses as short-term memory."""

@@ -136,6 +136,7 @@ h1,h2,h3,.view-title,.hero h1 { font-family:'Space Grotesk',Inter,sans-serif; le
       <button class="nav-item" data-view="daily"><span class="nav-ico">⟳</span>Daily Ops</button>
       <button class="nav-item" data-view="resume"><span class="nav-ico">▤</span>Resume Builder</button>
       <button class="nav-item" data-view="interview"><span class="nav-ico">◎</span>Interview Coach</button>
+      <button class="nav-item" data-view="ctf"><span class="nav-ico" style="color:var(--amber)">⚡</span>CTF Bites</button>
       <button class="nav-item" data-view="achievements"><span class="nav-ico">🏆</span>Achievements</button>
       <button class="nav-item" data-view="leaderboard"><span class="nav-ico" style="color:var(--amber)">👑</span>League</button>
       <button class="nav-item" data-view="profile"><span class="nav-ico">⚙</span>Profile</button>
@@ -306,7 +307,24 @@ h1,h2,h3,.view-title,.hero h1 { font-family:'Space Grotesk',Inter,sans-serif; le
       </div>
     </section>
 
-        <!-- ---- ACHIEVEMENTS ---- -->
+        
+    <!-- ---- CTF BITES ---- -->
+    <section class="view" id="view-ctf">
+      <h1 class="view-title" style="color:var(--amber)">⚡ CTF Bites</h1>
+      <p class="view-sub">One bite-sized challenge a day. Solve it in 60 seconds for a +5 speed bonus.</p>
+      <div class="card" style="max-width:640px">
+        <h3 id="ctf-title">Loading…</h3>
+        <pre id="ctf-prompt" style="white-space:pre-wrap;background:#0d0d0d;border:1px solid #222;border-radius:10px;padding:14px;font-family:'JetBrains Mono',Consolas,monospace;font-size:.9rem"></pre>
+        <div style="display:flex;gap:8px;margin-top:12px">
+          <input type="text" id="ctf-answer" placeholder="Your answer / flag…" autocomplete="off" style="flex:1"/>
+          <button id="ctf-submit" class="btn-primary">Submit</button>
+        </div>
+        <p id="ctf-feedback" class="hint" style="margin-top:12px"></p>
+        <p id="ctf-meta" style="color:var(--text-muted);font-size:.8rem;margin-top:8px"></p>
+      </div>
+    </section>
+
+    <!-- ---- ACHIEVEMENTS ---- -->
     <section class="view" id="view-achievements">
       <h1 class="view-title">Achievements</h1>
       <p class="view-sub">Log your certifications, interviews, and job offers. Track your wins.</p>

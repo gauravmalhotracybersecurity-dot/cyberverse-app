@@ -20,6 +20,7 @@ from routers import (
     daily_routes,
     resume_routes,
     interview_routes,
+    ctf_routes,
 )
 
 logging.basicConfig(
@@ -80,6 +81,7 @@ app.include_router(mentor_routes.router)
 app.include_router(daily_routes.router)
 app.include_router(resume_routes.router)
 app.include_router(interview_routes.router)
+app.include_router(ctf_routes.router)
 
 
 @app.get("/api/health")
@@ -243,3 +245,18 @@ def _nurture_loop():
             db.close()
 
 threading.Thread(target=_nurture_loop, daemon=True).start()
+
+
+def _ensure_ctf_columns():
+    try:
+        from sqlalchemy import text
+        from database import engine
+        with engine.connect() as conn:
+            conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS ctf_solves integer DEFAULT 0;"))
+            conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS ctf_last_solved_date date;"))
+            conn.commit()
+    except Exception as e:
+        import logging
+        logging.getLogger("cyberverse").warning("ctf migration skipped: %s", e)
+
+_ensure_ctf_columns()

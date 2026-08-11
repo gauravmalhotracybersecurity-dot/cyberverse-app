@@ -172,6 +172,7 @@ function goToView(view) {
   if (view === "daily") loadDailyBundle();
   if (view === "achievements") loadAchievements();
   if (view === "leaderboard") loadLeaderboard();
+  if (view === "ctf") loadCTF();
 }
 $all(".nav-item").forEach(n => n.addEventListener("click", () => goToView(n.dataset.view)));
 $all("[data-goto]").forEach(el => el.addEventListener("click", () => goToView(el.dataset.goto)));
@@ -873,3 +874,37 @@ function renderStreakRescue() {
     card.style.display = "none";
   }
 }
+
+
+// ===== CTF Bites =====
+let ctfStart = Date.now();
+async function loadCTF() {
+  ctfStart = Date.now();
+  if (!$("#ctf-title")) return;
+  try {
+    const c = await api("/api/ctf/today");
+    $("#ctf-title").textContent = c.title;
+    $("#ctf-prompt").textContent = c.prompt;
+    $("#ctf-meta").textContent = "Solved today: " + (c.solved_today ? "yes ✅" : "no") + " • Total solves: " + c.solves;
+    $("#ctf-feedback").textContent = "";
+  } catch (e) { $("#ctf-prompt").textContent = "Could not load today's bite."; }
+}
+const _ctfBtn = $("#ctf-submit");
+if (_ctfBtn) _ctfBtn.addEventListener("click", async () => {
+  const ans = $("#ctf-answer").value.trim();
+  if (!ans) return;
+  const elapsed = Math.round((Date.now() - ctfStart) / 1000);
+  try {
+    const r = await api("/api/ctf/submit", { method: "POST", body: JSON.stringify({ answer: ans, elapsed }) });
+    const fb = $("#ctf-feedback");
+    if (r.correct) {
+      fb.style.color = "var(--green)";
+      fb.textContent = "✅ Correct! " + (r.xp ? "+" + r.xp + " XP" + (r.xp > 10 ? " (speed bonus!)" : "") : "(already counted today)") + " - " + r.explain;
+      if (r.xp) { profile.xp += r.xp; renderStatusBar(); }
+      loadCTF();
+    } else {
+      fb.style.color = "var(--amber)";
+      fb.textContent = "❌ Not quite. Hint: " + r.hint;
+    }
+  } catch (e) { toast(e.message, "error"); }
+});

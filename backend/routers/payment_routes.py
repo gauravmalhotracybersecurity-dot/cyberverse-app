@@ -1,3 +1,4 @@
+from datetime import datetime as _dt
 from fastapi import APIRouter, Request, HTTPException, Depends
 from sqlalchemy.orm import Session
 from sqlalchemy import func
@@ -55,7 +56,11 @@ async def razorpay_webhook(request: Request, db: Session = Depends(get_db)):
     user = db.query(models.User).filter(func.lower(models.User.email) == email).first()
     if user:
         upgraded = False
-        if amount == 99900: # Premium Tier
+        if amount == 4900: # Streak Rescue
+            user.last_active_date = _dt.utcnow().date()
+            upgraded = True
+            logger.info("User %s rescued streak for 49.", email)
+        elif amount == 99900: # Premium Tier
             if not user.is_premium:
                 user.is_pro = True
                 user.is_premium = True

@@ -41,6 +41,8 @@ class User(Base):
     reset_nonce = Column(String, nullable=True)
     verify_nonce = Column(String, nullable=True)
     streak_freeze_used_today = Column(Boolean, default=False)
+    day3_email_sent_at = Column(DateTime, nullable=True)
+    day7_email_sent_at = Column(DateTime, nullable=True)
 
 class MentorMessage(Base):
     """Rolling conversation history the AI Mentor uses as short-term memory."""

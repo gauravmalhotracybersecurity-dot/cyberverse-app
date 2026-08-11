@@ -126,3 +126,44 @@ def send_verification_email(to: str, link: str) -> None:
         "If you didn't create this account, you can safely ignore this email."
     )
     send_email(to, subject, body)
+
+
+def send_day3_nurture_email(to: str, full_name: str, weak_topics: list, unfinished_interviews: int) -> None:
+    first_name = full_name.split()[0] if full_name else "there"
+    subject = f"{first_name}, your cybersecurity career is waiting on you"
+    topics_str = ", ".join(weak_topics[:3]) if weak_topics else "SQL Injection, Firewalls, SIEM tools"
+    body = (
+        f"Hey {first_name},\n\n"
+        f"It's been 3 days since you joined CyberVerse AI. Most candidates who get hired do their first mock interview within the first week.\n\n"
+        f"Based on your profile, here are your top weak spots to focus on:\n"
+        f"→ {topics_str}\n\n"
+    )
+    if unfinished_interviews > 0:
+        body += f"You have {unfinished_interviews} interview(s) you started but never finished. Finishing just one gives you a score out of 100 and tells you exactly what to study next.\n\n"
+    body += (
+        f"Log in and pick up where you left off: {settings.app_base_url}/app.html\n\n"
+        f"The longer you wait, the more ground you lose to other candidates.\n\n"
+        f"- The CyberVerse AI team"
+    )
+    send_email(to, subject, body)
+
+
+def send_day7_nurture_email(to: str, full_name: str, resume_score: int, xp: int) -> None:
+    first_name = full_name.split()[0] if full_name else "there"
+    subject = f"7 days, {first_name}. Still no interview practice?"
+    body = (
+        f"Hey {first_name},\n\n"
+        f"It's been a week. Most cybersecurity professionals who land interviews practice at least once a week. You haven't logged in.\n\n"
+    )
+    if resume_score:
+        body += f"Your resume scored {resume_score}/100. That's a start, but a resume alone doesn't get you hired — defending your answers in an interview does.\n\n"
+    body += (
+        f"You've earned {xp} XP so far. Every day you don't practice, other candidates are pulling ahead.\n\n"
+        f"Here's what to do right now (takes 10 minutes):\n"
+        f"1. Log in: {settings.app_base_url}/app.html\n"
+        f"2. Start a mock interview (any role)\n"
+        f"3. Get your score out of 100\n\n"
+        f"Your future self will thank you.\n\n"
+        f"- The CyberVerse AI team"
+    )
+    send_email(to, subject, body)

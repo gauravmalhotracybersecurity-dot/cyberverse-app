@@ -167,3 +167,79 @@ def _ensure_streak_freeze_column():
         logging.getLogger("cyberverse").warning("streak freeze migration skipped: %s", e)
 
 _ensure_streak_freeze_column()
+
+
+def _ensure_nurture_columns():
+    try:
+        from sqlalchemy import text
+        from database import engine
+        with engine.connect() as conn:
+            conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS day3_email_sent_at timestamp;"))
+            conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS day7_email_sent_at timestamp;"))
+            conn.commit()
+    except Exception as e:
+        import logging
+        logging.getLogger("cyberverse").warning("nurture columns migration skipped: %s", e)
+
+_ensure_nurture_columns()
+
+
+def _nurture_loop():
+    time.sleep(120) # wait 2 min after startup
+    logging.getLogger("cyberverse").info("Nurture loop started.")
+    while True:
+        time.sleep(3600 * 6) # check every 6 hours
+        db = SessionLocal()
+        try:
+            from datetime import datetime, timedelta
+            now = datetime.utcnow()
+            
+            # Day 3: signed up 3 days ago, never returned
+            day3_cutoff = now - timedelta(days=3)
+            day3_max = now - timedelta(days=4) # don't spam old accounts
+            day3_users = db.query(models.User).filter(
+                models.User.created_at < day3_cutoff,
+                models.User.created_at > day3_max,
+                models.User.is_verified == True,
+                models.User.last_active_date == None,
+                models.User.day3_email_sent_at == None
+            ).all()
+            
+            for user in day3_users:
+                unfinished = db.query(models.InterviewSession).filter(
+                    models.InterviewSession.user_id == user.id,
+                    models.InterviewSession.status == "active"
+                ).count()
+                send_day3_nurture_email(user.email, user.full_name or "there", user.weak_topics or [], unfinished)
+                user.day3_email_sent_at = now
+            
+            # Day 7: signed up 7 days ago, minimal activity
+            day7_cutoff = now - timedelta(days=7)
+            day7_max = now - timedelta(days=8)
+            day7_users = db.query(models.User).filter(
+                models.User.created_at < day7_cutoff,
+                models.User.created_at > day7_max,
+                models.User.is_verified == True,
+                models.User.xp < 50, # low engagement
+                models.User.day7_email_sent_at == None
+            ).all()
+            
+            for user in day7_users:
+                # Try to find their resume score if they did a review
+                resume_score = None
+                from sqlalchemy import text
+                try:
+                    result = db.execute(text("SELECT overall_score FROM resume_reviews WHERE user_id = :uid ORDER BY id DESC LIMIT 1"), {"uid": user.id})
+                    row = result.fetchone()
+                    if row: resume_score = row[0]
+                except: pass
+                send_day7_nurture_email(user.email, user.full_name or "there", resume_score, user.xp)
+                user.day7_email_sent_at = now
+            
+            db.commit()
+        except Exception as e:
+            logging.getLogger("cyberverse").error(f"Nurture loop error: {e}")
+        finally:
+            db.close()
+
+threading.Thread(target=_nurture_loop, daemon=True).start()

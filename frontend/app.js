@@ -603,7 +603,7 @@ let _sc = null;
 function showScorecard(score, role, verdict) {
   _sc = { score: score, role: role || "Cyber Security", verdict: verdict || "" };
   const certBtn = $("#sc-cert"); if (certBtn) { certBtn.classList.toggle("hidden", !profile.is_premium); certBtn.onclick = () => window.open(`${API_BASE}/api/interview/${currentInterviewSessionId}/certificate`, "_blank"); }
-  $("#sc-score").textContent = score;
+  countUp($("#sc-score"), score);
   $("#sc-role").textContent = _sc.role;
   $("#sc-verdict").textContent = _sc.verdict;
   $("#scorecard-modal").classList.remove("hidden");
@@ -782,4 +782,17 @@ function renderOnboarding() {
   }
   const d = $("#onb-dismiss");
   if (d) d.onclick = () => { localStorage.setItem("cv_onb_dismissed", "1"); card.classList.add("hidden"); };
+}
+
+
+// ===== Count-up animation =====
+function countUp(el, to) {
+  if (!el) return;
+  const t0 = performance.now(), dur = 900;
+  function f(t) {
+    const p = Math.min(1, (t - t0) / dur);
+    el.textContent = Math.round(to * (1 - Math.pow(1 - p, 3)));
+    if (p < 1) requestAnimationFrame(f);
+  }
+  requestAnimationFrame(f);
 }

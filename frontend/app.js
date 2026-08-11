@@ -805,7 +805,7 @@ function countUp(el, to) {
   const input = document.getElementById("interview-input");
   const form = document.getElementById("interview-form");
   if (!mic || !input) return;
-  if (!SR) { mic.style.display = "none"; return; }
+  if (!SR) { mic.addEventListener("click", () => toast("Voice mode needs Chrome or Edge", "error")); return; }
   let rec = null, base = "";
   const stopUI = () => { rec = null; mic.classList.remove("recording"); mic.textContent = "️"; };
   mic.addEventListener("click", () => {

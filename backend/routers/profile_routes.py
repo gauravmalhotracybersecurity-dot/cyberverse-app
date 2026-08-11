@@ -26,3 +26,14 @@ def update_my_profile(
     db.commit()
     db.refresh(user)
     return user
+
+
+@router.post("/streak-freeze")
+def streak_freeze(user: models.User = Depends(get_current_user), db: Session = Depends(get_db)):
+    if not user.is_pro:
+        raise HTTPException(status_code=403, detail="Pro feature only.")
+    if user.streak_days == 0:
+        raise HTTPException(status_code=400, detail="No streak to protect.")
+    user.streak_freeze_used_today = True
+    db.commit()
+    return {"message": "Streak freeze activated! Your streak is safe for today."}

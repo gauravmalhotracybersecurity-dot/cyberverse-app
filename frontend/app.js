@@ -171,6 +171,7 @@ function goToView(view) {
   if (view === "mentor") loadMentorHistory();
   if (view === "daily") loadDailyBundle();
   if (view === "achievements") loadAchievements();
+  if (view === "leaderboard") loadLeaderboard();
 }
 $all(".nav-item").forEach(n => n.addEventListener("click", () => goToView(n.dataset.view)));
 $all("[data-goto]").forEach(el => el.addEventListener("click", () => goToView(el.dataset.goto)));
@@ -834,3 +835,26 @@ function countUp(el, to) {
   });
   if (form) form.addEventListener("submit", () => { if (rec) rec.stop(); });
 })();
+
+
+// ===== Leaderboard =====
+async function loadLeaderboard() {
+  const el = $("#leaderboard-table");
+  if (!el) return;
+  try {
+    const board = await api("/api/achievements/leaderboard");
+    if (!board.length) {
+      el.innerHTML = "<p>No rankings yet. Be the first to climb!</p>";
+      return;
+    }
+    el.innerHTML = '<table style="width:100%;border-collapse:collapse"><thead><tr style="color:var(--text-muted);font-size:.85rem;text-align:left"><th style="padding:8px">Rank</th><th>Player</th><th>XP</th><th>Streak</th></tr></thead><tbody>' +
+      board.map(u => `<tr style="border-top:1px solid rgba(255,255,255,.06)">
+        <td style="padding:10px;font-weight:700;color:${u.rank <= 3 ? "var(--amber)" : "var(--text-main)"}">${u.rank === 1 ? "🥇" : u.rank === 2 ? "🥈" : u.rank === 3 ? "🥉" : "#" + u.rank}</td>
+        <td>${u.name}${u.is_pro ? ' <span style="color:var(--amber);font-size:.75rem">PRO</span>' : ""}</td>
+        <td style="color:var(--accent);font-weight:700">${u.xp}</td>
+        <td style="color:${u.streak > 0 ? "var(--amber)" : "var(--text-muted)"}">${u.streak > 0 ? "🔥 " + u.streak + "d" : "—"}</td>
+      </tr>`).join("") + "</tbody></table>";
+  } catch (err) {
+    el.innerHTML = '<p style="color:var(--red)">Failed to load leaderboard.</p>';
+  }
+}

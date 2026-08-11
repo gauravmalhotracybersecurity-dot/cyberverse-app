@@ -44,3 +44,26 @@ def get_achievements(
 ):
     achievements = db.query(models.Achievement).filter(models.Achievement.user_id == user.id).all()
     return achievements
+
+
+@router.get("/leaderboard")
+def get_leaderboard(db: Session = Depends(get_db)):
+    from datetime import datetime, timedelta
+    week_ago = datetime.utcnow() - timedelta(days=7)
+    top = (
+        db.query(models.User)
+        .filter(models.User.is_verified == True)
+        .order_by(models.User.xp.desc())
+        .limit(10)
+        .all()
+    )
+    return [
+        {
+            "rank": i + 1,
+            "name": u.full_name or u.email.split("@")[0],
+            "xp": u.xp,
+            "streak": u.streak_days,
+            "is_pro": u.is_pro,
+        }
+        for i, u in enumerate(top)
+    ]

@@ -40,6 +40,7 @@ class User(Base):
     is_verified = Column(Boolean, default=False)
     reset_nonce = Column(String, nullable=True)
     verify_nonce = Column(String, nullable=True)
+    streak_freeze_used_today = Column(Boolean, default=False)
 
 class MentorMessage(Base):
     """Rolling conversation history the AI Mentor uses as short-term memory."""

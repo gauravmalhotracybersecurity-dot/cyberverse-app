@@ -796,3 +796,41 @@ function countUp(el, to) {
   }
   requestAnimationFrame(f);
 }
+
+
+// ===== Voice Interview Mode =====
+(function () {
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  const mic = document.getElementById("mic-btn");
+  const input = document.getElementById("interview-input");
+  const form = document.getElementById("interview-form");
+  if (!mic || !input) return;
+  if (!SR) { mic.style.display = "none"; return; }
+  let rec = null, base = "";
+  const stopUI = () => { rec = null; mic.classList.remove("recording"); mic.textContent = "️"; };
+  mic.addEventListener("click", () => {
+    if (rec) { rec.stop(); return; }
+    rec = new SR();
+    rec.lang = "en-IN";
+    rec.continuous = true;
+    rec.interimResults = true;
+    base = input.value ? input.value.replace(/\s+$/, "") + " " : "";
+    rec.onresult = (e) => {
+      let finalT = "", interim = "";
+      for (let i = e.resultIndex; i < e.results.length; i++) {
+        const t = e.results[i][0].transcript;
+        if (e.results[i].isFinal) finalT += t + " ";
+        else interim += t;
+      }
+      if (finalT) base += finalT;
+      input.value = (base + interim).trimStart();
+    };
+    rec.onend = stopUI;
+    rec.onerror = (e) => { if (window.toast) toast("Mic error: " + e.error, "error"); stopUI(); };
+    rec.start();
+    mic.classList.add("recording");
+    mic.textContent = "⏹️";
+    if (window.toast) toast("Listening… speak your answer", "info");
+  });
+  if (form) form.addEventListener("submit", () => { if (rec) rec.stop(); });
+})();

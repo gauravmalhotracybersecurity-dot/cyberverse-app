@@ -63,6 +63,13 @@ h1,h2,h3,.view-title,.hero h1 { font-family:'Space Grotesk',Inter,sans-serif; le
 .term-bar span:nth-child(1){background:#ff5f56}.term-bar span:nth-child(2){background:#ffbd2e}.term-bar span:nth-child(3){background:#27c93f}
 .term-body { font-family:'JetBrains Mono',Consolas,monospace; color:#9fffe9; padding:16px 18px; min-height:190px; font-size:.92rem; line-height:1.7; margin:0; white-space:pre-wrap; }
 </style>
+<style>
+/* ===== Voice mode ===== */
+.mic-btn { background:#151515; border:1px solid #333; border-radius:10px; padding:0 14px; font-size:1.1rem; cursor:pointer; color:#fff; transition:border-color .2s; }
+.mic-btn:hover { border-color:#8b5cf6; }
+.mic-btn.recording { border-color:#ff5555; animation:cv-mic-pulse 1.2s infinite; }
+@keyframes cv-mic-pulse { 0%,100%{box-shadow:0 0 0 0 rgba(255,85,85,.5)} 50%{box-shadow:0 0 0 8px rgba(255,85,85,0)} }
+</style>
 </head>
 <body>
 
@@ -267,7 +274,7 @@ h1,h2,h3,.view-title,.hero h1 { font-family:'Space Grotesk',Inter,sans-serif; le
     <!-- ---- INTERVIEW COACH ---- -->
     <section class="view" id="view-interview">
       <h1 class="view-title">Interview Coach</h1>
-      <p class="view-sub">A realistic mock interview with turn-by-turn feedback.</p>
+      <p class="view-sub">A realistic mock interview with turn-by-turn feedback. <span style="color:var(--violet)">New: answer out loud with voice mode 🎙️</span></p>
 
       <div id="interview-setup" class="card">
         <label>Role</label>
@@ -285,6 +292,7 @@ h1,h2,h3,.view-title,.hero h1 { font-family:'Space Grotesk',Inter,sans-serif; le
         <div class="chat-log" id="interview-log" aria-live="polite"></div>
         <form id="interview-form" class="chat-input-row">
           <input type="text" id="interview-input" placeholder="Type your answer…" autocomplete="off" required />
+          <button type="button" id="mic-btn" class="mic-btn" title="Answer with your voice">🎙️</button>
           <button type="submit" class="btn-primary">Answer</button>
         <button id="interview-new" class="btn-secondary hidden" style="margin-top:12px">Start a new interview</button>
         </form>

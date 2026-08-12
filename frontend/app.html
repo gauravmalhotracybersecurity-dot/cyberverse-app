@@ -136,6 +136,7 @@ h1,h2,h3,.view-title,.hero h1 { font-family:'Space Grotesk',Inter,sans-serif; le
       <button class="nav-item" data-view="daily"><span class="nav-ico">⟳</span>Daily Ops</button>
       <button class="nav-item" data-view="resume"><span class="nav-ico">▤</span>Resume Builder</button>
       <button class="nav-item" data-view="interview"><span class="nav-ico">◎</span>Interview Coach</button>
+      <button class="nav-item" data-view="roadmap"><span class="nav-ico">🗺️</span>Roadmap</button>
       <button class="nav-item" data-view="ctf"><span class="nav-ico" style="color:var(--amber)">⚡</span>CTF Bites</button>
       <button class="nav-item" data-view="achievements"><span class="nav-ico">🏆</span>Achievements</button>
       <button class="nav-item" data-view="leaderboard"><span class="nav-ico" style="color:var(--amber)">👑</span>League</button>
@@ -308,6 +309,18 @@ h1,h2,h3,.view-title,.hero h1 { font-family:'Space Grotesk',Inter,sans-serif; le
     </section>
 
         
+    
+    <!-- ---- ROADMAP ---- -->
+    <section class="view" id="view-roadmap">
+      <h1 class="view-title">🗺️ 90-Day SOC Roadmap</h1>
+      <p class="view-sub">From zero to interview-ready in 12 weeks. Tick a week when you complete it.</p>
+      <div style="max-width:720px">
+        <div style="background:#151515;border-radius:8px;height:10px;margin-bottom:6px"><div id="rm-bar" style="background:var(--accent);height:10px;border-radius:8px;width:0%;transition:width .4s"></div></div>
+        <p id="rm-progress" style="color:var(--text-muted);font-size:.85rem;margin-bottom:20px">0 / 12 weeks completed</p>
+        <div id="rm-list"></div>
+      </div>
+    </section>
+
     <!-- ---- CTF BITES ---- -->
     <section class="view" id="view-ctf">
       <h1 class="view-title" style="color:var(--amber)">⚡ CTF Bites</h1>

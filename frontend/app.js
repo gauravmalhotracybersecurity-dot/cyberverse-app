@@ -174,6 +174,7 @@ function goToView(view) {
   if (view === "achievements") loadAchievements();
   if (view === "leaderboard") loadLeaderboard();
   if (view === "ctf") loadCTF();
+  if (view === "roadmap") renderRoadmap();
 }
 $all(".nav-item").forEach(n => n.addEventListener("click", () => goToView(n.dataset.view)));
 $all("[data-goto]").forEach(el => el.addEventListener("click", () => goToView(el.dataset.goto)));
@@ -922,3 +923,56 @@ if (_ctfBtn) _ctfBtn.addEventListener("click", async () => {
   document.querySelectorAll('#paywall-modal a[target="_blank"]').forEach(a =>
     a.addEventListener("click", () => cvTrack("payment_clicked")));
 })();
+
+
+// ===== 90-Day SOC Roadmap =====
+const ROADMAP = [
+  {phase: "Phase 1 - Foundations", weeks: [
+    {id:"w1", t:"Networking & Linux basics", cert:"Security+ SY0-701 1.1-1.3", goto:"mentor", items:["TCP/IP, OSI model, and the ports every SOC analyst must know (22, 53, 443, 3389)","Linux files, permissions, and the 10 commands you'll use daily","Ask the Mentor to quiz you on ports and protocols"]},
+    {id:"w2", t:"Security fundamentals", cert:"Security+ SY0-701 1.4-2.2", goto:"ctf", items:["CIA triad, AAA, zero trust - and how to explain them in one sentence each","Malware types, phishing, and the attack lifecycle","Solve a CTF Bite every day this week"]},
+    {id:"w3", t:"Resume & presence", goto:"resume", items:["Run your resume through the AI review and fix every flagged gap","Rewrite your LinkedIn headline: role + skill + proof","Add one hands-on line (home lab, CTF, course project)"]},
+    {id:"w4", t:"First mock interview", goto:"interview", items:["Do a Quick Round (3 questions) with voice mode ON","Review your scorecard: note your 3 weakest topics","Re-answer the weakest question out loud until it's smooth"]}]},
+  {phase: "Phase 2 - Defense", weeks: [
+    {id:"w5", t:"SIEM & log analysis", cert:"Security+ SY0-701 2.4", goto:"ctf", items:["Learn Event IDs 4624, 4625, 4688 and what 'good' looks like","Understand stats vs transaction in Splunk","CTF Bites: log & SIEM challenges"]},
+    {id:"w6", t:"Alert triage drills", goto:"interview", items:["Practice the phishing-click and DC-beaconing scenarios","Structure every answer: validate, enrich, scope, contain, document","Full SOC interview - target score 60+"]},
+    {id:"w7", t:"Threat intel & vuln management", goto:"mentor", items:["CVE vs CVSS vs EPSS - and which one you trust first","Zero-day prioritization: exposure beats severity","Ask the Mentor for a vuln-management scenario"]},
+    {id:"w8", t:"GRC awareness (GRC track)", goto:"interview", items:["ISO 27001 risk assessment flow and the SoA","Vendor risk tiering in plain language","Do one GRC mock interview"]}]},
+  {phase: "Phase 3 - Hunt & Get Hired", weeks: [
+    {id:"w9", t:"Threat hunting basics", goto:"ctf", items:["Lateral movement indicators (SMB/RDP/WMI between workstations)","Beaconing: intervals, jitter, and how to spot C2","Golden vs silver ticket - the 60-second explanation"]},
+    {id:"w10", t:"Advanced interviews", goto:"interview", items:["Full 6-question voice interview - target 80+","Defend your answers against follow-ups without rambling","Share your best scorecard on LinkedIn"]},
+    {id:"w11", t:"Applications sprint", goto:"resume", items:["10 tailored applications using your gap-fixed resume","Attach your CyberVerse scorecard where uploads allow","Ask 2 contacts for referrals - template in the Mentor"]},
+    {id:"w12", t:"Offer readiness", goto:"interview", items:["Final mock interview: calm, structured, under 60s per answer","Prepare your 'why cybersecurity' story (90 seconds)","Premium: download your certificate and add it to LinkedIn"]}]}
+];
+
+function renderRoadmap() {
+  const list = $("#rm-list");
+  if (!list) return;
+  const done = JSON.parse(localStorage.getItem("cv_roadmap") || "{}");
+  const total = ROADMAP.reduce((n, p) => n + p.weeks.length, 0);
+  const doneCount = Object.values(done).filter(Boolean).length;
+  $("#rm-bar").style.width = Math.round(100 * doneCount / total) + "%";
+  $("#rm-progress").textContent = doneCount + " / " + total + " weeks completed" + (doneCount === total ? " - interview-ready! 🎉" : "");
+  let html = "";
+  ROADMAP.forEach(ph => {
+    html += '<h3 style="color:var(--accent);margin:24px 0 10px">' + ph.phase + "</h3>";
+    ph.weeks.forEach((w, i) => {
+      const isDone = !!done[w.id];
+      html += '<div class="card" style="padding:16px;margin-bottom:10px;' + (isDone ? "opacity:.65;" : "") + '">' +
+        '<div style="display:flex;gap:12px;align-items:flex-start">' +
+        '<input type="checkbox" data-week="' + w.id + '" ' + (isDone ? "checked" : "") + ' style="margin-top:4px;accent-color:var(--accent);width:18px;height:18px;cursor:pointer"/>' +
+        '<div style="flex:1"><div style="font-weight:700">' + w.t +
+        (w.cert ? ' <span style="color:var(--amber);font-size:.72rem;border:1px solid var(--amber);border-radius:10px;padding:1px 8px;margin-left:6px">' + w.cert + "</span>" : "") +
+        "</div><ul style='margin:8px 0 0;padding-left:18px;color:var(--text-muted);font-size:.9rem'>" +
+        w.items.map(it => "<li style='margin-bottom:4px'>" + it + "</li>").join("") +
+        "</ul><button class='btn-secondary rm-go' data-goto='" + w.goto + "' style='margin-top:10px;padding:6px 14px'>Practice in CyberVerse →</button></div></div></div>";
+    });
+  });
+  list.innerHTML = html;
+  list.querySelectorAll("input[data-week]").forEach(cb => cb.addEventListener("change", () => {
+    const d = JSON.parse(localStorage.getItem("cv_roadmap") || "{}");
+    d[cb.dataset.week] = cb.checked;
+    localStorage.setItem("cv_roadmap", JSON.stringify(d));
+    renderRoadmap();
+  }));
+  list.querySelectorAll(".rm-go").forEach(b => b.addEventListener("click", () => goToView(b.dataset.goto)));
+}

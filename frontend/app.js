@@ -195,7 +195,6 @@ async function enterApp() {
   renderStatusBar();
   checkProStatus();
   renderDashboardSnapshot();
-  renderStreakRescue();
   renderOnboarding();
   populateProfileForm();
 }
@@ -237,7 +236,6 @@ $("#p-save").addEventListener("click", async () => {
   renderStatusBar();
   checkProStatus();
   renderDashboardSnapshot();
-  renderStreakRescue();
   renderOnboarding(); toast("Profile saved ✓");
   const saved = $("#p-saved");
   saved.classList.remove("hidden");
@@ -871,17 +869,6 @@ async function loadLeaderboard() {
 }
 
 
-// ===== Streak Rescue UI =====
-function renderStreakRescue() {
-  const card = document.getElementById("streak-rescue-card");
-  if (!card || !profile) return;
-  // Show if streak > 0 (you can tweak this logic later)
-  if (profile.streak_days > 0) {
-    card.style.display = "block";
-  } else {
-    card.style.display = "none";
-  }
-}
 
 
 // ===== CTF Bites =====

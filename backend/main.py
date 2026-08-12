@@ -22,6 +22,7 @@ from routers import (
     interview_routes,
     ctf_routes,
     analytics_routes,
+    lead_routes,
 )
 
 logging.basicConfig(
@@ -84,6 +85,7 @@ app.include_router(resume_routes.router)
 app.include_router(interview_routes.router)
 app.include_router(ctf_routes.router)
 app.include_router(analytics_routes.router)
+app.include_router(lead_routes.router)
 
 
 @app.get("/api/health")
@@ -278,3 +280,18 @@ def _ensure_events_table():
         logging.getLogger("cyberverse").warning("events table migration skipped: %s", e)
 
 _ensure_events_table()
+
+
+def _ensure_leads_and_quick_columns():
+    try:
+        from sqlalchemy import text
+        from database import engine
+        with engine.connect() as conn:
+            conn.execute(text("CREATE TABLE IF NOT EXISTS leads (id SERIAL PRIMARY KEY, email varchar UNIQUE, created_at timestamp DEFAULT CURRENT_TIMESTAMP);"))
+            conn.execute(text("ALTER TABLE interview_sessions ADD COLUMN IF NOT EXISTS max_turns integer DEFAULT 6;"))
+            conn.commit()
+    except Exception as e:
+        import logging
+        logging.getLogger("cyberverse").warning("leads/quick migration skipped: %s", e)
+
+_ensure_leads_and_quick_columns()

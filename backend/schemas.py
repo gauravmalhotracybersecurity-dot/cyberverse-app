@@ -102,6 +102,7 @@ class ResumeReviewResponse(BaseModel):
 
 class InterviewStartRequest(BaseModel):
     role: str = "SOC Analyst"
+    quick: bool = False
 
 
 class InterviewTurnOut(BaseModel):

@@ -95,6 +95,7 @@ class InterviewSession(Base):
     overall_score = Column(Integer, nullable=True)
     nudge_sent_at = Column(DateTime, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
+    max_turns = Column(Integer, default=6)
 
 class InterviewTurn(Base):
     __tablename__ = "interview_turns"
@@ -126,4 +127,11 @@ class Event(Base):
     sid = Column(String, nullable=True)
     name = Column(String, index=True)
     path = Column(String, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+
+class Lead(Base):
+    __tablename__ = "leads"
+    id = Column(Integer, primary_key=True, index=True)
+    email = Column(String, unique=True, index=True)
     created_at = Column(DateTime, default=datetime.utcnow)

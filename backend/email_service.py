@@ -167,3 +167,14 @@ def send_day7_nurture_email(to: str, full_name: str, resume_score: int, xp: int)
         f"- The CyberVerse AI team"
     )
     send_email(to, subject, body)
+
+
+def send_lead_magnet_email(to: str, pdf_url: str) -> None:
+    subject = "Your free PDF: 10 Real SOC Analyst Interview Questions"
+    body = (
+        "Hey!\n\nHere is your download:\n" + pdf_url + "\n\n"
+        "Inside: 10 real SOC Analyst interview questions with the exact answer frameworks interviewers expect.\n\n"
+        "Want to practice them out loud? The AI interviewer at https://app.grcwithgaurav.com/app.html scores you out of 100 - free.\n\n"
+        "- The CyberVerse AI team"
+    )
+    send_email(to, subject, body)

@@ -72,7 +72,7 @@ async def start_interview(
         total_sessions = db.query(models.InterviewSession).filter(models.InterviewSession.user_id == user.id).count()
         if total_sessions >= 3:
             raise HTTPException(status_code=403, detail="Free tier limit reached (3 interviews). Upgrade to Pro for unlimited mock interviews.")
-    session = models.InterviewSession(user_id=user.id, role=payload.role, status="active")
+    session = models.InterviewSession(user_id=user.id, role=payload.role, status="active", max_turns=3 if payload.quick else 6)
     db.add(session)
     db.flush()
 
@@ -121,12 +121,12 @@ async def respond(
     db.flush()
 
     answered_count = sum(1 for t in session.turns if t.speaker == "candidate")
-    force_wrap_up = answered_count >= MAX_TURNS
+    force_wrap_up = answered_count >= (session.max_turns or MAX_TURNS)
 
     history_messages = _history_as_messages(session)
     instruction = (
         "The candidate just answered. Evaluate their answer, then, since this was the "
-        f"final question ({MAX_TURNS} answered), set is_complete true, give closing_remarks, an overall_score (integer 0-100), and a one-line verdict."
+        f"final question ({(session.max_turns or MAX_TURNS)} answered), set is_complete true, give closing_remarks, an overall_score (integer 0-100), and a one-line verdict."
         if force_wrap_up
         else "The candidate just answered. Evaluate their answer, then ask the next question."
     )

@@ -447,9 +447,10 @@ let currentInterviewSessionId = null;
 
 $("#interview-start").addEventListener("click", async () => {
   const role = $("#interview-role").value;
+  const quick = ($("#interview-mode") ? $("#interview-mode").value === "quick" : false);
   $("#interview-start").disabled = true;
   try {
-    const result = await api("/api/interview/start", { method: "POST", body: JSON.stringify({ role }) });
+    const result = await api("/api/interview/start", { method: "POST", body: JSON.stringify({ role, quick }) });
     currentInterviewSessionId = result.session_id;
     cvTrack("interview_started");
     $("#interview-setup").classList.add("hidden");

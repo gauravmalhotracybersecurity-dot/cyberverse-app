@@ -859,7 +859,7 @@ async function loadLeaderboard() {
     el.innerHTML = '<table style="width:100%;border-collapse:collapse"><thead><tr style="color:var(--text-muted);font-size:.85rem;text-align:left"><th style="padding:8px">Rank</th><th>Player</th><th>XP</th><th>Streak</th></tr></thead><tbody>' +
       board.map(u => `<tr style="border-top:1px solid rgba(255,255,255,.06)">
         <td style="padding:10px;font-weight:700;color:${u.rank <= 3 ? "var(--amber)" : "var(--text-main)"}">${u.rank === 1 ? "🥇" : u.rank === 2 ? "🥈" : u.rank === 3 ? "🥉" : "#" + u.rank}</td>
-        <td>${u.name}${u.is_pro ? ' <span style="color:var(--amber);font-size:.75rem">PRO</span>' : ""}</td>
+        <td>${escapeHtml(u.name)}${u.is_pro ? ' <span style="color:var(--amber);font-size:.75rem">PRO</span>' : ""}</td>
         <td style="color:var(--accent);font-weight:700">${u.xp}</td>
         <td style="color:${u.streak > 0 ? "var(--amber)" : "var(--text-muted)"}">${u.streak > 0 ? "🔥 " + u.streak + "d" : "—"}</td>
       </tr>`).join("") + "</tbody></table>";

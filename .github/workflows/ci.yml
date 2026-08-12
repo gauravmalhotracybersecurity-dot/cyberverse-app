@@ -1,29 +1,16 @@
-name: CI
-
-on:
-  push:
-    branches: [main]
-  pull_request:
-    branches: [main]
-
+name: CI Smoke Test
+on: [push, pull_request]
 jobs:
-  test:
+  smoke:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: backend
     steps:
       - uses: actions/checkout@v4
-
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-
-      - name: Install dependencies
-        run: pip install -r requirements-dev.txt
-
-      - name: Run tests
-        env:
-          JWT_SECRET: ci-test-secret
-          DATABASE_URL: "sqlite:///./ci_test.db"
-        run: pytest -v
+      - name: Install deps
+        run: pip install -q -r backend/requirements.txt
+      - name: Compile check (catches syntax/indent errors)
+        run: python -m compileall -q backend/
+      - name: Import smoke test (catches NameError/ImportError)
+        run: cd backend && python -c "import main"

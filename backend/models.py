@@ -45,6 +45,10 @@ class User(Base):
     day7_email_sent_at = Column(DateTime, nullable=True)
     ctf_solves = Column(Integer, default=0)
     ctf_last_solved_date = Column(Date, nullable=True)
+    referral_code = Column(String, unique=True, nullable=True)
+    referred_by_id = Column(Integer, nullable=True)
+    bonus_interviews = Column(Integer, default=0)
+    bonus_resumes = Column(Integer, default=0)
 
 class MentorMessage(Base):
     """Rolling conversation history the AI Mentor uses as short-term memory."""

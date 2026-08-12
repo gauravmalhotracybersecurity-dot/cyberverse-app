@@ -37,3 +37,16 @@ def streak_freeze(user: models.User = Depends(get_current_user), db: Session = D
     user.streak_freeze_used_today = True
     db.commit()
     return {"message": "Streak freeze activated! Your streak is safe for today."}
+
+
+@router.get("/referral")
+def get_referral(user: models.User = Depends(get_current_user), db: Session = Depends(get_db)):
+    if not user.referral_code:
+        import uuid as _u
+        user.referral_code = _u.uuid4().hex[:8]
+        db_commit = True
+    else:
+        db_commit = False
+    if db_commit:
+        db.commit()
+    return {"code": user.referral_code, "bonus_interviews": user.bonus_interviews or 0, "bonus_resumes": user.bonus_resumes or 0}

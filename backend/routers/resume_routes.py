@@ -28,7 +28,7 @@ async def _run_review(resume_text: str, target_role: str, user: models.User, db:
 
     if not user.is_pro:
         total_reviews = db.query(models.ResumeReview).filter(models.ResumeReview.user_id == user.id).count()
-        if total_reviews >= 3:
+        if total_reviews >= (3 + (user.bonus_resumes or 0)):
             raise HTTPException(status_code=403, detail="Free tier limit reached (3 reviews). Upgrade to Pro for unlimited resume reviews.")
     record = models.ResumeReview(user_id=user.id, resume_text=resume_text, review=review)
     db.add(record)

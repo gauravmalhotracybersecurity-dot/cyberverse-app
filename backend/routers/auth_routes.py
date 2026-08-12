@@ -32,7 +32,16 @@ def signup(request: Request, payload: schemas.SignupRequest, db: Session = Depen
         full_name=payload.full_name,
         is_verified=False,
         verify_nonce=_uuid.uuid4().hex,
+        referral_code=_uuid.uuid4().hex[:8],
     )
+    if payload.referral_code:
+        referrer = db.query(models.User).filter(models.User.referral_code == payload.referral_code).first()
+        if referrer:
+            user.referred_by_id = referrer.id
+            user.bonus_interviews = (user.bonus_interviews or 0) + 1
+            user.bonus_resumes = (user.bonus_resumes or 0) + 1
+            referrer.bonus_interviews = (referrer.bonus_interviews or 0) + 1
+            referrer.bonus_resumes = (referrer.bonus_resumes or 0) + 1
     db.add(user)
     db.commit()
     db.refresh(user)

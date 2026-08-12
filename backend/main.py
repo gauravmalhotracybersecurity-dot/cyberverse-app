@@ -304,3 +304,20 @@ def _ensure_leads_and_quick_columns():
         logging.getLogger("cyberverse").warning("leads/quick migration skipped: %s", e)
 
 _ensure_leads_and_quick_columns()
+
+
+def _ensure_referral_columns():
+    try:
+        from sqlalchemy import text
+        from database import engine
+        with engine.connect() as conn:
+            conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS referral_code varchar;"))
+            conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS referred_by_id integer;"))
+            conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS bonus_interviews integer DEFAULT 0;"))
+            conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS bonus_resumes integer DEFAULT 0;"))
+            conn.commit()
+    except Exception as e:
+        import logging
+        logging.getLogger("cyberverse").warning("referral migration skipped: %s", e)
+
+_ensure_referral_columns()

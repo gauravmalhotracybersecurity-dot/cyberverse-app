@@ -397,6 +397,12 @@ h1,h2,h3,.view-title,.hero h1 { font-family:'Space Grotesk',Inter,sans-serif; le
         <textarea id="p-goals" rows="3" placeholder="Become a SOC Analyst in 6 months"></textarea>
 
         <button id="p-save" class="btn-primary" style="margin-top:14px">Save profile</button>
+      <div class="card" id="referral-card" style="margin-top:20px;border:1px dashed var(--accent)">
+        <h3>🎁 Refer a friend</h3>
+        <p style="color:var(--text-muted)">You both get +1 free interview and +1 resume review when they sign up.</p>
+        <div style="display:flex;gap:8px;margin-top:10px"><input type="text" id="ref-link" readonly style="flex:1"/><button id="ref-copy" class="btn-secondary">Copy</button></div>
+        <p id="ref-stats" style="color:var(--accent);font-size:.85rem;margin-top:10px"></p>
+      </div>
         <p id="p-saved" class="hint hidden">Saved.</p>
       </div>
     </section>

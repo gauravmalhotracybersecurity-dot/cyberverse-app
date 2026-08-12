@@ -58,7 +58,7 @@ $("#auth-form").addEventListener("submit", async (e) => {
       const full_name = $("#full-name").value.trim();
       result = await api("/api/auth/signup", {
         method: "POST",
-        body: JSON.stringify({ email, password, full_name }),
+        body: JSON.stringify({ email, password, full_name, referral_code: sessionStorage.getItem("cv_ref") || null }),
       });
     } else {
       result = await api("/api/auth/login", {
@@ -175,6 +175,7 @@ function goToView(view) {
   if (view === "leaderboard") loadLeaderboard();
   if (view === "ctf") loadCTF();
   if (view === "roadmap") renderRoadmap();
+  if (view === "profile") loadReferralData();
 }
 $all(".nav-item").forEach(n => n.addEventListener("click", () => goToView(n.dataset.view)));
 $all("[data-goto]").forEach(el => el.addEventListener("click", () => goToView(el.dataset.goto)));
@@ -517,6 +518,8 @@ $("#interview-form").addEventListener("submit", async (e) => {
 
 // ===== Boot =====
 (async function boot() {
+  const _urlRef = new URLSearchParams(window.location.search).get("ref");
+  if (_urlRef) sessionStorage.setItem("cv_ref", _urlRef);
   if (token) {
     await enterApp();
   }
@@ -975,4 +978,19 @@ function renderRoadmap() {
     renderRoadmap();
   }));
   list.querySelectorAll(".rm-go").forEach(b => b.addEventListener("click", () => goToView(b.dataset.goto)));
+}
+
+
+// ===== Referral UI =====
+async function loadReferralData() {
+  const card = $("#referral-card");
+  if (!card) return;
+  try {
+    const d = await api("/api/profile/referral");
+    const link = window.location.origin + "/app.html?ref=" + d.code;
+    $("#ref-link").value = link;
+    $("#ref-stats").textContent = "Bonuses earned: +" + d.bonus_interviews + " interview(s), +" + d.bonus_resumes + " resume review(s)";
+    const btn = $("#ref-copy");
+    if (btn) btn.onclick = () => { navigator.clipboard.writeText(link); btn.textContent = "Copied!"; setTimeout(() => btn.textContent = "Copy", 2000); };
+  } catch (e) { console.error(e); }
 }

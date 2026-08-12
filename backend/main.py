@@ -23,6 +23,7 @@ from routers import (
     ctf_routes,
     analytics_routes,
     lead_routes,
+    lab_routes,
 )
 
 logging.basicConfig(
@@ -95,6 +96,7 @@ app.include_router(interview_routes.router)
 app.include_router(ctf_routes.router)
 app.include_router(analytics_routes.router)
 app.include_router(lead_routes.router)
+app.include_router(lab_routes.router)
 
 
 @app.get("/api/health")
@@ -321,3 +323,17 @@ def _ensure_referral_columns():
         logging.getLogger("cyberverse").warning("referral migration skipped: %s", e)
 
 _ensure_referral_columns()
+
+
+def _ensure_lab_logs_table():
+    try:
+        from sqlalchemy import text
+        from database import engine
+        with engine.connect() as conn:
+            conn.execute(text("CREATE TABLE IF NOT EXISTS lab_logs (id SERIAL PRIMARY KEY, user_id integer, lab_id varchar, notes text, artifacts text, completed_at timestamp DEFAULT CURRENT_TIMESTAMP);"))
+            conn.commit()
+    except Exception as e:
+        import logging
+        logging.getLogger("cyberverse").warning("lab_logs migration skipped: %s", e)
+
+_ensure_lab_logs_table()

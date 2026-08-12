@@ -139,3 +139,13 @@ class Lead(Base):
     id = Column(Integer, primary_key=True, index=True)
     email = Column(String, unique=True, index=True)
     created_at = Column(DateTime, default=datetime.utcnow)
+
+
+class LabLog(Base):
+    __tablename__ = "lab_logs"
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, index=True)
+    lab_id = Column(String)
+    notes = Column(Text, nullable=True)
+    artifacts = Column(Text, nullable=True)
+    completed_at = Column(DateTime, default=datetime.utcnow)

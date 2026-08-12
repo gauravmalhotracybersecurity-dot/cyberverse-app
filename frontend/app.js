@@ -175,6 +175,7 @@ function goToView(view) {
   if (view === "leaderboard") loadLeaderboard();
   if (view === "ctf") loadCTF();
   if (view === "roadmap") renderRoadmap();
+  if (view === "labs") renderLabs();
   if (view === "profile") loadReferralData();
 }
 $all(".nav-item").forEach(n => n.addEventListener("click", () => goToView(n.dataset.view)));
@@ -993,4 +994,40 @@ async function loadReferralData() {
     const btn = $("#ref-copy");
     if (btn) btn.onclick = () => { navigator.clipboard.writeText(link); btn.textContent = "Copied!"; setTimeout(() => btn.textContent = "Copy", 2000); };
   } catch (e) { console.error(e); }
+}
+
+
+// ===== Lab Log =====
+async function renderLabs() {
+  const list = $("#labs-list");
+  if (!list) return;
+  try {
+    const d = await api("/api/labs");
+    const doneCount = Object.keys(d.done).length;
+    $("#labs-progress").textContent = doneCount + " / " + d.labs.length + " labs completed" + (doneCount === d.labs.length ? " - portfolio ready! 🎉" : "");
+    list.innerHTML = d.labs.map(lab => {
+      const done = d.done[lab.id];
+      return '<div class="card" style="padding:16px;margin-bottom:12px;' + (done ? "border-color:var(--accent);" : "") + '">' +
+        '<div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap"><strong>' + lab.title + "</strong>" +
+        '<span style="color:var(--text-muted);font-size:.8rem">' + lab.tool + " • " + lab.mins + " min • " + lab.level + (done ? " • ✅ done" : "") + "</span></div>" +
+        "<details style='margin-top:8px'><summary style='cursor:pointer;color:var(--accent);font-size:.9rem'>Steps & evidence</summary>" +
+        "<ol style='margin:8px 0 0;padding-left:18px;color:var(--text-muted);font-size:.9rem'>" + lab.steps.map(x => "<li style='margin-bottom:4px'>" + x + "</li>").join("") + "</ol>" +
+        "<p style='color:var(--amber);font-size:.85rem;margin-top:8px'>Evidence to capture: " + lab.evidence.join(" · ") + "</p></details>" +
+        (done
+          ? '<div style="margin-top:12px"><p style="font-size:.85rem;color:var(--text-muted)"><b style="color:var(--accent)">Resume bullet:</b> ' + done.bullet + "</p><p style='font-size:.85rem;color:var(--text-muted)'><b style='color:var(--accent)'>STAR story:</b> " + done.star + "</p><p style='font-size:.85rem;color:var(--text-muted)'><b style='color:var(--accent)'>LinkedIn draft:</b> " + done.linkedin + "</p>" +
+            '<div style="display:flex;gap:8px;margin-top:8px"><button class="btn-secondary lab-copy" data-k="bullet" data-lab="' + lab.id + '">Copy bullet</button><button class="btn-secondary lab-copy" data-k="star" data-lab="' + lab.id + '">Copy STAR</button><button class="btn-secondary lab-copy" data-k="linkedin" data-lab="' + lab.id + '">Copy post</button></div></div>'
+          : '<div style="margin-top:12px"><textarea id="lab-notes-' + lab.id + '" placeholder="Optional: what did you observe / struggle with?" style="width:100%;min-height:52px;background:#111;border:1px solid #333;border-radius:8px;color:#fff;padding:8px"></textarea>' +
+            '<button class="btn-primary lab-done" data-lab="' + lab.id + '" style="margin-top:8px">✅ Mark complete & generate my pack</button></div>') +
+        "</div>";
+    }).join("");
+    list.querySelectorAll(".lab-done").forEach(b => b.addEventListener("click", async () => {
+      const notes = ($("#lab-notes-" + b.dataset.lab) || {}).value || "";
+      const r = await api("/api/labs/complete", { method: "POST", body: JSON.stringify({ lab_id: b.dataset.lab, notes }) });
+      if (!r.error) { cvTrack("lab_completed"); profile.xp += 15; renderStatusBar(); toast("Lab complete! +15 XP — portfolio pack ready"); renderLabs(); }
+    }));
+    list.querySelectorAll(".lab-copy").forEach(b => b.addEventListener("click", () => {
+      navigator.clipboard.writeText(d.done[b.dataset.lab][b.dataset.k]);
+      toast("Copied to clipboard");
+    }));
+  } catch (e) { list.innerHTML = "Could not load labs."; }
 }

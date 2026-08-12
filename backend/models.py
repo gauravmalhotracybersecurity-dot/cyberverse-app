@@ -149,3 +149,16 @@ class LabLog(Base):
     notes = Column(Text, nullable=True)
     artifacts = Column(Text, nullable=True)
     completed_at = Column(DateTime, default=datetime.utcnow)
+
+
+class Story(Base):
+    __tablename__ = "stories"
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, index=True)
+    title = Column(String)
+    source = Column(String, nullable=True)
+    s = Column(Text)
+    t = Column(Text, nullable=True)
+    a = Column(Text)
+    r = Column(Text, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)

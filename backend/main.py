@@ -24,6 +24,7 @@ from routers import (
     analytics_routes,
     lead_routes,
     lab_routes,
+    story_routes,
 )
 
 logging.basicConfig(
@@ -97,6 +98,7 @@ app.include_router(ctf_routes.router)
 app.include_router(analytics_routes.router)
 app.include_router(lead_routes.router)
 app.include_router(lab_routes.router)
+app.include_router(story_routes.router)
 
 
 @app.get("/api/health")
@@ -337,3 +339,17 @@ def _ensure_lab_logs_table():
         logging.getLogger("cyberverse").warning("lab_logs migration skipped: %s", e)
 
 _ensure_lab_logs_table()
+
+
+def _ensure_stories_table():
+    try:
+        from sqlalchemy import text
+        from database import engine
+        with engine.connect() as conn:
+            conn.execute(text("CREATE TABLE IF NOT EXISTS stories (id SERIAL PRIMARY KEY, user_id integer, title varchar, source varchar, s text, t text, a text, r text, created_at timestamp DEFAULT CURRENT_TIMESTAMP);"))
+            conn.commit()
+    except Exception as e:
+        import logging
+        logging.getLogger("cyberverse").warning("stories migration skipped: %s", e)
+
+_ensure_stories_table()

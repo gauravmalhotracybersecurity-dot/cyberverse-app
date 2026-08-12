@@ -176,6 +176,7 @@ function goToView(view) {
   if (view === "ctf") loadCTF();
   if (view === "roadmap") renderRoadmap();
   if (view === "labs") renderLabs();
+  if (view === "stories") renderStories();
   if (view === "profile") loadReferralData();
 }
 $all(".nav-item").forEach(n => n.addEventListener("click", () => goToView(n.dataset.view)));
@@ -1031,3 +1032,83 @@ async function renderLabs() {
     }));
   } catch (e) { list.innerHTML = "Could not load labs."; }
 }
+
+
+// ===== Story Bank =====
+let _storyCache = [];
+function _parseStar(txt) {
+  const m = { s: "", t: "", a: "", r: "" };
+  const x = /S:\s*([\s\S]*?)\s*T:\s*([\s\S]*?)\s*A:\s*([\s\S]*?)\s*R:\s*([\s\S]*)/.exec(txt);
+  if (x) { m.s = x[1]; m.t = x[2]; m.a = x[3]; m.r = x[4]; }
+  return m;
+}
+function _stWords() {
+  const n = ["st-s", "st-t", "st-a", "st-r"].map(id => ($("#" + id) || { value: "" }).value).join(" ").trim().split(/\s+/).filter(Boolean).length;
+  const el = $("#st-words");
+  if (el) el.textContent = n + " words - aim for 180-220 (~90 seconds spoken)" + (n >= 180 && n <= 220 ? " ✅ perfect" : "");
+}
+async function renderStories() {
+  const list = $("#st-list");
+  if (!list) return;
+  try {
+    const [stories, labs] = await Promise.all([api("/api/stories"), api("/api/labs")]);
+    _storyCache = stories;
+    const sel = $("#st-source");
+    if (sel) {
+      sel.innerHTML = '<option value="manual">Manual - my own experience</option>' +
+        Object.keys(labs.done).map(id => { const l = labs.labs.find(x => x.id === id); return l ? '<option value="' + id + '">Prefill from lab: ' + escapeHtml(l.title) + "</option>" : ""; }).join("");
+      sel.onchange = () => {
+        const lab = labs.labs.find(x => x.id === sel.value);
+        if (lab && labs.done[lab.id]) {
+          const m = _parseStar(labs.done[lab.id].star || "");
+          $("#st-s").value = m.s; $("#st-t").value = m.t; $("#st-a").value = m.a; $("#st-r").value = m.r;
+          if (!$("#st-title").value) $("#st-title").value = "My " + lab.title + " story";
+          _stWords();
+        }
+      };
+    }
+    ["st-s", "st-t", "st-a", "st-r"].forEach(id => { const e = $("#" + id); if (e) e.oninput = _stWords; });
+    const saveBtn = $("#st-save");
+    if (saveBtn) saveBtn.onclick = async () => {
+      try {
+        await api("/api/stories", { method: "POST", body: JSON.stringify({
+          title: $("#st-title").value.trim() || "My story", source: $("#st-source").value,
+          s: $("#st-s").value.trim(), t: $("#st-t").value.trim(), a: $("#st-a").value.trim(), r: $("#st-r").value.trim() }) });
+        toast("Story saved! +5 XP"); profile.xp += 5; renderStatusBar();
+        ["st-title", "st-s", "st-t", "st-a", "st-r"].forEach(id => { const e = $("#" + id); if (e) e.value = ""; });
+        _stWords(); renderStories();
+      } catch (e) { toast(e.message, "error"); }
+    };
+    list.innerHTML = stories.length ? stories.map(st =>
+      '<div class="card" style="padding:14px;margin-bottom:10px"><strong>' + escapeHtml(st.title) + "</strong>" +
+      '<p style="color:var(--text-muted);font-size:.88rem;margin-top:6px"><b>S:</b> ' + escapeHtml(st.s) + ' <b>T:</b> ' + escapeHtml(st.t || "-") + ' <b>A:</b> ' + escapeHtml(st.a) + ' <b>R:</b> ' + escapeHtml(st.r || "-") + "</p>" +
+      '<div style="display:flex;gap:8px"><button class="btn-secondary st-copy" data-id="' + st.id + '">Copy</button><button class="btn-secondary st-drill" data-id="' + st.id + '">🎙 Drill 90s</button></div></div>').join("")
+      : '<p style="color:var(--text-muted)">No stories yet. Build your first one above - or prefill from a completed lab.</p>';
+    list.querySelectorAll(".st-copy").forEach(b => b.addEventListener("click", () => {
+      const st = _storyCache.find(x => x.id == b.dataset.id);
+      navigator.clipboard.writeText("Situation: " + st.s + "\nTask: " + (st.t || "-") + "\nAction: " + st.a + "\nResult: " + (st.r || "-"));
+      toast("Story copied");
+    }));
+    list.querySelectorAll(".st-drill").forEach(b => b.addEventListener("click", () => {
+      const st = _storyCache.find(x => x.id == b.dataset.id);
+      $("#sd-title").textContent = st.title;
+      $("#sd-text").textContent = "S: " + st.s + "\nT: " + (st.t || "-") + "\nA: " + st.a + "\nR: " + (st.r || "-");
+      $("#sd-timer").textContent = "90";
+      $("#story-drill").classList.remove("hidden");
+    }));
+  } catch (e) { list.innerHTML = "Could not load stories."; }
+}
+let _sdInt = null;
+const _sdStart = $("#sd-start");
+if (_sdStart) _sdStart.addEventListener("click", () => {
+  if (_sdInt) { clearInterval(_sdInt); _sdInt = null; _sdStart.textContent = "▶ Start 90s drill"; return; }
+  let t = 90;
+  $("#sd-timer").textContent = t;
+  _sdInt = setInterval(() => {
+    t--; $("#sd-timer").textContent = t;
+    if (t <= 0) { clearInterval(_sdInt); _sdInt = null; $("#sd-timer").textContent = "⏰ Time! Wrap it up."; _sdStart.textContent = "▶ Start 90s drill"; }
+  }, 1000);
+  _sdStart.textContent = " Stop";
+});
+const _sdClose = $("#sd-close");
+if (_sdClose) _sdClose.addEventListener("click", () => { if (_sdInt) clearInterval(_sdInt); _sdInt = null; $("#story-drill").classList.add("hidden"); });

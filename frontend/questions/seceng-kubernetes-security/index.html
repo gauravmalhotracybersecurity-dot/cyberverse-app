@@ -5,7 +5,34 @@
 <title>How do you secure a Kubernetes workload end to end? | CyberVerse AI</title>
 <meta name="description" content="How do you secure a Kubernetes workload end to end? Real Security Engineer interview answer framework from CyberVerse AI."/>
 <link rel="canonical" href="https://app.grcwithgaurav.com/questions/seceng-kubernetes-security/"/>
-<script type="application/ld+json">{"@context": "https://schema.org", "@type": "QAPage", "mainEntity": {"@type": "Question", "name": "How do you secure a Kubernetes workload end to end?", "text": "How do you secure a Kubernetes workload end to end?", "datePublished": "2026-08-11T09:00:00+00:00", "answerCount": 1, "author": {"@type": "Organization", "name": "CyberVerse AI", "url": "https://app.grcwithgaurav.com/"}, "acceptedAnswer": {"@type": "Answer", "text": "Scan images in CI; admit only signed, trusted images Run non-root, read-only rootfs, drop capabilities Least-privilege RBAC; no wildcard roles; per-workload service accounts Default-deny network policies; allow only required flows Secrets via vault with short-lived credentials; audit API logs", "url": "https://app.grcwithgaurav.com/questions/seceng-kubernetes-security/", "datePublished": "2026-08-11T09:00:00+00:00", "author": {"@type": "Organization", "name": "CyberVerse AI", "url": "https://app.grcwithgaurav.com/"}, "upvoteCount": 29}}}</script>
+<script type="application/ld+json">{
+ "@context": "https://schema.org",
+ "@type": "QAPage",
+ "mainEntity": {
+  "@type": "Question",
+  "name": "How do you secure a Kubernetes workload end to end?",
+  "text": "How do you secure a Kubernetes workload end to end?",
+  "datePublished": "2026-08-11T09:00:00+00:00",
+  "answerCount": 1,
+  "author": {
+   "@type": "Organization",
+   "name": "CyberVerse AI",
+   "url": "https://app.grcwithgaurav.com/"
+  },
+  "acceptedAnswer": {
+   "@type": "Answer",
+   "text": "Scan images in CI; admit only signed, trusted images Run non-root, read-only rootfs, drop capabilities Least-privilege RBAC; no wildcard roles; per-workload service accounts Default-deny network policies; allow only required flows Secrets via vault with short-lived credentials; audit API logs",
+   "url": "https://app.grcwithgaurav.com/questions/seceng-kubernetes-security/",
+   "datePublished": "2026-08-11T09:00:00+00:00",
+   "author": {
+    "@type": "Organization",
+    "name": "CyberVerse AI",
+    "url": "https://app.grcwithgaurav.com/"
+   },
+   "upvoteCount": 29
+  }
+ }
+}</script>
 <style>
 body{background:#0a0a0a;color:#e8e8e8;font-family:'Segoe UI',system-ui,sans-serif;margin:0;line-height:1.65}
 .wrap{max-width:820px;margin:0 auto;padding:40px 20px}

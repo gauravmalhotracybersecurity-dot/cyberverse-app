@@ -353,3 +353,17 @@ def _ensure_stories_table():
         logging.getLogger("cyberverse").warning("stories migration skipped: %s", e)
 
 _ensure_stories_table()
+
+
+from fastapi import Request as _CVReq
+from fastapi.responses import HTMLResponse as _CVHTML, JSONResponse as _CVJSON
+
+@app.exception_handler(404)
+async def _cv_404(request: _CVReq, exc):
+    if request.url.path.startswith("/api/"):
+        return _CVJSON({"detail": "Not found"}, status_code=404)
+    try:
+        import os as _os
+        return _CVHTML(open(_os.path.join(_os.path.dirname(__file__), "..", "frontend", "404.html"), encoding="utf-8").read(), status_code=404)
+    except Exception:
+        return _CVJSON({"detail": "Not found"}, status_code=404)

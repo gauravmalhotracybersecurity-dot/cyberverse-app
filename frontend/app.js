@@ -508,6 +508,7 @@ $("#interview-form").addEventListener("submit", async (e) => {
       const _in = $("#interview-new"); if (_in) _in.classList.remove("hidden");
       localStorage.setItem("cv_onb_interview", "1"); renderOnboarding();
       cvTrack("interview_completed");
+      celebrate();
     }
     if (result.is_complete && result.overall_score != null) showScorecard(result.overall_score, result.role, result.verdict);
   } catch (err) {
@@ -903,6 +904,7 @@ if (_ctfBtn) _ctfBtn.addEventListener("click", async () => {
       fb.textContent = "✅ Correct! " + (r.xp ? "+" + r.xp + " XP" + (r.xp > 10 ? " (speed bonus!)" : "") : "(already counted today)") + " - " + r.explain;
       if (r.xp) { profile.xp += r.xp; renderStatusBar(); }
       cvTrack("ctf_solved");
+      celebrate();
       loadCTF();
     } else {
       fb.style.color = "var(--amber)";
@@ -1024,7 +1026,8 @@ async function renderLabs() {
     list.querySelectorAll(".lab-done").forEach(b => b.addEventListener("click", async () => {
       const notes = ($("#lab-notes-" + b.dataset.lab) || {}).value || "";
       const r = await api("/api/labs/complete", { method: "POST", body: JSON.stringify({ lab_id: b.dataset.lab, notes }) });
-      if (!r.error) { cvTrack("lab_completed"); profile.xp += 15; renderStatusBar(); toast("Lab complete! +15 XP — portfolio pack ready"); renderLabs(); }
+      if (!r.error) { cvTrack("lab_completed"); profile.xp += 15; renderStatusBar(); toast("Lab complete! +15 XP — portfolio pack ready");
+      celebrate(); renderLabs(); }
     }));
     list.querySelectorAll(".lab-copy").forEach(b => b.addEventListener("click", () => {
       navigator.clipboard.writeText(d.done[b.dataset.lab][b.dataset.k]);
@@ -1074,7 +1077,8 @@ async function renderStories() {
         await api("/api/stories", { method: "POST", body: JSON.stringify({
           title: $("#st-title").value.trim() || "My story", source: $("#st-source").value,
           s: $("#st-s").value.trim(), t: $("#st-t").value.trim(), a: $("#st-a").value.trim(), r: $("#st-r").value.trim() }) });
-        toast("Story saved! +5 XP"); profile.xp += 5; renderStatusBar();
+        toast("Story saved! +5 XP");
+      celebrate(); profile.xp += 5; renderStatusBar();
         ["st-title", "st-s", "st-t", "st-a", "st-r"].forEach(id => { const e = $("#" + id); if (e) e.value = ""; });
         _stWords(); renderStories();
       } catch (e) { toast(e.message, "error"); }
@@ -1112,3 +1116,41 @@ if (_sdStart) _sdStart.addEventListener("click", () => {
 });
 const _sdClose = $("#sd-close");
 if (_sdClose) _sdClose.addEventListener("click", () => { if (_sdInt) clearInterval(_sdInt); _sdInt = null; $("#story-drill").classList.add("hidden"); });
+
+
+// ===== Confetti celebrations =====
+function celebrate() {
+  if (!document.getElementById("cv-confetti-css")) {
+    const st = document.createElement("style");
+    st.id = "cv-confetti-css";
+    st.textContent = "@keyframes cvfall { to { transform: translateY(105vh) rotate(720deg); } }";
+    document.head.appendChild(st);
+  }
+  const colors = ["#00ffcc", "#8b5cf6", "#f59e0b", "#ef4444", "#3b82f6"];
+  for (let i = 0; i < 80; i++) {
+    const el = document.createElement("div");
+    el.style.cssText = "position:fixed;top:-12px;width:8px;height:12px;z-index:9999;pointer-events:none;background:" + colors[i % 5] + ";left:" + (Math.random() * 100) + "vw;transform:rotate(" + (Math.random() * 360) + "deg);animation:cvfall " + (2 + Math.random() * 1.5) + "s linear forwards;";
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), 4200);
+  }
+}
+
+// ===== What's new toast =====
+(function () {
+  const V = "2026-08-14";
+  if (localStorage.getItem("cv_token") && localStorage.getItem("cv_seen_news") !== V) {
+    localStorage.setItem("cv_seen_news", V);
+    setTimeout(() => toast("🆕 New this week: Lab Log, Story Bank & the 90-day Roadmap!", "success"), 1800);
+  }
+})();
+
+// ===== Mentor starter chips =====
+document.querySelectorAll(".mentor-chip").forEach(b => b.addEventListener("click", () => {
+  const inp = document.getElementById("mentor-input");
+  if (!inp) return;
+  inp.value = b.textContent;
+  const sb = document.getElementById("mentor-send");
+  if (sb) { sb.click(); return; }
+  const fm = document.getElementById("mentor-form");
+  if (fm && fm.requestSubmit) fm.requestSubmit();
+}));

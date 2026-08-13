@@ -1,3 +1,7 @@
 User-agent: *
 Allow: /
 Sitemap: https://app.grcwithgaurav.com/sitemap.xml
+
+User-agent: *
+Disallow: /api/
+Disallow: /admin.html

@@ -23,7 +23,7 @@ class Settings(BaseSettings):
     frontend_dir: str = "../frontend"
 
     resend_api_key: str = ""
-    resend_from_email: str = "onboarding@resend.dev"
+    resend_from_email: str = "CyberVerse AI <noreply@mail.grcwithgaurav.com>"
 
     smtp_host: str = ""
     smtp_port: int = 587

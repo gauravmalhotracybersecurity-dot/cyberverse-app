@@ -1,3 +1,28 @@
+// ===== CV DIAG (on-screen Safari diagnostics) =====
+(function () {
+  function show(msg) {
+    var d = document.getElementById("cv-diag");
+    if (!d) {
+      d = document.createElement("div");
+      d.id = "cv-diag";
+      d.style.cssText = "position:fixed;bottom:0;left:0;right:0;background:#400;color:#fff;font:11px monospace;padding:8px;z-index:99999;white-space:pre-wrap;max-height:35vh;overflow:auto;";
+      document.documentElement.appendChild(d);
+    }
+    d.textContent += msg + "\n";
+  }
+  window.__cvShow = show;
+  try {
+    localStorage.setItem("__cv_t", "1");
+    var v = localStorage.getItem("__cv_t");
+    show("storage: " + (v === "1" ? "OK" : "BROKEN"));
+  } catch (e) { show("storage: BLOCKED (" + (e.name || e.message) + ")"); }
+  window.addEventListener("error", function (e) { show("ERR: " + e.message + " (line " + e.lineno + ")"); });
+  window.addEventListener("unhandledrejection", function (e) {
+    var r = e.reason;
+    show("REJECT: " + (r && r.message ? r.message : r));
+  });
+})();
+
 // ===== STORAGE RESILIENCE (Safari-proof login) =====
 (function () {
   var mem = {};

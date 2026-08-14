@@ -25,6 +25,7 @@ from routers import (
     lead_routes,
     lab_routes,
     story_routes,
+    extra_routes,
 )
 
 logging.basicConfig(
@@ -99,6 +100,7 @@ app.include_router(analytics_routes.router)
 app.include_router(lead_routes.router)
 app.include_router(lab_routes.router)
 app.include_router(story_routes.router)
+app.include_router(extra_routes.router)
 
 
 @app.get("/api/health")
@@ -367,3 +369,17 @@ async def _cv_404(request: _CVReq, exc):
         return _CVHTML(open(_os.path.join(_os.path.dirname(__file__), "..", "frontend", "404.html"), encoding="utf-8").read(), status_code=404)
     except Exception:
         return _CVJSON({"detail": "Not found"}, status_code=404)
+
+
+def _ensure_ctf_table():
+    try:
+        from sqlalchemy import text
+        from database import engine
+        with engine.connect() as conn:
+            conn.execute(text("CREATE TABLE IF NOT EXISTS ctf_solves (id SERIAL PRIMARY KEY, user_id integer, solve_date varchar, xp integer DEFAULT 0);"))
+            conn.commit()
+    except Exception as e:
+        import logging
+        logging.getLogger("cyberverse").warning("ctf_solves migration skipped: %s", e)
+
+_ensure_ctf_table()

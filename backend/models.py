@@ -162,3 +162,11 @@ class Story(Base):
     a = Column(Text)
     r = Column(Text, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
+
+
+class CtfSolve(Base):
+    __tablename__ = "ctf_solves"
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, index=True)
+    solve_date = Column(String)
+    xp = Column(Integer, default=0)

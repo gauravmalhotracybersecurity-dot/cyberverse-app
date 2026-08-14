@@ -1,3 +1,4 @@
+window.__cvAppRan = true;
 // ===== CV DIAG (on-screen Safari diagnostics) =====
 (function () {
   function show(msg) {

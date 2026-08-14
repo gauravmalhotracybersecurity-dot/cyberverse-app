@@ -7,7 +7,7 @@
 <title>CyberVerse AI — Learn. Practice. Get Certified. Get Hired.</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=20260814" />
+<link rel="stylesheet" href="styles.css?v=20260814r" />
 <style>
 /* ===== Mobile responsive shell ===== */
 #mobile-menu-btn { display:none; background:none; border:1px solid #333; color:#00ffcc; border-radius:8px; padding:4px 12px; font-size:1.1rem; cursor:pointer; margin-right:10px; }
@@ -72,6 +72,45 @@ h1,h2,h3,.view-title,.hero h1 { font-family:'Space Grotesk',Inter,sans-serif; le
 </style>
 </head>
 <body>
+  <!-- ===== CV MOBILE BOOT-GUARD (inline ES5, Safari-safe, no desktop impact) ===== -->
+  <script>
+  (function () {
+    function bar(msg) {
+      var d = document.getElementById("cv-mbar");
+      if (!d) {
+        d = document.createElement("div");
+        d.id = "cv-mbar";
+        d.style.cssText = "position:fixed;bottom:0;left:0;right:0;background:#400;color:#fff;font:11px monospace;padding:8px;z-index:99999;white-space:pre-wrap;max-height:40vh;overflow:auto;";
+        document.documentElement.appendChild(d);
+      }
+      d.textContent += msg + "\n";
+    }
+    window.__cvBar = bar;
+    window.addEventListener("error", function (e) { bar("ERR L" + e.lineno + ": " + e.message); }, true);
+    try { localStorage.setItem("__t", "1"); bar("storage: OK"); } catch (e) { bar("storage: BLOCKED " + (e.name || e.message)); }
+    function tok() {
+      var t = null;
+      try { t = localStorage.getItem("cv_token") || localStorage.getItem("token"); } catch (e) {}
+      if (!t) { var m = document.cookie.match(/(?:^|; )cv_token=([^;]+)/); if (m) t = decodeURIComponent(m[1]); }
+      return t;
+    }
+    function enforce() {
+      var pw = document.querySelector("input[type=password]");
+      var login = document.getElementById("login-screen") || document.getElementById("auth-screen") || (pw ? pw.closest("section") || pw.closest(".card") || pw.closest("div") : null);
+      var shell = document.querySelector(".app-shell") || document.getElementById("app-shell");
+      if (tok()) { if (login) login.style.display = "none"; }
+      else { if (shell) shell.style.display = "none"; }
+    }
+    var n = 0;
+    var iv = setInterval(function () {
+      n++;
+      if (window.__cvAppRan || n > 8) { clearInterval(iv); return; }
+      enforce();
+    }, 400);
+    setTimeout(function () { if (!window.__cvAppRan) bar("app.js NOT RUNNING on this browser"); }, 3500);
+  })();
+  </script>
+
   <button id="cv-hamburger" aria-label="Open menu">☰</button>
   <div id="cv-overlay"></div>
 
@@ -474,7 +513,7 @@ h1,h2,h3,.view-title,.hero h1 { font-family:'Space Grotesk',Inter,sans-serif; le
     <p style="text-align:center;color:#666;font-size:.8rem;margin-top:14px">Share it on LinkedIn - your network sees your score, we get a user. Win-win. 🚀</p>
   </div>
 </div>
-<script src="app.js?v=20260814q"></script>
+<script src="app.js?v=20260814r"></script>
 <div id="paywall-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="pw-title">
   <div class="modal-card" style="max-width: 700px;">
     <button class="modal-close" onclick="document.getElementById('paywall-modal').classList.add('hidden')">&times;</button>

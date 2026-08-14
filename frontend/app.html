@@ -482,7 +482,7 @@ h1,h2,h3,.view-title,.hero h1 { font-family:'Space Grotesk',Inter,sans-serif; le
     <p style="text-align:center;color:#666;font-size:.8rem;margin-top:14px">Share it on LinkedIn - your network sees your score, we get a user. Win-win. 🚀</p>
   </div>
 </div>
-<script src="app2.js?v=20260815m"></script>
+<script src="app2.js?v=20260815n"></script>
 <div id="paywall-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="pw-title">
   <div class="modal-card" style="max-width: 700px;">
     <button class="modal-close" onclick="document.getElementById('paywall-modal').classList.add('hidden')">&times;</button>
@@ -521,7 +521,7 @@ h1,h2,h3,.view-title,.hero h1 { font-family:'Space Grotesk',Inter,sans-serif; le
 </div>
 <div style="text-align:center;padding:20px;font-size:0.8rem;color:#555;"><a href="/terms.html" style="color:#00ffcc">Terms</a> &bull; <a href="/privacy.html" style="color:#00ffcc">Privacy</a></div>
 
-  <!-- ===== CV INLINE LOADERS (ES5, bypasses core, talks to proven endpoints) ===== -->
+  <!-- ===== CV INLINE LOADERS (container-creating) ===== -->
   <script>
   (function () {
     function findTok() {
@@ -543,24 +543,36 @@ h1,h2,h3,.view-title,.hero h1 { font-family:'Space Grotesk',Inter,sans-serif; le
       d.textContent = s || "";
       return d.innerHTML;
     }
+    function ensureContainer(viewId, containerId) {
+      var view = document.getElementById("view-" + viewId);
+      if (!view) return null;
+      var container = document.getElementById(containerId);
+      if (!container) {
+        container = document.createElement("div");
+        container.id = containerId;
+        container.style.cssText = "max-width:720px;margin:20px auto;padding:0 16px;";
+        view.appendChild(container);
+      }
+      return container;
+    }
     function loadLeague() {
-      var l = document.getElementById("league-list") || document.getElementById("leaderboard-list");
+      var l = ensureContainer("league", "league-list");
       if (!l) return;
       l.innerHTML = "Loading league...";
       api("/api/leaderboard").then(function (data) {
         var users = (data && data.users) || [];
         if (!users.length) { l.innerHTML = "<p>No league members yet.</p>"; return; }
-        var medals = ["&#129351;", "", ""];
+        var medals = ["🥇", "🥈", "🥉"];
         var html = '<table style="width:100%;border-collapse:collapse"><thead><tr><th style="padding:8px;text-align:left">#</th><th style="padding:8px;text-align:left">Player</th><th style="padding:8px;text-align:right">XP</th></tr></thead><tbody>';
         for (var i = 0; i < users.length; i++) {
           var u = users[i];
-          html += '<tr style="border-bottom:1px solid #222"><td style="padding:10px 8px">' + (medals[i] || (i + 1)) + '</td><td style="padding:10px 8px">' + esc(u.name || "Anonymous") + '</td><td style="text-align:right;padding:10px 8px;color:var(--accent)">' + (u.xp || 0) + '</td></tr>';
+          html += '<tr style="border-bottom:1px solid #222"><td style="padding:10px 8px">' + (medals[i] || (i + 1)) + '</td><td style="padding:10px 8px">' + esc(u.name || "Anonymous") + (u.is_pro ? ' <span style="color:var(--amber);font-size:.75rem">PRO</span>' : '') + '</td><td style="text-align:right;padding:10px 8px;color:var(--accent)">' + (u.xp || 0) + '</td></tr>';
         }
         l.innerHTML = html + '</tbody></table>';
       }).catch(function () { l.innerHTML = "Could not load league."; });
     }
     function loadCTF() {
-      var l = document.getElementById("ctf-list") || document.getElementById("ctf-container");
+      var l = ensureContainer("ctf", "ctf-list");
       if (!l) return;
       var LOCAL = [
         {question: "Which Windows Event ID indicates a FAILED logon attempt?", options: ["4624", "4625", "4688", "4769"], answer: 1, explanation: "4625 = failed logon."},
@@ -575,42 +587,31 @@ h1,h2,h3,.view-title,.hero h1 { font-family:'Space Grotesk',Inter,sans-serif; le
       api("/api/ctf/today").then(function (d) {
         var q = d && d.question && d.options ? d : null;
         if (!q) q = LOCAL[new Date().getDate() % LOCAL.length];
-        var html = '<div class="card" style="padding:16px"><p style="font-weight:700;margin-bottom:10px">' + esc(q.question) + "</p>";
-        for (var i = 0; i < q.options.length; i++) {
-          html += '<label style="display:block;margin:6px 0;cursor:pointer"><input type="radio" name="ctf-inline" value="' + i + '" style="margin-right:8px">' + esc(q.options[i]) + "</label>";
-        }
-        html += '<button id="ctf-check-inline" class="btn-primary" style="margin-top:10px">Check answer</button><p id="ctf-fb-inline" style="margin-top:10px;display:none"></p></div>';
-        l.innerHTML = html;
-        l.querySelector("#ctf-check-inline").addEventListener("click", function () {
-          var sel = l.querySelector('input[name="ctf-inline"]:checked');
-          var fb = l.querySelector("#ctf-fb-inline");
-          fb.style.display = "block";
-          if (!sel) { fb.style.color = "#f59e0b"; fb.textContent = "Pick an option first."; return; }
-          var ok = parseInt(sel.value, 10) === q.answer;
-          fb.style.color = ok ? "#00ffcc" : "#ef4444";
-          fb.textContent = ok ? "Correct! " + (q.explanation || "") : "Incorrect. " + (q.explanation || "");
-        });
+        renderCTF(l, q);
       }).catch(function () {
         var q = LOCAL[new Date().getDate() % LOCAL.length];
-        var html = '<div class="card" style="padding:16px"><p style="font-weight:700;margin-bottom:10px">' + esc(q.question) + "</p>";
-        for (var i = 0; i < q.options.length; i++) {
-          html += '<label style="display:block;margin:6px 0;cursor:pointer"><input type="radio" name="ctf-inline" value="' + i + '" style="margin-right:8px">' + esc(q.options[i]) + "</label>";
-        }
-        html += '<button id="ctf-check-inline" class="btn-primary" style="margin-top:10px">Check answer</button><p id="ctf-fb-inline" style="margin-top:10px;display:none"></p></div>';
-        l.innerHTML = html;
-        l.querySelector("#ctf-check-inline").addEventListener("click", function () {
-          var sel = l.querySelector('input[name="ctf-inline"]:checked');
-          var fb = l.querySelector("#ctf-fb-inline");
-          fb.style.display = "block";
-          if (!sel) { fb.style.color = "#f59e0b"; fb.textContent = "Pick an option first."; return; }
-          var ok = parseInt(sel.value, 10) === q.answer;
-          fb.style.color = ok ? "#00ffcc" : "#ef4444";
-          fb.textContent = ok ? "Correct! " + (q.explanation || "") : "Incorrect. " + (q.explanation || "");
-        });
+        renderCTF(l, q);
+      });
+    }
+    function renderCTF(l, q) {
+      var html = '<div class="card" style="padding:16px"><p style="font-weight:700;margin-bottom:10px">' + esc(q.question) + "</p>";
+      for (var i = 0; i < q.options.length; i++) {
+        html += '<label style="display:block;margin:6px 0;cursor:pointer"><input type="radio" name="ctf-inline" value="' + i + '" style="margin-right:8px">' + esc(q.options[i]) + "</label>";
+      }
+      html += '<button id="ctf-check-inline" class="btn-primary" style="margin-top:10px">Check answer</button><p id="ctf-fb-inline" style="margin-top:10px;display:none"></p></div>';
+      l.innerHTML = html;
+      l.querySelector("#ctf-check-inline").addEventListener("click", function () {
+        var sel = l.querySelector('input[name="ctf-inline"]:checked');
+        var fb = l.querySelector("#ctf-fb-inline");
+        fb.style.display = "block";
+        if (!sel) { fb.style.color = "#f59e0b"; fb.textContent = "Pick an option first."; return; }
+        var ok = parseInt(sel.value, 10) === q.answer;
+        fb.style.color = ok ? "#00ffcc" : "#ef4444";
+        fb.textContent = ok ? "Correct! " + (q.explanation || "") : "Incorrect. " + (q.explanation || "");
       });
     }
     function loadLabs() {
-      var l = document.getElementById("labs-list");
+      var l = ensureContainer("labs", "labs-list");
       if (!l) return;
       l.innerHTML = "Loading labs...";
       api("/api/labs").then(function (d) {
@@ -626,14 +627,15 @@ h1,h2,h3,.view-title,.hero h1 { font-family:'Space Grotesk',Inter,sans-serif; le
         l.innerHTML = html;
       }).catch(function () { l.innerHTML = "Could not load labs."; });
     }
+    var loaded = { league: false, ctf: false, labs: false };
     setInterval(function () {
       var lgView = document.getElementById("view-league");
-      if (lgView && lgView.offsetParent !== null) loadLeague();
+      if (lgView && lgView.offsetParent !== null && !loaded.league) { loaded.league = true; loadLeague(); }
       var ctfView = document.getElementById("view-ctf");
-      if (ctfView && ctfView.offsetParent !== null) loadCTF();
+      if (ctfView && ctfView.offsetParent !== null && !loaded.ctf) { loaded.ctf = true; loadCTF(); }
       var labsView = document.getElementById("view-labs");
-      if (labsView && labsView.offsetParent !== null) loadLabs();
-    }, 2000);
+      if (labsView && labsView.offsetParent !== null && !loaded.labs) { loaded.labs = true; loadLabs(); }
+    }, 1000);
   })();
   </script>
 

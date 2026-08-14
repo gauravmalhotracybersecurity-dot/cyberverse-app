@@ -482,7 +482,7 @@ h1,h2,h3,.view-title,.hero h1 { font-family:'Space Grotesk',Inter,sans-serif; le
     <p style="text-align:center;color:#666;font-size:.8rem;margin-top:14px">Share it on LinkedIn - your network sees your score, we get a user. Win-win. 🚀</p>
   </div>
 </div>
-<script src="app2.js?v=20260815n"></script>
+<script src="app2.js?v=20260815p"></script>
 <div id="paywall-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="pw-title">
   <div class="modal-card" style="max-width: 700px;">
     <button class="modal-close" onclick="document.getElementById('paywall-modal').classList.add('hidden')">&times;</button>
@@ -673,6 +673,59 @@ h1,h2,h3,.view-title,.hero h1 { font-family:'Space Grotesk',Inter,sans-serif; le
     api("/api/leaderboard").then(function (d) { log("League data: " + JSON.stringify(d).slice(0, 100)); }).catch(function (e) { log("League error: " + e.message); });
     api("/api/ctf/today").then(function (d) { log("CTF data: " + JSON.stringify(d).slice(0, 100)); }).catch(function (e) { log("CTF error: " + e.message); });
     api("/api/labs").then(function (d) { log("Labs data: " + JSON.stringify(d).slice(0, 100)); }).catch(function (e) { log("Labs error: " + e.message); });
+  })();
+  </script>
+
+
+  <!-- ===== DOM INSPECTOR ===== -->
+  <script>
+  (function () {
+    var dbg = document.getElementById("cv-debug");
+    function log(msg) { if (dbg) dbg.textContent += new Date().toLocaleTimeString() + " | " + msg + "\n"; }
+
+    log("=== ALL VIEWS ===");
+    var views = document.querySelectorAll("[id^='view-']");
+    for (var i = 0; i < views.length; i++) {
+      log("View: " + views[i].id + " | display:" + getComputedStyle(views[i]).display);
+    }
+
+    log("=== LEAGUE CHECK ===");
+    var league = document.getElementById("view-league");
+    if (league) {
+      log("view-league EXISTS | children:" + league.children.length);
+    } else {
+      log("view-league DOES NOT EXIST");
+      var found = [];
+      var all = document.querySelectorAll("[id]");
+      for (var j = 0; j < all.length; j++) {
+        if (all[j].id.toLowerCase().indexOf("league") !== -1 || all[j].id.toLowerCase().indexOf("leader") !== -1) found.push(all[j].id);
+      }
+      log("IDs containing league/leader: " + (found.join(", ") || "NONE"));
+    }
+
+    log("=== CTF CHECK ===");
+    var ctf = document.getElementById("view-ctf");
+    if (ctf) {
+      log("view-ctf EXISTS | children:" + ctf.children.length);
+      log("ctf-list exists: " + !!document.getElementById("ctf-list"));
+    } else {
+      log("view-ctf DOES NOT EXIST");
+    }
+
+    log("=== LABS CHECK ===");
+    var labs = document.getElementById("view-labs");
+    if (labs) {
+      log("view-labs EXISTS | children:" + labs.children.length);
+      log("labs-list exists: " + !!document.getElementById("labs-list"));
+    } else {
+      log("view-labs DOES NOT EXIST");
+      var found2 = [];
+      var all2 = document.querySelectorAll("[id]");
+      for (var k = 0; k < all2.length; k++) {
+        if (all2[k].id.toLowerCase().indexOf("lab") !== -1) found2.push(all2[k].id);
+      }
+      log("IDs containing lab: " + (found2.join(", ") || "NONE"));
+    }
   })();
   </script>
 

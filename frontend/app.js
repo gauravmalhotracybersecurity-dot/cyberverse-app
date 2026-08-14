@@ -805,3 +805,195 @@ if (typeof window.renderOnboarding !== "function") {
     } catch (e) { /* never crash the app for a checklist */ }
   };
 }
+
+
+function celebrate() {
+  if (!document.getElementById("cv-confetti-css")) {
+    const st = document.createElement("style"); st.id = "cv-confetti-css";
+    st.textContent = "@keyframes cvfall { to { transform: translateY(105vh) rotate(720deg); } }";
+    document.head.appendChild(st);
+  }
+  const colors = ["#00ffcc", "#8b5cf6", "#f59e0b", "#ef4444", "#3b82f6"];
+  for (let i = 0; i < 80; i++) {
+    const el = document.createElement("div");
+    el.style.cssText = "position:fixed;top:-12px;width:8px;height:12px;z-index:9999;pointer-events:none;background:" + colors[i % 5] + ";left:" + (Math.random() * 100) + "vw;transform:rotate(" + (Math.random() * 360) + "deg);animation:cvfall " + (2 + Math.random() * 1.5) + "s linear forwards;";
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), 4200);
+  }
+}
+
+
+const ROADMAP = [
+  {phase: "Phase 1 - Foundations", weeks: [
+    {id:"w1", t:"Networking & Linux basics", cert:"Security+ SY0-701 1.1-1.3", goto:"mentor", items:["TCP/IP, OSI model","Linux permissions","Quiz me on ports"]},
+    {id:"w2", t:"Security fundamentals", cert:"Security+ SY0-701 1.4-2.2", goto:"ctf", items:["CIA triad, AAA, zero trust","Malware types, phishing","Solve a CTF Bite"]},
+    {id:"w3", t:"Resume & presence", goto:"resume", items:["Run AI resume review","Rewrite LinkedIn headline","Add hands-on project"]},
+    {id:"w4", t:"First mock interview", goto:"interview", items:["Quick Round (3 questions) voice mode","Review scorecard","Re-answer weakest question"]}]},
+  {phase: "Phase 2 - Defense", weeks: [
+    {id:"w5", t:"SIEM & log analysis", cert:"Security+ SY0-701 2.4", goto:"ctf", items:["Event IDs 4624, 4625, 4688","Splunk stats vs transaction","CTF log challenges"]},
+    {id:"w6", t:"Alert triage drills", goto:"interview", items:["Phishing-click scenario","Validate, enrich, scope, contain","Target score 60+"]},
+    {id:"w7", t:"Threat intel & vuln management", goto:"mentor", items:["CVE vs CVSS vs EPSS","Zero-day prioritization","Vuln scenario"]},
+    {id:"w8", t:"GRC awareness", goto:"interview", items:["ISO 27001 risk assessment","Vendor risk tiering","GRC mock interview"]}]},
+  {phase: "Phase 3 - Hunt & Get Hired", weeks: [
+    {id:"w9", t:"Threat hunting basics", goto:"ctf", items:["Lateral movement indicators","Beaconing intervals","Golden vs silver ticket"]},
+    {id:"w10", t:"Advanced interviews", goto:"interview", items:["Full 6-question voice interview","Defend against follow-ups","Share scorecard"]},
+    {id:"w11", t:"Applications sprint", goto:"resume", items:["10 tailored applications","Attach scorecard","Ask for referrals"]},
+    {id:"w12", t:"Offer readiness", goto:"interview", items:["Final mock interview","Prepare 'why cybersecurity' story","Download certificate"]}]}
+];
+function renderRoadmap() {
+  const list = document.getElementById("rm-list");
+  if (!list) return;
+  const done = JSON.parse(localStorage.getItem("cv_roadmap") || "{}");
+  const total = ROADMAP.reduce((n, p) => n + p.weeks.length, 0);
+  const doneCount = Object.values(done).filter(Boolean).length;
+  document.getElementById("rm-bar").style.width = Math.round(100 * doneCount / total) + "%";
+  document.getElementById("rm-progress").textContent = doneCount + " / " + total + " weeks completed";
+  let html = "";
+  ROADMAP.forEach(ph => {
+    html += '<h3 style="color:var(--accent);margin:24px 0 10px">' + ph.phase + "</h3>";
+    ph.weeks.forEach(w => {
+      const isDone = !!done[w.id];
+      html += '<div class="card" style="padding:16px;margin-bottom:10px;' + (isDone ? "opacity:.65;" : "") + '">' +
+        '<div style="display:flex;gap:12px;align-items:flex-start">' +
+        '<input type="checkbox" data-week="' + w.id + '" ' + (isDone ? "checked" : "") + ' style="margin-top:4px;accent-color:var(--accent);width:18px;height:18px;cursor:pointer"/>' +
+        '<div style="flex:1"><div style="font-weight:700">' + w.t +
+        (w.cert ? ' <span style="color:var(--amber);font-size:.72rem;border:1px solid var(--amber);border-radius:10px;padding:1px 8px">' + w.cert + "</span>" : "") +
+        "</div><ul style='margin:8px 0 0;padding-left:18px;color:var(--text-muted);font-size:.9rem'>" +
+        w.items.map(it => "<li>" + it + "</li>").join("") +
+        "</ul><button class='btn-secondary rm-go' data-goto='" + w.goto + "' style='margin-top:10px;padding:6px 14px'>Practice →</button></div></div></div>";
+    });
+  });
+  list.innerHTML = html;
+  list.querySelectorAll("input[data-week]").forEach(cb => cb.addEventListener("change", () => {
+    const d = JSON.parse(localStorage.getItem("cv_roadmap") || "{}");
+    d[cb.dataset.week] = cb.checked;
+    localStorage.setItem("cv_roadmap", JSON.stringify(d));
+    renderRoadmap();
+  }));
+  list.querySelectorAll(".rm-go").forEach(b => b.addEventListener("click", () => goToView(b.dataset.goto)));
+}
+
+
+const LABS = [
+ {"id":"splunk-home","title":"Splunk Home Lab","tool":"Splunk","mins":90,"level":"Beginner","steps":["Install Splunk","Forwarder","SPL search","Create alert"],"evidence":["Search results"],"bullet":"Built a Splunk lab with Universal Forwarder and SPL alerts.","star":"S: Needed SIEM experience. A: Built Splunk lab. R: Walk interviewer through it.","linkedin":"Weekend build: Splunk lab."},
+ {"id":"sysmon","title":"Sysmon: See Everything","tool":"Sysmon","mins":60,"level":"Beginner","steps":["Download Sysmon","Install","Event 1","Write 3 detection ideas"],"evidence":["Event 1"],"bullet":"Deployed Sysmon and analyzed Event 1.","star":"S: Host telemetry. A: Installed Sysmon. R: Explain telemetry.","linkedin":"Sysmon lab complete."},
+ {"id":"wireshark","title":"Wireshark: Read the Wire","tool":"Wireshark","mins":60,"level":"Beginner","steps":["Capture 5 mins","Follow TCP","Document 3 anomalies"],"evidence":["TCP stream"],"bullet":"Analyzed live traffic with Wireshark.","star":"S: Network questions. A: Wireshark capture. R: Answer with specifics.","linkedin":"Followed my first TCP stream."},
+ {"id":"elastic","title":"Elastic SIEM Quickstart","tool":"Elastic","mins":120,"level":"Intermediate","steps":["Start trial","Winlogbeat","Detection rule","Trigger"],"evidence":["Alert"],"bullet":"Stood up Elastic SIEM and created a detection rule.","star":"S: SIEM experience. A: Deployed Elastic. R: Discuss rule tuning.","linkedin":"My first Elastic detection rule fired."},
+ {"id":"ad-audit","title":"AD Audit Policies","tool":"Windows","mins":90,"level":"Intermediate","steps":["Promote DC","Audit policies","Generate 4624/4625"],"evidence":["Events"],"bullet":"Promoted DC and enabled logon auditing.","star":"S: AD questions. A: Built DC. R: Kerberos answers.","linkedin":"Built my own domain controller."},
+ {"id":"yara","title":"Write a YARA Rule","tool":"YARA","mins":45,"level":"Intermediate","steps":["Install","Sample file","Write rule","Run yara"],"evidence":["Hit"],"bullet":"Wrote and tested YARA rules.","star":"S: Detection basics. A: Authored YARA. R: Explain precision.","linkedin":"Wrote my first YARA rule."},
+ {"id":"pfsense","title":"pfSense Firewall","tool":"pfSense","mins":120,"level":"Intermediate","steps":["Install","WAN/LAN","Block rule","Verify block"],"evidence":["Log"],"bullet":"Deployed pfSense and verified block rules.","star":"S: Firewall abstract. A: Deployed pfSense. R: Talk allow/deny.","linkedin":"My own firewall lab complete."},
+ {"id":"phish-lab","title":"Phishing Analysis","tool":"Any","mins":60,"level":"Beginner","steps":["Sample email","Read headers","Trace hops","Write playbook"],"evidence":["Playbook"],"bullet":"Analyzed phishing email end to end.","star":"S: Phishing triage. A: Dissected email. R: Run pipeline.","linkedin":"Dissected a phishing email."}
+];
+async function renderLabs() {
+  const list = document.getElementById("labs-list");
+  if (!list) return;
+  try {
+    const d = await api("/api/labs");
+    const doneCount = Object.keys(d.done).length;
+    document.getElementById("labs-progress").textContent = doneCount + " / " + d.labs.length + " labs completed";
+    list.innerHTML = d.labs.map(lab => {
+      const done = d.done[lab.id];
+      return '<div class="card" style="padding:16px;margin-bottom:12px;">' +
+        '<div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap"><strong>' + lab.title + "</strong>" +
+        '<span style="color:var(--text-muted);font-size:.8rem">' + lab.tool + " • " + lab.mins + " min • " + lab.level + (done ? " • ✅ done" : "") + "</span></div>" +
+        "<details style='margin-top:8px'><summary style='cursor:pointer;color:var(--accent);font-size:.9rem'>Steps & evidence</summary>" +
+        "<ol style='margin:8px 0 0;padding-left:18px;color:var(--text-muted);font-size:.9rem'>" + lab.steps.map(x => "<li>" + x + "</li>").join("") + "</ol></details>" +
+        (done
+          ? '<div style="margin-top:12px"><p style="font-size:.85rem;color:var(--text-muted)"><b>Resume:</b> ' + done.bullet + "</p>" +
+            '<div style="display:flex;gap:8px;margin-top:8px"><button class="btn-secondary lab-copy" data-k="bullet" data-lab="' + lab.id + '">Copy bullet</button></div></div>'
+          : '<div style="margin-top:12px"><button class="btn-primary lab-done" data-lab="' + lab.id + '">✅ Mark complete & generate pack</button></div>') +
+        "</div>";
+    }).join("");
+    list.querySelectorAll(".lab-done").forEach(b => b.addEventListener("click", async () => {
+      const r = await api("/api/labs/complete", { method: "POST", body: JSON.stringify({ lab_id: b.dataset.lab }) });
+      if (!r.error) { try { cvTrack("lab_completed"); profile.xp += 15; renderStatusBar(); celebrate(); toast("Lab complete!"); renderLabs(); } catch(e){} }
+    }));
+    list.querySelectorAll(".lab-copy").forEach(b => b.addEventListener("click", () => {
+      navigator.clipboard.writeText(d.done[b.dataset.lab][b.dataset.k]); toast("Copied");
+    }));
+  } catch (e) { list.innerHTML = "Could not load labs."; }
+}
+
+
+async function renderStories() {
+  const list = document.getElementById("st-list");
+  if (!list) return;
+  try {
+    const stories = await api("/api/stories");
+    list.innerHTML = stories.length ? stories.map(st =>
+      '<div class="card" style="padding:14px;margin-bottom:10px"><strong>' + escapeHtml(st.title) + "</strong>" +
+      '<p style="color:var(--text-muted);font-size:.88rem;margin-top:6px"><b>S:</b> ' + escapeHtml(st.s) + ' <b>T:</b> ' + escapeHtml(st.t || "-") + ' <b>A:</b> ' + escapeHtml(st.a) + ' <b>R:</b> ' + escapeHtml(st.r || "-") + "</p>" +
+      '<div style="display:flex;gap:8px"><button class="btn-secondary st-copy" data-id="' + st.id + '">Copy</button></div></div>').join("")
+      : '<p style="color:var(--text-muted)">No stories yet. Build your first one above.</p>';
+    list.querySelectorAll(".st-copy").forEach(b => b.addEventListener("click", () => {
+      const st = stories.find(x => x.id == b.dataset.id);
+      navigator.clipboard.writeText("Situation: " + st.s + "\nTask: " + (st.t || "-") + "\nAction: " + st.a + "\nResult: " + (st.r || "-"));
+      toast("Copied");
+    }));
+  } catch (e) { list.innerHTML = "Could not load stories."; }
+}
+
+
+async function loadCTF() {
+  const list = document.getElementById("ctf-list");
+  if (!list) return;
+  list.innerHTML = "Loading CTF Bites...";
+  try {
+    const data = await api("/api/ctf");
+    if (!data.questions || data.questions.length === 0) { list.innerHTML = "No CTF Bites available."; return; }
+    let html = "";
+    data.questions.forEach((q, i) => {
+      html += '<div class="card" style="margin-bottom:14px;padding:14px" data-idx="'+i+'">' +
+        '<p style="font-weight:600;margin-bottom:8px">' + (i+1) + '. ' + escapeHtml(q.question) + '</p>' +
+        '<div class="ctf-options"></div>' +
+        '<p class="ctf-fb" style="display:none;margin-top:8px"></p>' +
+        '<button class="btn-secondary ctf-check" style="margin-top:8px">Check Answer</button></div>';
+    });
+    list.innerHTML = html;
+    list.querySelectorAll(".card").forEach(card => {
+      const idx = parseInt(card.dataset.idx);
+      const q = data.questions[idx];
+      const optWrap = card.querySelector(".ctf-options");
+      q.options.forEach((opt, oi) => {
+        const lbl = document.createElement("label");
+        lbl.style.cssText = "display:block;margin:4px 0;cursor:pointer";
+        lbl.innerHTML = '<input type="radio" name="ctf-'+idx+'" value="'+oi+'" style="margin-right:6px"> ' + escapeHtml(opt);
+        optWrap.appendChild(lbl);
+      });
+      card.querySelector(".ctf-check").addEventListener("click", () => {
+        const sel = card.querySelector('input[name="ctf-'+idx+'"]:checked');
+        const fb = card.querySelector(".ctf-fb");
+        if (!sel) { fb.style.display="block"; fb.style.color="#f59e0b"; fb.textContent="Select an option first."; return; }
+        const val = parseInt(sel.value);
+        fb.style.display = "block";
+        if (val === q.answer) {
+          fb.style.color = "#00ffcc"; fb.textContent = "✅ Correct! " + (q.explanation || "");
+          try { celebrate(); cvTrack("ctf_solved"); profile.xp += 5; renderStatusBar(); } catch(e){}
+        } else {
+          fb.style.color = "#ef4444"; fb.textContent = "❌ Incorrect. " + (q.explanation || "");
+        }
+      });
+    });
+  } catch (e) {
+    list.innerHTML = "Could not load CTF Bites.";
+  }
+}
+
+
+async function loadLeaderboard() {
+  const list = document.getElementById("league-list") || document.getElementById("leaderboard-list");
+  if (!list) return;
+  list.innerHTML = "Loading leaderboard...";
+  try {
+    const data = await api("/api/leaderboard");
+    if (!data.users || data.users.length === 0) { list.innerHTML = "No league members yet."; return; }
+    let html = '<table style="width:100%;border-collapse:collapse"><thead><tr><th style="text-align:left;padding:8px">Rank</th><th style="text-align:left;padding:8px">User</th><th style="text-align:right;padding:8px">XP</th></tr></thead><tbody>';
+    data.users.forEach((u, i) => {
+      html += '<tr><td style="padding:8px">' + (i+1) + '</td><td style="padding:8px">' + escapeHtml(u.name) + '</td><td style="text-align:right;padding:8px;color:var(--accent)">' + (u.xp || 0) + '</td></tr>';
+    });
+    html += '</tbody></table>';
+    list.innerHTML = html;
+  } catch (e) {
+    list.innerHTML = "Could not load leaderboard.";
+  }
+}

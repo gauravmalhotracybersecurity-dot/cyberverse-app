@@ -1,3 +1,32 @@
+
+// ===== MOBILE RESCUE: Error Banner & Safe Storage =====
+(function() {
+  // 1. Show JS errors on screen (Red banner at bottom of phone)
+  window.addEventListener("error", function(e) {
+    var d = document.createElement("div");
+    d.style.cssText = "position:fixed;bottom:0;left:0;right:0;background:#b00020;color:#fff;padding:12px;z-index:99999;font-size:12px;font-family:monospace;word-break:break-word;max-height:40vh;overflow:auto;";
+    d.innerHTML = "<b>JS ERROR:</b> " + e.message + " (Line " + e.lineno + ")";
+    document.body.appendChild(d);
+    setTimeout(function(){ d.remove(); }, 10000);
+  });
+  window.addEventListener("unhandledrejection", function(e) {
+    var d = document.createElement("div");
+    d.style.cssText = "position:fixed;bottom:0;left:0;right:0;background:#b00020;color:#fff;padding:12px;z-index:99999;font-size:12px;font-family:monospace;word-break:break-word;";
+    var msg = e.reason ? (e.reason.message || e.reason) : "Promise rejected";
+    d.innerHTML = "<b>API/PROMISE ERROR:</b> " + msg;
+    document.body.appendChild(d);
+    setTimeout(function(){ d.remove(); }, 10000);
+  });
+
+  // 2. Safe LocalStorage Wrapper (Prevents Safari crashes on bad JSON)
+  window.safeLS = function(key, fallback) {
+    try {
+      var v = localStorage.getItem(key);
+      if (!v || v === "undefined" || v === "null") return fallback;
+      return JSON.parse(v);
+    } catch(e) { return fallback; }
+  };
+})();
 // ===== Analytics tracking fallback =====
 function cvTrack(event) {
   try {

@@ -1246,3 +1246,73 @@ async function loadLeaderboard() {
   document.addEventListener("click", function () { setTimeout(tick, 200); });
   tick();
 })();
+
+
+// ===== CTF LOADER v7 (clean) =====
+(function () {
+  var done = false;
+  var tries = 0;
+  var LOCAL = [
+    {question: "Which Windows Event ID indicates a FAILED logon attempt?", options: ["4624", "4625", "4688", "4769"], answer: 1, explanation: "4625 = failed logon; 4624 = success."},
+    {question: "An email urges urgent invoice payment; the header shows a look-alike domain. First action?", options: ["Pay it", "Report and quarantine", "Delete and ignore", "Reply"], answer: 1, explanation: "Treat as phishing: report and contain."},
+    {question: "DNS tunneling exfiltrates data by abusing which protocol?", options: ["HTTP", "DNS", "SMTP", "NTP"], answer: 1, explanation: "Data hidden in DNS queries."},
+    {question: "In the cyber kill chain, which stage follows Delivery?", options: ["Reconnaissance", "Exploitation", "Installation", "Actions on Objectives"], answer: 1, explanation: "Delivery > Exploitation."},
+    {question: "Which Splunk command counts events per host?", options: ["stats count by host", "table host", "fields - host", "rename host"], answer: 0, explanation: "stats count by host."},
+    {question: "A CVSS score of 9.0-10.0 is rated as?", options: ["Low", "Medium", "High", "Critical"], answer: 3, explanation: "9.0-10.0 = Critical."},
+    {question: "A Golden Ticket attack forges a TGT using which account hash?", options: ["Administrator", "KRBTGT", "Guest", "LocalSystem"], answer: 1, explanation: "KRBTGT signs TGTs."}
+  ];
+  function getBox() {
+    var l = document.getElementById("ctf-list");
+    if (l) return l;
+    var sv = document.getElementById("view-ctf") || document.querySelector("[id*='ctf']");
+    if (!sv) return null;
+    l = document.createElement("div");
+    l.id = "ctf-list";
+    l.style.cssText = "max-width:720px;margin-top:12px";
+    sv.appendChild(l);
+    return l;
+  }
+  function pick(d) {
+    if (!d) return null;
+    if (d.question && d.options) return d;
+    if (d.bite) return pick(d.bite);
+    if (d.data) return pick(d.data);
+    if (d.questions && d.questions.length) return pick(d.questions[0]);
+    if (d.length) return pick(d[0]);
+    return null;
+  }
+  function render(l, q, src) {
+    var html = '<div class="card" style="padding:16px"><p style="font-weight:700;margin-bottom:10px">⚡ ' + escapeHtml(q.question) + '</p><p style="font-size:.75rem;color:var(--text-muted)">source: ' + src + "</p>";
+    for (var i = 0; i < q.options.length; i++) {
+      html += '<label style="display:block;margin:6px 0;cursor:pointer"><input type="radio" name="ctf-opt7" value="' + i + '" style="margin-right:8px">' + escapeHtml(q.options[i]) + "</label>";
+    }
+    html += '<button id="ctf-check7" class="btn-primary" style="margin-top:10px">Check answer</button><p id="ctf-fb7" style="margin-top:10px;display:none"></p></div>';
+    l.innerHTML = html;
+    l.querySelector("#ctf-check7").addEventListener("click", function () {
+      var sel = l.querySelector('input[name="ctf-opt7"]:checked');
+      var fb = l.querySelector("#ctf-fb7");
+      fb.style.display = "block";
+      if (!sel) { fb.style.color = "#f59e0b"; fb.textContent = "Pick an option first."; return; }
+      var ok = parseInt(sel.value, 10) === q.answer;
+      fb.style.color = ok ? "#00ffcc" : "#ef4444";
+      fb.textContent = ok ? "✅ Correct! " + (q.explanation || "") : "❌ Not quite. " + (q.explanation || "");
+      if (ok) { try { celebrate(); } catch (e) {} }
+    });
+  }
+  function tick() {
+    if (done) return;
+    var l = getBox();
+    if (!l) return;
+    tries++;
+    api("/api/ctf/today").then(function (d) {
+      var q = pick(d);
+      if (q) { done = true; render(l, q, "live"); }
+      else if (tries >= 3) { done = true; render(l, LOCAL[new Date().getDate() % LOCAL.length], "offline"); }
+    }).catch(function () {
+      if (tries >= 3) { done = true; render(l, LOCAL[new Date().getDate() % LOCAL.length], "offline"); }
+    });
+  }
+  setInterval(tick, 2000);
+  document.addEventListener("click", function () { setTimeout(tick, 200); });
+  tick();
+})();

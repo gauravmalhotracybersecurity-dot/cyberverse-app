@@ -482,7 +482,7 @@ h1,h2,h3,.view-title,.hero h1 { font-family:'Space Grotesk',Inter,sans-serif; le
     <p style="text-align:center;color:#666;font-size:.8rem;margin-top:14px">Share it on LinkedIn - your network sees your score, we get a user. Win-win. 🚀</p>
   </div>
 </div>
-<script src="app2.js?v=20260815p"></script>
+<script src="app2.js?v=20260815q"></script>
 <div id="paywall-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="pw-title">
   <div class="modal-card" style="max-width: 700px;">
     <button class="modal-close" onclick="document.getElementById('paywall-modal').classList.add('hidden')">&times;</button>
@@ -521,7 +521,7 @@ h1,h2,h3,.view-title,.hero h1 { font-family:'Space Grotesk',Inter,sans-serif; le
 </div>
 <div style="text-align:center;padding:20px;font-size:0.8rem;color:#555;"><a href="/terms.html" style="color:#00ffcc">Terms</a> &bull; <a href="/privacy.html" style="color:#00ffcc">Privacy</a></div>
 
-  <!-- ===== CV INLINE LOADERS (container-creating) ===== -->
+  <!-- ===== CV INLINE LOADERS (final) ===== -->
   <script>
   (function () {
     function findTok() {
@@ -543,22 +543,24 @@ h1,h2,h3,.view-title,.hero h1 { font-family:'Space Grotesk',Inter,sans-serif; le
       d.textContent = s || "";
       return d.innerHTML;
     }
-    function ensureContainer(viewId, containerId) {
-      var view = document.getElementById("view-" + viewId);
-      if (!view) return null;
-      var container = document.getElementById(containerId);
-      if (!container) {
-        container = document.createElement("div");
-        container.id = containerId;
-        container.style.cssText = "max-width:720px;margin:20px auto;padding:0 16px;";
-        view.appendChild(container);
+    function hideLoading(view) {
+      var nodes = view.querySelectorAll("div,p,section");
+      for (var i = 0; i < nodes.length; i++) {
+        var t = nodes[i].textContent || "";
+        if (/loading/i.test(t) && t.length < 60) nodes[i].style.display = "none";
       }
-      return container;
     }
+    function vis(id) {
+      var el = document.getElementById(id);
+      return el && el.offsetParent !== null;
+    }
+    var done = {};
     function loadLeague() {
-      var l = ensureContainer("league", "league-list");
-      if (!l) return;
-      l.innerHTML = "Loading league...";
+      var view = document.getElementById("view-leaderboard");
+      if (!view) return;
+      hideLoading(view);
+      var l = document.getElementById("leaderboard-table") || document.getElementById("league-list");
+      if (!l) { l = document.createElement("div"); l.id = "league-list"; view.appendChild(l); }
       api("/api/leaderboard").then(function (data) {
         var users = (data && data.users) || [];
         if (!users.length) { l.innerHTML = "<p>No league members yet.</p>"; return; }
@@ -572,8 +574,11 @@ h1,h2,h3,.view-title,.hero h1 { font-family:'Space Grotesk',Inter,sans-serif; le
       }).catch(function () { l.innerHTML = "Could not load league."; });
     }
     function loadCTF() {
-      var l = ensureContainer("ctf", "ctf-list");
-      if (!l) return;
+      var view = document.getElementById("view-ctf");
+      if (!view) return;
+      hideLoading(view);
+      var l = document.getElementById("ctf-list");
+      if (!l) { l = document.createElement("div"); l.id = "ctf-list"; view.appendChild(l); }
       var LOCAL = [
         {question: "Which Windows Event ID indicates a FAILED logon attempt?", options: ["4624", "4625", "4688", "4769"], answer: 1, explanation: "4625 = failed logon."},
         {question: "Phishing email with look-alike domain. First action?", options: ["Pay it", "Report and quarantine", "Delete", "Reply"], answer: 1, explanation: "Report and contain."},
@@ -583,151 +588,45 @@ h1,h2,h3,.view-title,.hero h1 { font-family:'Space Grotesk',Inter,sans-serif; le
         {question: "CVSS 9.0-10.0 rating?", options: ["Low", "Medium", "High", "Critical"], answer: 3, explanation: "Critical."},
         {question: "Golden Ticket uses which account hash?", options: ["Administrator", "KRBTGT", "Guest", "System"], answer: 1, explanation: "KRBTGT signs TGTs."}
       ];
-      l.innerHTML = "Loading CTF Bite...";
-      api("/api/ctf/today").then(function (d) {
-        var q = d && d.question && d.options ? d : null;
-        if (!q) q = LOCAL[new Date().getDate() % LOCAL.length];
-        renderCTF(l, q);
-      }).catch(function () {
-        var q = LOCAL[new Date().getDate() % LOCAL.length];
-        renderCTF(l, q);
-      });
-    }
-    function renderCTF(l, q) {
-      var html = '<div class="card" style="padding:16px"><p style="font-weight:700;margin-bottom:10px">' + esc(q.question) + "</p>";
-      for (var i = 0; i < q.options.length; i++) {
-        html += '<label style="display:block;margin:6px 0;cursor:pointer"><input type="radio" name="ctf-inline" value="' + i + '" style="margin-right:8px">' + esc(q.options[i]) + "</label>";
-      }
-      html += '<button id="ctf-check-inline" class="btn-primary" style="margin-top:10px">Check answer</button><p id="ctf-fb-inline" style="margin-top:10px;display:none"></p></div>';
-      l.innerHTML = html;
-      l.querySelector("#ctf-check-inline").addEventListener("click", function () {
-        var sel = l.querySelector('input[name="ctf-inline"]:checked');
-        var fb = l.querySelector("#ctf-fb-inline");
-        fb.style.display = "block";
-        if (!sel) { fb.style.color = "#f59e0b"; fb.textContent = "Pick an option first."; return; }
-        var ok = parseInt(sel.value, 10) === q.answer;
-        fb.style.color = ok ? "#00ffcc" : "#ef4444";
-        fb.textContent = ok ? "Correct! " + (q.explanation || "") : "Incorrect. " + (q.explanation || "");
-      });
-    }
-    function loadLabs() {
-      var l = ensureContainer("labs", "labs-list");
-      if (!l) return;
-      l.innerHTML = "Loading labs...";
-      api("/api/labs").then(function (d) {
-        var labs = d.labs || [];
-        var done = d.done || {};
-        if (!labs.length) { l.innerHTML = "<p>No labs available.</p>"; return; }
-        var html = "";
-        for (var i = 0; i < labs.length; i++) {
-          var lab = labs[i];
-          var isDone = done[lab.id];
-          html += '<div class="card" style="padding:16px;margin-bottom:12px;"><div style="display:flex;justify-content:space-between;gap:10px"><strong>' + esc(lab.title) + '</strong><span style="color:var(--text-muted);font-size:.8rem">' + esc(lab.tool) + " | " + lab.mins + " min" + (isDone ? " | Done" : "") + "</span></div></div>";
+      function render(l, q) {
+        var html = '<div class="card" style="padding:16px"><p style="font-weight:700;margin-bottom:10px">⚡ ' + esc(q.question) + "</p>";
+        for (var i = 0; i < q.options.length; i++) {
+          html += '<label style="display:block;margin:6px 0;cursor:pointer"><input type="radio" name="ctf-inline" value="' + i + '" style="margin-right:8px">' + esc(q.options[i]) + "</label>";
         }
+        html += '<button id="ctf-check-inline" class="btn-primary" style="margin-top:10px">Check answer</button><p id="ctf-fb-inline" style="margin-top:10px;display:none"></p></div>';
         l.innerHTML = html;
-      }).catch(function () { l.innerHTML = "Could not load labs."; });
-    }
-    var loaded = { league: false, ctf: false, labs: false };
-    setInterval(function () {
-      var lgView = document.getElementById("view-league");
-      if (lgView && lgView.offsetParent !== null && !loaded.league) { loaded.league = true; loadLeague(); }
-      var ctfView = document.getElementById("view-ctf");
-      if (ctfView && ctfView.offsetParent !== null && !loaded.ctf) { loaded.ctf = true; loadCTF(); }
-      var labsView = document.getElementById("view-labs");
-      if (labsView && labsView.offsetParent !== null && !loaded.labs) { loaded.labs = true; loadLabs(); }
-    }, 1000);
-  })();
-  </script>
-
-
-  <!-- ===== CV DEBUG CONSOLE (visible diagnostics) ===== -->
-  <div id="cv-debug" style="position:fixed;bottom:0;left:0;right:0;background:#000;color:#0f0;font:12px monospace;padding:10px;z-index:99999;max-height:50vh;overflow:auto;white-space:pre-wrap;"></div>
-  <script>
-  (function () {
-    var dbg = document.getElementById("cv-debug");
-    function log(msg) { dbg.textContent += new Date().toLocaleTimeString() + " | " + msg + "\n"; dbg.scrollTop = dbg.scrollHeight; }
-    window.__cvLog = log;
-    log("Debug console active");
-    function findTok() {
-      var t = null;
-      try { t = localStorage.getItem("cv_token") || localStorage.getItem("token"); } catch (e) {}
-      return t;
-    }
-    function api(path) {
-      var tok = findTok();
-      var headers = tok ? { "Authorization": "Bearer " + tok } : {};
-      return fetch(path, { headers: headers }).then(function (r) {
-        log("API " + path + " -> " + r.status);
-        if (!r.ok) throw new Error("HTTP " + r.status);
-        return r.json();
-      });
+        l.querySelector("#ctf-check-inline").addEventListener("click", function () {
+          var sel = l.querySelector('input[name="ctf-inline"]:checked');
+          var fb = l.querySelector("#ctf-fb-inline");
+          fb.style.display = "block";
+          if (!sel) { fb.style.color = "#f59e0b"; fb.textContent = "Pick an option first."; return; }
+          var ok = parseInt(sel.value, 10) === q.answer;
+          fb.style.color = ok ? "#00ffcc" : "#ef4444";
+          fb.textContent = ok ? "Correct! " + (q.explanation || "") : "Incorrect. " + (q.explanation || "");
+        });
+      }
+      api("/api/ctf/today").then(function (d) {
+        render(l, (d && d.question && d.options) ? d : LOCAL[new Date().getDate() % LOCAL.length]);
+      }).catch(function () { render(l, LOCAL[new Date().getDate() % LOCAL.length]); });
     }
     setInterval(function () {
-      var views = ["league", "ctf", "labs", "dashboard"];
-      for (var i = 0; i < views.length; i++) {
-        var el = document.getElementById("view-" + views[i]);
-        var vis = el && (el.offsetParent !== null || el.style.display !== "none");
-        if (vis) log("View " + views[i] + " is VISIBLE");
-      }
-    }, 3000);
-    api("/api/leaderboard").then(function (d) { log("League data: " + JSON.stringify(d).slice(0, 100)); }).catch(function (e) { log("League error: " + e.message); });
-    api("/api/ctf/today").then(function (d) { log("CTF data: " + JSON.stringify(d).slice(0, 100)); }).catch(function (e) { log("CTF error: " + e.message); });
-    api("/api/labs").then(function (d) { log("Labs data: " + JSON.stringify(d).slice(0, 100)); }).catch(function (e) { log("Labs error: " + e.message); });
+      if (vis("view-leaderboard") && !done.lg) { done.lg = true; loadLeague(); }
+      if (vis("view-ctf") && !done.ctf) { done.ctf = true; loadCTF(); }
+    }, 800);
+    document.addEventListener("click", function () {
+      setTimeout(function () {
+        if (vis("view-leaderboard") && !done.lg) { done.lg = true; loadLeague(); }
+        if (vis("view-ctf") && !done.ctf) { done.ctf = true; loadCTF(); }
+      }, 150);
+    });
   })();
   </script>
 
 
-  <!-- ===== DOM INSPECTOR ===== -->
-  <script>
-  (function () {
-    var dbg = document.getElementById("cv-debug");
-    function log(msg) { if (dbg) dbg.textContent += new Date().toLocaleTimeString() + " | " + msg + "\n"; }
+  
 
-    log("=== ALL VIEWS ===");
-    var views = document.querySelectorAll("[id^='view-']");
-    for (var i = 0; i < views.length; i++) {
-      log("View: " + views[i].id + " | display:" + getComputedStyle(views[i]).display);
-    }
 
-    log("=== LEAGUE CHECK ===");
-    var league = document.getElementById("view-league");
-    if (league) {
-      log("view-league EXISTS | children:" + league.children.length);
-    } else {
-      log("view-league DOES NOT EXIST");
-      var found = [];
-      var all = document.querySelectorAll("[id]");
-      for (var j = 0; j < all.length; j++) {
-        if (all[j].id.toLowerCase().indexOf("league") !== -1 || all[j].id.toLowerCase().indexOf("leader") !== -1) found.push(all[j].id);
-      }
-      log("IDs containing league/leader: " + (found.join(", ") || "NONE"));
-    }
-
-    log("=== CTF CHECK ===");
-    var ctf = document.getElementById("view-ctf");
-    if (ctf) {
-      log("view-ctf EXISTS | children:" + ctf.children.length);
-      log("ctf-list exists: " + !!document.getElementById("ctf-list"));
-    } else {
-      log("view-ctf DOES NOT EXIST");
-    }
-
-    log("=== LABS CHECK ===");
-    var labs = document.getElementById("view-labs");
-    if (labs) {
-      log("view-labs EXISTS | children:" + labs.children.length);
-      log("labs-list exists: " + !!document.getElementById("labs-list"));
-    } else {
-      log("view-labs DOES NOT EXIST");
-      var found2 = [];
-      var all2 = document.querySelectorAll("[id]");
-      for (var k = 0; k < all2.length; k++) {
-        if (all2[k].id.toLowerCase().indexOf("lab") !== -1) found2.push(all2[k].id);
-      }
-      log("IDs containing lab: " + (found2.join(", ") || "NONE"));
-    }
-  })();
-  </script>
+  
 
 </body>
 </html>

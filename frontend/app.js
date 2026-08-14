@@ -1219,3 +1219,76 @@ async function loadLeaderboard() {
   setInterval(tryLoad, 1500);
   tryLoad();
 })();
+
+
+// ===== FINAL LOADER v4 (no gates, retry until success) =====
+(function () {
+  let ctfDone = false, lgDone = false;
+  function authFetch(ep) {
+    const tok = localStorage.getItem("cv_token") || localStorage.getItem("token") || "";
+    if (!tok) return Promise.reject("no token");
+    return fetch(ep, { headers: { Authorization: "Bearer " + tok } }).then(function (r) {
+      if (!r.ok) throw new Error("HTTP " + r.status);
+      return r.json();
+    });
+  }
+  function container(id, secId, mk) {
+    let l = document.getElementById(id);
+    if (!l) {
+      const sv = document.getElementById(secId) || document.querySelector("[id*='" + mk + "']");
+      if (!sv) return null;
+      l = document.createElement("div"); l.id = id; l.style.cssText = "max-width:720px;margin-top:12px";
+      sv.appendChild(l);
+    }
+    return l;
+  }
+  function renderCtf(l, q) {
+    let html = '<div class="card" style="padding:16px"><p style="font-weight:700;margin-bottom:10px">⚡ ' + escapeHtml(q.question) + "</p>";
+    (q.options || []).forEach(function (opt, i) {
+      html += '<label style="display:block;margin:6px 0;cursor:pointer"><input type="radio" name="ctf-opt" value="' + i + '" style="margin-right:8px">' + escapeHtml(opt) + "</label>";
+    });
+    html += '<button id="ctf-check" class="btn-primary" style="margin-top:10px">Check answer</button><p id="ctf-fb" style="margin-top:10px;display:none"></p></div>';
+    l.innerHTML = html;
+    l.querySelector("#ctf-check").addEventListener("click", async function () {
+      const sel = l.querySelector('input[name="ctf-opt"]:checked');
+      const fb = l.querySelector("#ctf-fb"); fb.style.display = "block";
+      if (!sel) { fb.style.color = "#f59e0b"; fb.textContent = "Pick an option first."; return; }
+      const val = parseInt(sel.value, 10);
+      let correct = null, xp = 0;
+      try {
+        const r = await fetch("/api/ctf/submit", { method: "POST", headers: { "Content-Type": "application/json", Authorization: "Bearer " + (localStorage.getItem("cv_token") || "") }, body: JSON.stringify({ answer: val }) });
+        if (r.ok) { const d = await r.json(); correct = !!d.correct; xp = d.xp || 0; }
+      } catch (e) {}
+      if (correct === null) correct = val === q.answer;
+      fb.style.color = correct ? "#00ffcc" : "#ef4444";
+      fb.textContent = correct ? "✅ Correct! " + (q.explanation || "") + (xp ? " +" + xp + " XP" : "") : "❌ Not quite. " + (q.explanation || "");
+      if (correct) { try { celebrate(); } catch (e) {} }
+    });
+  }
+  async function loadCtf() {
+    if (ctfDone) return;
+    const l = container("ctf-list", "view-ctf", "ctf");
+    if (!l) return;
+    try { const q = await authFetch("/api/ctf/today"); if (q && q.question) { ctfDone = true; renderCtf(l, q); } } catch (e) {}
+  }
+  async function loadLg() {
+    if (lgDone) return;
+    const l = container("league-list", "view-league", "league");
+    if (!l) return;
+    try {
+      const d = await authFetch("/api/leaderboard");
+      const users = (d && d.users) || [];
+      if (!users.length) return;
+      lgDone = true;
+      const medals = ["🥇", "", ""];
+      let html = '<table style="width:100%;border-collapse:collapse"><thead><tr><th style="padding:8px;text-align:left">#</th><th style="padding:8px;text-align:left">Player</th><th style="padding:8px;text-align:right">XP</th></tr></thead><tbody>';
+      users.forEach(function (u, i) {
+        html += '<tr style="border-bottom:1px solid #222"><td style="padding:10px 8px">' + (medals[i] || (i + 1)) + '</td><td style="padding:10px 8px">' + escapeHtml(u.name || "Anonymous") + (u.is_pro ? ' <span style="color:var(--amber);font-size:.75rem">PRO</span>' : '') + '</td><td style="text-align:right;padding:10px 8px;color:var(--accent)">' + (u.xp || 0) + '</td></tr>';
+      });
+      l.innerHTML = html + "</tbody></table>";
+    } catch (e) {}
+  }
+  setInterval(function () { loadCtf(); loadLg(); }, 2000);
+  document.addEventListener("click", function () { setTimeout(function () { loadCtf(); loadLg(); }, 200); });
+  loadCtf(); loadLg();
+})();

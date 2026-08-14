@@ -782,3 +782,26 @@ function copyResumeSharePost(score, role) {
     if (window.innerWidth <= 900) close();
   }));
 })();
+
+
+// ===== renderOnboarding fallback =====
+if (typeof window.renderOnboarding !== "function") {
+  window.renderOnboarding = function () {
+    try {
+      const card = document.getElementById("onboarding-card") || document.querySelector(".onboarding-card");
+      if (!card) return;
+      const flags = [
+        !!localStorage.getItem("cv_onb_resume"),
+        !!localStorage.getItem("cv_onb_interview"),
+        !!localStorage.getItem("cv_onb_ops")
+      ];
+      const count = flags.filter(Boolean).length;
+      card.querySelectorAll("input[type=checkbox]").forEach((cb, i) => {
+        if (typeof flags[i] === "boolean") cb.checked = flags[i];
+      });
+      const prog = card.querySelector("#onb-progress") || card.querySelector("[data-onb-progress]");
+      if (prog) prog.textContent = count + "/3";
+      if (count === 3) card.style.display = "none";
+    } catch (e) { /* never crash the app for a checklist */ }
+  };
+}

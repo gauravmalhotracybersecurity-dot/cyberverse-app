@@ -1068,7 +1068,9 @@ async function loadLeaderboard() {
 
 
 
-// ===== VOICE BRIDGE v2 (single instance + auto-fill) =====
+
+
+// ===== VOICE BRIDGE v3 (tap-driven engine + auto-fill) =====
 (function () {
   let box = null;
   function logV(msg) {
@@ -1083,37 +1085,43 @@ async function loadLeaderboard() {
   function findAnswerBox() {
     const ids = ["iv-answer", "answer-input", "interview-answer", "answer", "iv-input", "interview-input", "iv-text"];
     for (const id of ids) { const el = document.getElementById(id); if (el) return el; }
-    const els = document.querySelectorAll("textarea, input[type=text]");
-    for (const el of els) {
+    const scoped = document.querySelectorAll("#view-interview textarea, #view-interview input[type=text], textarea, input[type=text]");
+    for (const el of scoped) {
       const ph = (el.placeholder || "").toLowerCase();
       if (ph.includes("answer") || ph.includes("type your")) return el;
     }
     return null;
   }
   const Orig = window.SpeechRecognition || window.webkitSpeechRecognition;
-  if (!Orig) { logV("❌ No Speech API on this browser"); return; }
-  function Patched() {
-    const inst = new Orig();
-    inst.addEventListener("start", () => logV("🟢 listening…"));
-    inst.addEventListener("result", (e) => {
-      let t = "";
-      for (let i = e.resultIndex; i < e.results.length; i++) t += e.results[i][0].transcript;
-      logV("📝 " + t);
-      const ab = findAnswerBox();
-      if (ab) {
-        ab.value = (ab.value ? ab.value + " " : "") + t;
-        ab.dispatchEvent(new Event("input", { bubbles: true }));
-        logV("✍️ filled answer box");
-      } else {
-        logV("⚠️ answer box not found");
-      }
-    });
-    inst.addEventListener("error", (e) => logV("❌ " + e.error));
-    inst.addEventListener("end", () => logV("🏁 end"));
-    return inst;
-  }
-  Patched.prototype = Orig.prototype;
-  window.SpeechRecognition = Patched;
-  window.webkitSpeechRecognition = Patched;
-  logV("🎙️ voice bridge armed");
+  if (!Orig) { logV("❌ No Speech API"); return; }
+  let active = null;
+  document.addEventListener("click", function (e) {
+    const isMic = e.target.closest("#mic-btn, .mic-btn, #voice-btn, .voice-btn, [data-action='voice'], button[class*='mic'], button[id*='mic'], button[id*='voice']");
+    if (!isMic) return;
+    if (active) { try { active.stop(); } catch (_) {} active = null; logV("⏹ stopped"); return; }
+    try {
+      const rec = new Orig();
+      rec.lang = "en-US";
+      rec.interimResults = false;
+      rec.continuous = false;
+      rec.addEventListener("start", () => logV("🟢 listening… speak now"));
+      rec.addEventListener("result", (e) => {
+        let t = "";
+        for (let i = e.resultIndex; i < e.results.length; i++) t += e.results[i][0].transcript;
+        logV("📝 " + t);
+        const ab = findAnswerBox();
+        if (ab) {
+          ab.value = (ab.value ? ab.value + " " : "") + t;
+          ab.dispatchEvent(new Event("input", { bubbles: true }));
+          logV("✍️ typed into answer box");
+        } else logV("⚠️ answer box not found");
+      });
+      rec.addEventListener("error", (ev) => { logV("❌ " + ev.error); active = null; });
+      rec.addEventListener("end", () => { logV("🏁 done - tap mic to add more"); active = null; });
+      active = rec;
+      rec.start();
+      logV("🚀 session started");
+    } catch (err) { logV("❌ " + err.message); active = null; }
+  }, true);
+  logV("🎙️ voice bridge v3 armed");
 })();

@@ -1145,3 +1145,77 @@ async function loadLeaderboard() {
   setInterval(tryLoad, 1500);
   tryLoad();
 })();
+
+
+// ===== CTF LOADER v2 (self-driving) =====
+(function () {
+  const GETS = ["/api/ctf/today", "/api/ctf", "/api/ctf-bites"];
+  const POSTS = ["/api/ctf/submit", "/api/ctf/answer", "/api/ctf/solve"];
+  let loaded = false;
+  function sec() { return document.getElementById("view-ctf") || document.querySelector("section[id*='ctf']"); }
+  function box() {
+    let l = document.getElementById("ctf-list") || document.getElementById("ctf-container");
+    const sv = sec();
+    if (!l && sv) { l = document.createElement("div"); l.id = "ctf-list"; l.style.cssText = "max-width:720px;margin-top:12px"; sv.appendChild(l); }
+    return l;
+  }
+  function norm(d) {
+    if (!d) return null;
+    if (Array.isArray(d.questions) && d.questions.length) return d.questions[0];
+    if (d.question && d.options) return d;
+    if (Array.isArray(d) && d.length) return d[0];
+    return null;
+  }
+  function renderQ(l, q) {
+    let html = '<div class="card" style="padding:16px"><p style="font-weight:700;margin-bottom:10px">⚡ ' + escapeHtml(q.question || q.prompt || "") + "</p>";
+    (q.options || q.choices || []).forEach(function (opt, i) {
+      html += '<label style="display:block;margin:6px 0;cursor:pointer"><input type="radio" name="ctf-opt" value="' + i + '" style="margin-right:8px">' + escapeHtml(opt) + "</label>";
+    });
+    html += '<button id="ctf-check" class="btn-primary" style="margin-top:10px">Check answer</button><p id="ctf-fb" style="margin-top:10px;display:none"></p></div>';
+    l.innerHTML = html;
+    l.querySelector("#ctf-check").addEventListener("click", async function () {
+      const sel = l.querySelector('input[name="ctf-opt"]:checked');
+      const fb = l.querySelector("#ctf-fb");
+      fb.style.display = "block";
+      if (!sel) { fb.style.color = "#f59e0b"; fb.textContent = "Pick an option first."; return; }
+      const val = parseInt(sel.value, 10);
+      let correct = null, xp = 0;
+      for (const ep of POSTS) {
+        try {
+          const r = await api(ep, { method: "POST", body: JSON.stringify({ answer: val, choice: val }) });
+          if (r && (typeof r.correct === "boolean" || r.xp !== undefined)) { correct = !!r.correct; xp = r.xp || 0; break; }
+        } catch (e) {}
+      }
+      if (correct === null) correct = (val === (q.answer !== undefined ? q.answer : q.correct));
+      if (correct) {
+        fb.style.color = "#00ffcc";
+        fb.textContent = "✅ Correct! " + (q.explanation || "") + (xp ? " +" + xp + " XP" : "");
+        try { celebrate(); cvTrack("ctf_solved"); if (xp && profile) { profile.xp += xp; renderStatusBar(); } } catch (e) {}
+      } else {
+        fb.style.color = "#ef4444";
+        fb.textContent = "❌ Not quite. " + (q.explanation || "New bite tomorrow!");
+      }
+    });
+  }
+  async function tryLoad() {
+    const sv = sec();
+    if (!sv || loaded) return;
+    if (!(sv.offsetParent !== null || sv.classList.contains("active"))) return;
+    loaded = true;
+    const l = box();
+    l.innerHTML = "Loading today's CTF Bite…";
+    for (const ep of GETS) {
+      try {
+        const q = norm(await api(ep));
+        if (!q) continue;
+        renderQ(l, q);
+        console.log("[ctf] loaded from", ep);
+        return;
+      } catch (e) { console.log("[ctf] miss:", ep); }
+    }
+    l.innerHTML = "<p style='color:var(--text-muted)'>Next CTF Bite drops soon.</p>";
+  }
+  window.addEventListener("click", function () { setTimeout(tryLoad, 150); });
+  setInterval(tryLoad, 1500);
+  tryLoad();
+})();

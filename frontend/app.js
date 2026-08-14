@@ -1070,3 +1070,17 @@ window.loadCTF = function () {
     else render(l, LOCAL[new Date().getDate() % LOCAL.length], "offline");
   }).catch(function () { render(l, LOCAL[new Date().getDate() % LOCAL.length], "offline"); });
 };
+
+// ===== CV VIEW BRIDGE (triggers loaders when views open) =====
+(function () {
+  const doneB = {};
+  function vis(p) { const el = document.getElementById("view-" + p); return el && (el.offsetParent !== null || el.classList.contains("active")); }
+  function tryOnce(k, fn) { if (doneB[k]) return; doneB[k] = true; try { fn(); } catch (e) {} }
+  setInterval(function () {
+    if (vis("league")) tryOnce("lg", function () { window.loadLeaderboard && window.loadLeaderboard(); });
+    if (vis("ctf")) tryOnce("ctf", function () { window.loadCTF && window.loadCTF(); });
+    if (vis("labs")) tryOnce("labs", function () { window.renderLabs && window.renderLabs(); });
+    if (vis("roadmap")) tryOnce("rm", function () { window.renderRoadmap && window.renderRoadmap(); });
+    if (vis("stories")) tryOnce("st", function () { window.renderStories && window.renderStories(); });
+  }, 1000);
+})();

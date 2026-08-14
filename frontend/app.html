@@ -469,7 +469,7 @@ h1,h2,h3,.view-title,.hero h1 { font-family:'Space Grotesk',Inter,sans-serif; le
     <p style="text-align:center;color:#666;font-size:.8rem;margin-top:14px">Share it on LinkedIn - your network sees your score, we get a user. Win-win. 🚀</p>
   </div>
 </div>
-<script src="app2.js?v=20260815t"></script>
+<script src="app2.js?v=20260815u"></script>
 <div id="paywall-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="pw-title">
   <div class="modal-card" style="max-width: 700px;">
     <button class="modal-close" onclick="document.getElementById('paywall-modal').classList.add('hidden')">&times;</button>
@@ -582,6 +582,65 @@ h1,h2,h3,.view-title,.hero h1 { font-family:'Space Grotesk',Inter,sans-serif; le
 
 
   
+
+
+  <!-- ===== CV VOICE BRIDGE (inline, Safari-safe) ===== -->
+  <script>
+  (function () {
+    function findAnswerBox() {
+      var ids = ["iv-answer", "answer-input", "interview-answer", "answer", "iv-input", "interview-input", "iv-text"];
+      for (var i = 0; i < ids.length; i++) { var el = document.getElementById(ids[i]); if (el) return el; }
+      var els = document.querySelectorAll("textarea, input[type=text]");
+      for (var j = 0; j < els.length; j++) {
+        var ph = (els[j].placeholder || "").toLowerCase();
+        if (ph.indexOf("answer") !== -1 || ph.indexOf("type your") !== -1) return els[j];
+      }
+      return null;
+    }
+    function micTarget(e) {
+      var t = e.target;
+      if (!t || !t.closest) return null;
+      return t.closest("#mic-btn, .mic-btn, #voice-btn, .voice-btn, [data-action='voice'], button[id*='mic'], button[id*='voice'], button[class*='mic'], button[class*='voice']");
+    }
+    var Orig = window.SpeechRecognition || window.webkitSpeechRecognition;
+    var active = null;
+    document.addEventListener("click", function (e) {
+      var btn = micTarget(e);
+      if (!btn) return;
+      if (active) { try { active.stop(); } catch (e2) {} active = null; return; }
+      if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+        navigator.mediaDevices.getUserMedia({ audio: true }).then(function (stream) {
+          stream.getTracks().forEach(function (tr) { tr.stop(); });
+        }).catch(function () {
+          if (window.toast) toast("Mic blocked: allow microphone in browser settings");
+        });
+      }
+      if (!Orig) { if (window.toast) toast("Voice not supported in this browser"); return; }
+      try {
+        var rec = new Orig();
+        rec.lang = "en-US";
+        rec.interimResults = false;
+        rec.continuous = false;
+        rec.addEventListener("result", function (ev) {
+          var txt = "";
+          for (var i = ev.resultIndex; i < ev.results.length; i++) txt += ev.results[i][0].transcript;
+          var ab = findAnswerBox();
+          if (ab) {
+            ab.value = (ab.value ? ab.value + " " : "") + txt;
+            var evt;
+            try { evt = new Event("input", { bubbles: true }); } catch (e3) { evt = document.createEvent("Event"); evt.initEvent("input", true, true); }
+            ab.dispatchEvent(evt);
+          } else if (window.toast) toast("Heard: " + txt);
+        });
+        rec.addEventListener("error", function (ev) { active = null; if (window.toast) toast("Mic error: " + ev.error); });
+        rec.addEventListener("end", function () { active = null; });
+        active = rec;
+        rec.start();
+        if (window.toast) toast("Listening... speak now");
+      } catch (e4) { active = null; }
+    }, true);
+  })();
+  </script>
 
 </body>
 </html>

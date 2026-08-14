@@ -12,7 +12,7 @@
   window.addEventListener("unhandledrejection", function(e) {
     var d = document.createElement("div");
     d.style.cssText = "position:fixed;bottom:0;left:0;right:0;background:#b00020;color:#fff;padding:12px;z-index:99999;font-size:12px;font-family:monospace;word-break:break-word;";
-    var msg = e.reason [OK] (e.reason.message || e.reason) : "Promise rejected";
+    var msg = e.reason ? (e.reason.message || e.reason) : "Promise rejected";
     d.innerHTML = "<b>API/PROMISE ERROR:</b> " + msg;
     document.body.appendChild(d);
     setTimeout(function(){ d.remove(); }, 10000);
@@ -40,7 +40,7 @@ function cvTrack(event) {
 
 // ===== Config =====
 const API_BASE = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1"
-  [OK] "http://127.0.0.1:8000"
+  ? "http://127.0.0.1:8000"
   : ""; // same-origin in production if you serve frontend + backend together
 
 // ===== State =====
@@ -54,9 +54,9 @@ async function api(path, options = {}) {
   if (token) headers["Authorization"] = `Bearer ${token}`;
   const res = await fetch(`${API_BASE}${path}`, { ...options, headers });
   let data = null;
-  try { data = await res.json(); } catch (_) { /Q: no body Q:/ }
+  try { data = await res.json(); } catch (_) { /* no body */ }
   if (!res.ok) {
-    const message = (data && data.detail) [OK] data.detail : `Request failed (${res.status})`;
+    const message = (data && data.detail) ? data.detail : `Request failed (${res.status})`;
     throw new Error(message);
   }
   return data;
@@ -67,7 +67,7 @@ function $all(sel) { return document.querySelectorAll(sel); }
 
 function escapeHtml(str) {
   const div = document.createElement("div");
-  div.textContent = str [OK][OK] "";
+  div.textContent = str ?? "";
   return div.innerHTML;
 }
 
@@ -77,7 +77,7 @@ $all(".auth-tab").forEach(tab => {
     authMode = tab.dataset.mode;
     $all(".auth-tab").forEach(t => t.classList.toggle("active", t === tab));
     $("#signup-fields").classList.toggle("hidden", authMode !== "signup");
-    $("#auth-submit").textContent = authMode === "signup" [OK] "Create account" : "Log in";
+    $("#auth-submit").textContent = authMode === "signup" ? "Create account" : "Log in";
     $("#auth-error").classList.add("hidden");
   });
 });
@@ -112,7 +112,7 @@ $("#auth-form").addEventListener("submit", async (e) => {
       showAuthPanel("login");
       return;
     }
-    cvTrack(authMode === "signup" [OK] "signup" : "login");
+    cvTrack(authMode === "signup" ? "signup" : "login");
     token = result.access_token;
     localStorage.setItem("cv_token", token);
     await enterApp();
@@ -180,7 +180,7 @@ $("#reset-form").addEventListener("submit", async (e) => {
       method: "POST",
       body: JSON.stringify({ token: pendingResetToken, new_password }),
     });
-    msg.textContent = `${result.message} Redirecting to log in `;
+    msg.textContent = `${result.message} Redirecting to log in…`;
     msg.classList.remove("hidden");
     setTimeout(() => {
       window.history.replaceState({}, "", window.location.pathname);
@@ -194,7 +194,7 @@ $("#reset-form").addEventListener("submit", async (e) => {
   }
 });
 
-// If we arrived via a password-reset email link ([OK]reset_token=...), jump
+// If we arrived via a password-reset email link (?reset_token=...), jump
 // straight to the reset panel.
 (function checkForResetToken() {
   const params = new URLSearchParams(window.location.search);
@@ -254,9 +254,9 @@ function renderStatusBar() {
 
 function renderDashboardSnapshot() {
   $("#snap-level").textContent = profile.skill_level;
-  $("#snap-certs").textContent = profile.certifications.length [OK] profile.certifications.join(", ") : "None yet";
-  $("#snap-weak").textContent = profile.weak_topics.length [OK] profile.weak_topics.join(", ") : "None identified yet";
-  $("#snap-goal").textContent = profile.learning_goals || "Not set   add one in Profile";
+  $("#snap-certs").textContent = profile.certifications.length ? profile.certifications.join(", ") : "None yet";
+  $("#snap-weak").textContent = profile.weak_topics.length ? profile.weak_topics.join(", ") : "None identified yet";
+  $("#snap-goal").textContent = profile.learning_goals || "Not set — add one in Profile";
 }
 
 // ===== Profile view =====
@@ -280,7 +280,7 @@ $("#p-save").addEventListener("click", async () => {
   renderStatusBar();
   checkProStatus();
   renderDashboardSnapshot();
-  renderOnboarding(); toast("Profile saved  ");
+  renderOnboarding(); toast("Profile saved ✓");
   const saved = $("#p-saved");
   saved.classList.remove("hidden");
   setTimeout(() => saved.classList.add("hidden"), 2000);
@@ -291,13 +291,13 @@ function renderChatLog(history) {
   const log = $("#chat-log");
   log.innerHTML = "";
   if (history.length === 0) {
-    log.innerHTML = `<div class="msg assistant"><span class="msg-tag">MENTOR</span>Hey   I'm your AI Mentor. Ask me to explain a concept, build a study plan, quiz you, or review something you're stuck on.</div>`;
+    log.innerHTML = `<div class="msg assistant"><span class="msg-tag">MENTOR</span>Hey — I'm your AI Mentor. Ask me to explain a concept, build a study plan, quiz you, or review something you're stuck on.</div>`;
     return;
   }
   history.forEach(m => {
     const div = document.createElement("div");
     div.className = `msg ${m.role}`;
-    div.innerHTML = `<span class="msg-tag">${m.role === "user" [OK] "YOU" : "MENTOR"}</span>${escapeHtml(m.content)}`;
+    div.innerHTML = `<span class="msg-tag">${m.role === "user" ? "YOU" : "MENTOR"}</span>${escapeHtml(m.content)}`;
     log.appendChild(div);
   });
   log.scrollTop = log.scrollHeight;
@@ -323,7 +323,7 @@ $("#chat-form").addEventListener("submit", async (e) => {
   log.appendChild(pending);
   const thinking = document.createElement("div");
   thinking.className = "msg assistant";
-  thinking.innerHTML = `<span class="msg-tag">MENTOR</span>Thinking `;
+  thinking.innerHTML = `<span class="msg-tag">MENTOR</span>Thinking…`;
   log.appendChild(thinking);
   log.scrollTop = log.scrollHeight;
 
@@ -364,11 +364,11 @@ function renderDailyBundle(c) {
   container.innerHTML = "";
 
   const cards = [
-    { eyebrow: "Lesson", title: c.lesson[OK].title, body: c.lesson[OK].body },
-    { eyebrow: "News Brief", title: c.news_summary[OK].headline, body: `${c.news_summary[OK].summary}\n\nWhy it matters: ${c.news_summary[OK].why_it_matters}` },
-    { eyebrow: "Challenge", title: c.challenge[OK].title, body: c.challenge[OK].description },
-    { eyebrow: "Practical Task", title: c.practical_task[OK].title, body: c.practical_task[OK].description },
-    { eyebrow: "Interview Question", title: c.interview_question[OK].question, body: `What a good answer covers: ${c.interview_question[OK].what_a_good_answer_covers}` },
+    { eyebrow: "Lesson", title: c.lesson?.title, body: c.lesson?.body },
+    { eyebrow: "News Brief", title: c.news_summary?.headline, body: `${c.news_summary?.summary}\n\nWhy it matters: ${c.news_summary?.why_it_matters}` },
+    { eyebrow: "Challenge", title: c.challenge?.title, body: c.challenge?.description },
+    { eyebrow: "Practical Task", title: c.practical_task?.title, body: c.practical_task?.description },
+    { eyebrow: "Interview Question", title: c.interview_question?.question, body: `What a good answer covers: ${c.interview_question?.what_a_good_answer_covers}` },
   ];
   cards.forEach(card => {
     if (!card.title) return;
@@ -447,8 +447,8 @@ $("#resume-submit").addEventListener("click", async () => {
       const el = $("#resume-result");
       if (el && !$("#res-sc-download")) {
         el.innerHTML += `<div style="margin-top:24px; display:flex; gap:10px; justify-content:center; flex-wrap:wrap;">
-          <button id="res-sc-download" class="btn-primary" style="flex:1; min-width:200px;">  Download Resume Scorecard</button>
-          <button id="res-sc-copy" class="btn-secondary" style="flex:1; min-width:200px;">  Copy LinkedIn Post</button>
+          <button id="res-sc-download" class="btn-primary" style="flex:1; min-width:200px;">📥 Download Resume Scorecard</button>
+          <button id="res-sc-copy" class="btn-secondary" style="flex:1; min-width:200px;">📋 Copy LinkedIn Post</button>
         </div>`;
         const score = result.review.overall_score;
         const role = $("#resume-role").value;
@@ -489,7 +489,7 @@ let currentInterviewSessionId = null;
 
 $("#interview-start").addEventListener("click", async () => {
   const role = $("#interview-role").value;
-  const quick = ($("#interview-mode") [OK] $("#interview-mode").value === "quick" : false);
+  const quick = ($("#interview-mode") ? $("#interview-mode").value === "quick" : false);
   $("#interview-start").disabled = true;
   try {
     const result = await api("/api/interview/start", { method: "POST", body: JSON.stringify({ role, quick }) });
@@ -512,14 +512,14 @@ function renderInterviewLog(turns) {
     if (t.feedback) {
       const fb = document.createElement("div");
       fb.className = "msg feedback";
-      fb.innerHTML = `<span class="msg-tag">FEEDBACK   Score ${escapeHtml(t.feedback.score)}/10</span>
+      fb.innerHTML = `<span class="msg-tag">FEEDBACK · Score ${escapeHtml(t.feedback.score)}/10</span>
         <strong>Strengths:</strong> ${escapeHtml((t.feedback.strengths || []).join("; "))}<br/>
         <strong>Improve:</strong> ${escapeHtml((t.feedback.improvements || []).join("; "))}`;
       log.appendChild(fb);
     }
     const div = document.createElement("div");
-    div.className = `msg ${t.speaker === "interviewer" [OK] "assistant" : "user"}`;
-    div.innerHTML = `<span class="msg-tag">${t.speaker === "interviewer" [OK] "INTERVIEWER" : "YOU"}</span>${escapeHtml(t.content)}`;
+    div.className = `msg ${t.speaker === "interviewer" ? "assistant" : "user"}`;
+    div.innerHTML = `<span class="msg-tag">${t.speaker === "interviewer" ? "INTERVIEWER" : "YOU"}</span>${escapeHtml(t.content)}`;
     log.appendChild(div);
   });
   log.scrollTop = log.scrollHeight;
@@ -539,7 +539,7 @@ $("#interview-form").addEventListener("submit", async (e) => {
       body: JSON.stringify({ answer }),
     });
     renderInterviewLog(result.turns);
-    profile.xp += result.is_complete [OK] 25 : 5;
+    profile.xp += result.is_complete ? 25 : 5;
     renderStatusBar();
   checkProStatus();
     if (result.is_complete) {
@@ -581,14 +581,14 @@ async function loadAchievements() {
     }
     listEl.innerHTML = "";
     achievements.forEach(a => {
-      const badge = a.type === "hired" [OK] " " : a.type === "certification" [OK] " " : " ";
-      const xp = a.type === "hired" [OK] 100 : a.type === "certification" [OK] 50 : 20;
+      const badge = a.type === "hired" ? "🎉" : a.type === "certification" ? "📜" : "💼";
+      const xp = a.type === "hired" ? 100 : a.type === "certification" ? 50 : 20;
       const div = document.createElement("div");
       div.className = "ach-item";
       div.innerHTML = `<span class="ach-badge">${badge}</span>
                        <div class="ach-details">
                          <strong>${escapeHtml(a.title)}</strong>
-                         <span class="ach-meta">${a.type.toUpperCase()}   +${xp} XP</span>
+                         <span class="ach-meta">${a.type.toUpperCase()} · +${xp} XP</span>
                        </div>`;
       listEl.appendChild(div);
     });
@@ -637,7 +637,7 @@ document.getElementById('go-pro-btn').addEventListener('click', showPaywall);
 function checkProStatus() {
   const proBtn = document.getElementById('go-pro-btn');
   if (proBtn && profile) {
-    proBtn.style.display = profile.is_pro [OK] 'none' : 'flex';
+    proBtn.style.display = profile.is_pro ? 'none' : 'flex';
   }
 }
 const _newBtn = $("#interview-new");
@@ -700,7 +700,7 @@ function downloadScorecard(sc) {
   x.fillStyle = "#dddddd"; x.font = "36px Arial";
   wrapText(x, sc.verdict, 540, 920, 840, 50);
   x.fillStyle = "#ffffff"; x.font = "bold 44px Arial";
-  x.fillText("Can you beat my score[OK]", 540, 1150);
+  x.fillText("Can you beat my score?", 540, 1150);
   x.fillStyle = "#00ffcc"; x.font = "bold 48px Consolas, monospace";
   x.fillText("app.grcwithgaurav.com", 540, 1225);
   const a = document.createElement("a");
@@ -711,11 +711,11 @@ function downloadScorecard(sc) {
 
 function copySharePost(sc) {
   const tag = String(sc.role).replace(/[^a-zA-Z0-9]/g, "");
-  const text = "I just scored " + sc.score + "/100 on the " + sc.role + " AI mock interview on CyberVerse AI  \n\nThe AI grilled me like a real recruiter and told me exactly what to fix.\n\nCan you beat my score[OK]  \nhttps://app.grcwithgaurav.com\n\n#cybersecurity #" + tag + " #AI #jobsearch";
+  const text = "I just scored " + sc.score + "/100 on the " + sc.role + " AI mock interview on CyberVerse AI 🎯\n\nThe AI grilled me like a real recruiter and told me exactly what to fix.\n\nCan you beat my score? 👇\nhttps://app.grcwithgaurav.com\n\n#cybersecurity #" + tag + " #AI #jobsearch";
   cvTrack("share_copied");
   navigator.clipboard.writeText(text).then(() => {
-    const b = $("#sc-copy"); b.textContent = "  Copied! Paste it on LinkedIn";
-    setTimeout(() => { b.textContent = "  Copy LinkedIn Post"; }, 2500);
+    const b = $("#sc-copy"); b.textContent = "✅ Copied! Paste it on LinkedIn";
+    setTimeout(() => { b.textContent = "📋 Copy LinkedIn Post"; }, 2500);
   });
 }
 
@@ -743,7 +743,7 @@ function downloadResumeScorecard(score, role) {
   x.fillText("The AI found my exact missing skills", 540, 950);
   x.fillText("and rewrote my weak bullets.", 540, 1010);
   x.fillStyle = "#ffffff"; x.font = "bold 44px Arial";
-  x.fillText("Can your resume beat mine[OK]", 540, 1150);
+  x.fillText("Can your resume beat mine?", 540, 1150);
   x.fillStyle = "#00ffcc"; x.font = "bold 48px Consolas, monospace";
   x.fillText("app.grcwithgaurav.com", 540, 1225);
   const a = document.createElement("a");
@@ -754,12 +754,12 @@ function downloadResumeScorecard(score, role) {
 
 function copyResumeSharePost(score, role) {
   const tag = String(role).replace(/[^a-zA-Z0-9]/g, "");
-  const text = "My resume scored " + score + "/100 for a " + role + " role on CyberVerse AI  \n\nThe AI found the exact skills I was missing and rewrote my weak bullets like a real recruiter.\n\nCan your resume beat mine[OK]  \nhttps://app.grcwithgaurav.com\n\n#cybersecurity #resume #" + tag + " #jobsearch";
+  const text = "My resume scored " + score + "/100 for a " + role + " role on CyberVerse AI 📄\n\nThe AI found the exact skills I was missing and rewrote my weak bullets like a real recruiter.\n\nCan your resume beat mine? 👇\nhttps://app.grcwithgaurav.com\n\n#cybersecurity #resume #" + tag + " #jobsearch";
   cvTrack("share_copied");
   navigator.clipboard.writeText(text).then(() => {
     const b = $("#res-sc-copy"); 
     const orig = b.textContent;
-    b.textContent = "  Copied! Paste it on LinkedIn";
+    b.textContent = "✅ Copied! Paste it on LinkedIn";
     setTimeout(() => { b.textContent = orig; }, 2500);
   });
 }
@@ -776,7 +776,7 @@ function copyResumeSharePost(score, role) {
   const isOpen = () => sb.classList.contains("open");
   const close = () => { sb.classList.remove("open"); if (bd) bd.style.display = "none"; };
   const open = () => { sb.classList.add("open"); if (bd) bd.style.display = "block"; };
-  ham.onclick = (e) => { e.preventDefault(); e.stopPropagation(); isOpen() [OK] close() : open(); };
+  ham.onclick = (e) => { e.preventDefault(); e.stopPropagation(); isOpen() ? close() : open(); };
   if (bd) bd.onclick = close;
   document.querySelectorAll(".nav-item").forEach(b => b.addEventListener("click", () => {
     if (window.innerWidth <= 900) close();
@@ -802,7 +802,7 @@ if (typeof window.renderOnboarding !== "function") {
       const prog = card.querySelector("#onb-progress") || card.querySelector("[data-onb-progress]");
       if (prog) prog.textContent = count + "/3";
       if (count === 3) card.style.display = "none";
-    } catch (e) { /Q: never crash the app for a checklist Q:/ }
+    } catch (e) { /* never crash the app for a checklist */ }
   };
 }
 
@@ -816,7 +816,7 @@ function celebrate() {
   const colors = ["#00ffcc", "#8b5cf6", "#f59e0b", "#ef4444", "#3b82f6"];
   for (let i = 0; i < 80; i++) {
     const el = document.createElement("div");
-    el.style.cssText = "position:fixed;top:-12px;width:8px;height:12px;z-index:9999;pointer-events:none;background:" + colors[i % 5] + ";left:" + (Math.random() Q: 100) + "vw;transform:rotate(" + (Math.random() Q: 360) + "deg);animation:cvfall " + (2 + Math.random() Q: 1.5) + "s linear forwards;";
+    el.style.cssText = "position:fixed;top:-12px;width:8px;height:12px;z-index:9999;pointer-events:none;background:" + colors[i % 5] + ";left:" + (Math.random() * 100) + "vw;transform:rotate(" + (Math.random() * 360) + "deg);animation:cvfall " + (2 + Math.random() * 1.5) + "s linear forwards;";
     document.body.appendChild(el);
     setTimeout(() => el.remove(), 4200);
   }
@@ -846,21 +846,21 @@ function renderRoadmap() {
   const done = JSON.parse(localStorage.getItem("cv_roadmap") || "{}");
   const total = ROADMAP.reduce((n, p) => n + p.weeks.length, 0);
   const doneCount = Object.values(done).filter(Boolean).length;
-  document.getElementById("rm-bar").style.width = Math.round(100 Q: doneCount / total) + "%";
+  document.getElementById("rm-bar").style.width = Math.round(100 * doneCount / total) + "%";
   document.getElementById("rm-progress").textContent = doneCount + " / " + total + " weeks completed";
   let html = "";
   ROADMAP.forEach(ph => {
     html += '<h3 style="color:var(--accent);margin:24px 0 10px">' + ph.phase + "</h3>";
     ph.weeks.forEach(w => {
       const isDone = !!done[w.id];
-      html += '<div class="card" style="padding:16px;margin-bottom:10px;' + (isDone [OK] "opacity:.65;" : "") + '">' +
+      html += '<div class="card" style="padding:16px;margin-bottom:10px;' + (isDone ? "opacity:.65;" : "") + '">' +
         '<div style="display:flex;gap:12px;align-items:flex-start">' +
-        '<input type="checkbox" data-week="' + w.id + '" ' + (isDone [OK] "checked" : "") + ' style="margin-top:4px;accent-color:var(--accent);width:18px;height:18px;cursor:pointer"/>' +
+        '<input type="checkbox" data-week="' + w.id + '" ' + (isDone ? "checked" : "") + ' style="margin-top:4px;accent-color:var(--accent);width:18px;height:18px;cursor:pointer"/>' +
         '<div style="flex:1"><div style="font-weight:700">' + w.t +
-        (w.cert [OK] ' <span style="color:var(--amber);font-size:.72rem;border:1px solid var(--amber);border-radius:10px;padding:1px 8px">' + w.cert + "</span>" : "") +
+        (w.cert ? ' <span style="color:var(--amber);font-size:.72rem;border:1px solid var(--amber);border-radius:10px;padding:1px 8px">' + w.cert + "</span>" : "") +
         "</div><ul style='margin:8px 0 0;padding-left:18px;color:var(--text-muted);font-size:.9rem'>" +
         w.items.map(it => "<li>" + it + "</li>").join("") +
-        "</ul><button class='btn-secondary rm-go' data-goto='" + w.goto + "' style='margin-top:10px;padding:6px 14px'>Practice  </button></div></div></div>";
+        "</ul><button class='btn-secondary rm-go' data-goto='" + w.goto + "' style='margin-top:10px;padding:6px 14px'>Practice →</button></div></div></div>";
     });
   });
   list.innerHTML = html;
@@ -895,13 +895,13 @@ async function renderLabs() {
       const done = d.done[lab.id];
       return '<div class="card" style="padding:16px;margin-bottom:12px;">' +
         '<div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap"><strong>' + lab.title + "</strong>" +
-        '<span style="color:var(--text-muted);font-size:.8rem">' + lab.tool + "   " + lab.mins + " min   " + lab.level + (done [OK] "     done" : "") + "</span></div>" +
+        '<span style="color:var(--text-muted);font-size:.8rem">' + lab.tool + " • " + lab.mins + " min • " + lab.level + (done ? " • ✅ done" : "") + "</span></div>" +
         "<details style='margin-top:8px'><summary style='cursor:pointer;color:var(--accent);font-size:.9rem'>Steps & evidence</summary>" +
         "<ol style='margin:8px 0 0;padding-left:18px;color:var(--text-muted);font-size:.9rem'>" + lab.steps.map(x => "<li>" + x + "</li>").join("") + "</ol></details>" +
         (done
-          [OK] '<div style="margin-top:12px"><p style="font-size:.85rem;color:var(--text-muted)"><b>Resume:</b> ' + done.bullet + "</p>" +
+          ? '<div style="margin-top:12px"><p style="font-size:.85rem;color:var(--text-muted)"><b>Resume:</b> ' + done.bullet + "</p>" +
             '<div style="display:flex;gap:8px;margin-top:8px"><button class="btn-secondary lab-copy" data-k="bullet" data-lab="' + lab.id + '">Copy bullet</button></div></div>'
-          : '<div style="margin-top:12px"><button class="btn-primary lab-done" data-lab="' + lab.id + '">  Mark complete & generate pack</button></div>') +
+          : '<div style="margin-top:12px"><button class="btn-primary lab-done" data-lab="' + lab.id + '">✅ Mark complete & generate pack</button></div>') +
         "</div>";
     }).join("");
     list.querySelectorAll(".lab-done").forEach(b => b.addEventListener("click", async () => {
@@ -920,7 +920,7 @@ async function renderStories() {
   if (!list) return;
   try {
     const stories = await api("/api/stories");
-    list.innerHTML = stories.length [OK] stories.map(st =>
+    list.innerHTML = stories.length ? stories.map(st =>
       '<div class="card" style="padding:14px;margin-bottom:10px"><strong>' + escapeHtml(st.title) + "</strong>" +
       '<p style="color:var(--text-muted);font-size:.88rem;margin-top:6px"><b>S:</b> ' + escapeHtml(st.s) + ' <b>T:</b> ' + escapeHtml(st.t || "-") + ' <b>A:</b> ' + escapeHtml(st.a) + ' <b>R:</b> ' + escapeHtml(st.r || "-") + "</p>" +
       '<div style="display:flex;gap:8px"><button class="btn-secondary st-copy" data-id="' + st.id + '">Copy</button></div></div>').join("")
@@ -967,10 +967,10 @@ async function loadCTF() {
         const val = parseInt(sel.value);
         fb.style.display = "block";
         if (val === q.answer) {
-          fb.style.color = "#00ffcc"; fb.textContent = "  Correct! " + (q.explanation || "");
+          fb.style.color = "#00ffcc"; fb.textContent = "✅ Correct! " + (q.explanation || "");
           try { celebrate(); cvTrack("ctf_solved"); profile.xp += 5; renderStatusBar(); } catch(e){}
         } else {
-          fb.style.color = "#ef4444"; fb.textContent = "  Incorrect. " + (q.explanation || "");
+          fb.style.color = "#ef4444"; fb.textContent = "❌ Incorrect. " + (q.explanation || "");
         }
       });
     });
@@ -1022,13 +1022,13 @@ window.loadLeaderboard = function () {
   if (!l) return;
   l.innerHTML = "Loading weekly league...";
   api("/api/leaderboard").then(function (data) {
-    var users = (data && (data.users || data.leaders)) || (Array.isArray(data) [OK] data : []);
+    var users = (data && (data.users || data.leaders)) || (Array.isArray(data) ? data : []);
     if (!users.length) { l.innerHTML = "<p style='color:var(--text-muted)'>No league members yet. Finish an interview to join!</p>"; return; }
-    var medals = [" ", "", ""];
+    var medals = ["🥇", "", ""];
     var html = '<table style="width:100%;border-collapse:collapse"><thead><tr><th style="padding:8px;text-align:left">#</th><th style="padding:8px;text-align:left">Player</th><th style="padding:8px;text-align:right">XP</th></tr></thead><tbody>';
     for (var i = 0; i < users.length; i++) {
       var u = users[i];
-      html += '<tr style="border-bottom:1px solid #222"><td style="padding:10px 8px">' + (medals[i] || (i + 1)) + '</td><td style="padding:10px 8px">' + cvEsc(u.name || u.full_name || "Anonymous") + (u.is_pro [OK] ' <span style="color:var(--amber);font-size:.75rem">PRO</span>' : '') + '</td><td style="text-align:right;padding:10px 8px;color:var(--accent)">' + (u.xp || 0) + '</td></tr>';
+      html += '<tr style="border-bottom:1px solid #222"><td style="padding:10px 8px">' + (medals[i] || (i + 1)) + '</td><td style="padding:10px 8px">' + cvEsc(u.name || u.full_name || "Anonymous") + (u.is_pro ? ' <span style="color:var(--amber);font-size:.75rem">PRO</span>' : '') + '</td><td style="text-align:right;padding:10px 8px;color:var(--accent)">' + (u.xp || 0) + '</td></tr>';
     }
     l.innerHTML = html + '</tbody></table>';
   }).catch(function () { l.innerHTML = "Could not load league."; });
@@ -1037,16 +1037,16 @@ window.loadCTF = function () {
   var l = cvFindList("view-ctf", ["ctf-list", "ctf-container"], /loading/i);
   if (!l) return;
   var LOCAL = [
-    {question: "Which Windows Event ID indicates a FAILED logon attempt[OK]", options: ["4624", "4625", "4688", "4769"], answer: 1, explanation: "4625 = failed logon; 4624 = success."},
-    {question: "An email urges urgent invoice payment; the header shows a look-alike domain. First action[OK]", options: ["Pay it", "Report and quarantine", "Delete and ignore", "Reply"], answer: 1, explanation: "Treat as phishing."},
-    {question: "DNS tunneling exfiltrates data by abusing which protocol[OK]", options: ["HTTP", "DNS", "SMTP", "NTP"], answer: 1, explanation: "Data hidden in DNS queries."},
-    {question: "In the cyber kill chain, which stage follows Delivery[OK]", options: ["Reconnaissance", "Exploitation", "Installation", "Actions on Objectives"], answer: 1, explanation: "Delivery > Exploitation."},
-    {question: "Which Splunk command counts events per host[OK]", options: ["stats count by host", "table host", "fields - host", "rename host"], answer: 0, explanation: "stats count by host."},
-    {question: "A CVSS score of 9.0-10.0 is rated as[OK]", options: ["Low", "Medium", "High", "Critical"], answer: 3, explanation: "9.0-10.0 = Critical."},
-    {question: "A Golden Ticket attack forges a TGT using which account hash[OK]", options: ["Administrator", "KRBTGT", "Guest", "LocalSystem"], answer: 1, explanation: "KRBTGT signs TGTs."}
+    {question: "Which Windows Event ID indicates a FAILED logon attempt?", options: ["4624", "4625", "4688", "4769"], answer: 1, explanation: "4625 = failed logon; 4624 = success."},
+    {question: "An email urges urgent invoice payment; the header shows a look-alike domain. First action?", options: ["Pay it", "Report and quarantine", "Delete and ignore", "Reply"], answer: 1, explanation: "Treat as phishing."},
+    {question: "DNS tunneling exfiltrates data by abusing which protocol?", options: ["HTTP", "DNS", "SMTP", "NTP"], answer: 1, explanation: "Data hidden in DNS queries."},
+    {question: "In the cyber kill chain, which stage follows Delivery?", options: ["Reconnaissance", "Exploitation", "Installation", "Actions on Objectives"], answer: 1, explanation: "Delivery > Exploitation."},
+    {question: "Which Splunk command counts events per host?", options: ["stats count by host", "table host", "fields - host", "rename host"], answer: 0, explanation: "stats count by host."},
+    {question: "A CVSS score of 9.0-10.0 is rated as?", options: ["Low", "Medium", "High", "Critical"], answer: 3, explanation: "9.0-10.0 = Critical."},
+    {question: "A Golden Ticket attack forges a TGT using which account hash?", options: ["Administrator", "KRBTGT", "Guest", "LocalSystem"], answer: 1, explanation: "KRBTGT signs TGTs."}
   ];
   function render(l, q, src) {
-    var html = '<div class="card" style="padding:16px"><p style="font-weight:700;margin-bottom:10px">  ' + cvEsc(q.question) + '</p><p style="font-size:.75rem;color:var(--text-muted)">source: ' + src + "</p>";
+    var html = '<div class="card" style="padding:16px"><p style="font-weight:700;margin-bottom:10px">⚡ ' + cvEsc(q.question) + '</p><p style="font-size:.75rem;color:var(--text-muted)">source: ' + src + "</p>";
     for (var i = 0; i < q.options.length; i++) {
       html += '<label style="display:block;margin:6px 0;cursor:pointer"><input type="radio" name="ctf-opt9" value="' + i + '" style="margin-right:8px">' + cvEsc(q.options[i]) + "</label>";
     }
@@ -1058,29 +1058,15 @@ window.loadCTF = function () {
       fb.style.display = "block";
       if (!sel) { fb.style.color = "#f59e0b"; fb.textContent = "Pick an option first."; return; }
       var ok = parseInt(sel.value, 10) === q.answer;
-      fb.style.color = ok [OK] "#00ffcc" : "#ef4444";
-      fb.textContent = ok [OK] "  Correct! " + (q.explanation || "") : "  Not quite. " + (q.explanation || "");
+      fb.style.color = ok ? "#00ffcc" : "#ef4444";
+      fb.textContent = ok ? "✅ Correct! " + (q.explanation || "") : "❌ Not quite. " + (q.explanation || "");
       if (ok) { try { celebrate(); } catch (e) {} }
     });
   }
   l.innerHTML = "Loading today's CTF Bite...";
   api("/api/ctf/today").then(function (d) {
-    var q = d && (d.question && d.options [OK] d : (d.bite || d.data || (d.questions && d.questions[0]) || null));
+    var q = d && (d.question && d.options ? d : (d.bite || d.data || (d.questions && d.questions[0]) || null));
     if (q) render(l, q, "live");
     else render(l, LOCAL[new Date().getDate() % LOCAL.length], "offline");
   }).catch(function () { render(l, LOCAL[new Date().getDate() % LOCAL.length], "offline"); });
 };
-
-// ===== CV VIEW BRIDGE (triggers loaders when views open) =====
-(function () {
-  const doneB = {};
-  function vis(p) { const el = document.getElementById("view-" + p); return el && (el.offsetParent !== null || el.classList.contains("active")); }
-  function tryOnce(k, fn) { if (doneB[k]) return; doneB[k] = true; try { fn(); } catch (e) {} }
-  setInterval(function () {
-    if (vis("league")) tryOnce("lg", function () { window.loadLeaderboard && window.loadLeaderboard(); });
-    if (vis("ctf")) tryOnce("ctf", function () { window.loadCTF && window.loadCTF(); });
-    if (vis("labs")) tryOnce("labs", function () { window.renderLabs && window.renderLabs(); });
-    if (vis("roadmap")) tryOnce("rm", function () { window.renderRoadmap && window.renderRoadmap(); });
-    if (vis("stories")) tryOnce("st", function () { window.renderStories && window.renderStories(); });
-  }, 1000);
-})();

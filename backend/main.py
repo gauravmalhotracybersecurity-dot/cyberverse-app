@@ -86,6 +86,7 @@ async def security_headers(request: Request, call_next):
     return response
 
 
+app.include_router(extra_routes.router)
 app.include_router(auth_routes.router)
 app.include_router(achievement_routes.router)
 app.include_router(admin_routes.router)
@@ -100,7 +101,7 @@ app.include_router(analytics_routes.router)
 app.include_router(lead_routes.router)
 app.include_router(lab_routes.router)
 app.include_router(story_routes.router)
-app.include_router(extra_routes.router)
+
 
 
 @app.get("/api/health")

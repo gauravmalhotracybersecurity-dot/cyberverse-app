@@ -384,3 +384,13 @@ def _ensure_ctf_table():
         logging.getLogger("cyberverse").warning("ctf_solves migration skipped: %s", e)
 
 _ensure_ctf_table()
+
+
+# ===== CV NO-CACHE (always-fresh frontend) =====
+@app.middleware("http")
+async def cv_no_cache(request, call_next):
+    response = await call_next(request)
+    pth = request.url.path
+    if pth == "/" or pth.endswith((".html", ".js", ".css")):
+        response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+    return response

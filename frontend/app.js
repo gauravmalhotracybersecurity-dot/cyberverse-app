@@ -1098,3 +1098,50 @@ async function loadLeaderboard() {
   }, true);
   logV("🎙️ voice bridge v3 armed");
 })();
+
+
+// ===== LEAGUE LOADER v3 (self-driving, endpoint autodiscovery) =====
+(function () {
+  const ENDPOINTS = ["/api/leaderboard", "/api/league/leaderboard", "/api/league", "/api/users/leaderboard", "/api/profile/leaderboard"];
+  let loaded = false;
+  function sec() {
+    return document.getElementById("view-league") || document.getElementById("view-leaderboard") || document.querySelector("section[id*='league']");
+  }
+  function listEl() {
+    let l = document.getElementById("league-list") || document.getElementById("leaderboard-list");
+    const sv = sec();
+    if (!l && sv) { l = document.createElement("div"); l.id = "league-list"; l.style.cssText = "max-width:720px;margin-top:12px"; sv.appendChild(l); }
+    return l;
+  }
+  async function tryLoad() {
+    const sv = sec();
+    if (!sv || loaded) return;
+    const visible = sv.offsetParent !== null || sv.classList.contains("active");
+    if (!visible) return;
+    loaded = true;
+    const l = listEl();
+    l.innerHTML = "Loading weekly league…";
+    for (const ep of ENDPOINTS) {
+      try {
+        const data = await api(ep);
+        const users = (data && (data.users || data.leaders)) || (Array.isArray(data) ? data : null);
+        if (!users) continue;
+        if (!users.length) { l.innerHTML = "<p style='color:var(--text-muted)'>No league members yet. Finish an interview to join the board!</p>"; return; }
+        const medals = ["🥇", "🥈", ""];
+        let html = '<table style="width:100%;border-collapse:collapse"><thead><tr><th style="padding:8px;text-align:left">#</th><th style="padding:8px;text-align:left">Player</th><th style="padding:8px;text-align:right">XP</th></tr></thead><tbody>';
+        users.forEach(function (u, i) {
+          html += '<tr style="border-bottom:1px solid #222"><td style="padding:10px 8px">' + (medals[i] || (i + 1)) + '</td><td style="padding:10px 8px">' + escapeHtml(u.name || u.full_name || "Anonymous") + (u.is_pro ? ' <span style="color:var(--amber);font-size:.75rem">PRO</span>' : '') + '</td><td style="text-align:right;padding:10px 8px;color:var(--accent)">' + (u.xp || 0) + '</td></tr>';
+        });
+        html += '</tbody></table>';
+        l.innerHTML = html;
+        console.log("[league] loaded from", ep);
+        return;
+      } catch (e) { console.log("[league] miss:", ep); }
+    }
+    l.innerHTML = "<p style='color:var(--text-muted)'>League is warming up - check back after your next interview.</p>";
+    console.warn("[league] no endpoint responded");
+  }
+  window.addEventListener("click", function () { setTimeout(tryLoad, 150); });
+  setInterval(tryLoad, 1500);
+  tryLoad();
+})();

@@ -1066,73 +1066,54 @@ async function loadLeaderboard() {
 })();
 
 
-// ===== MOBILE VOICE DEBUG CONSOLE =====
-(function() {
-  let debugBox = null;
-  function logVoice(msg) {
-    if (!debugBox) {
-      debugBox = document.createElement("div");
-      debugBox.id = "cv-voice-debug";
-      debugBox.style.cssText = "position:fixed;bottom:10px;left:10px;right:10px;background:rgba(0,0,0,0.9);color:#0f0;padding:12px;z-index:99999;font-family:monospace;font-size:12px;border:1px solid #0f0;border-radius:8px;max-height:40vh;overflow:auto;white-space:pre-wrap;";
-      document.body.appendChild(debugBox);
+
+
+// ===== VOICE BRIDGE v2 (single instance + auto-fill) =====
+(function () {
+  let box = null;
+  function logV(msg) {
+    if (!box) {
+      box = document.createElement("div");
+      box.style.cssText = "position:fixed;bottom:10px;left:10px;right:10px;background:rgba(0,0,0,.92);color:#0f0;padding:10px;z-index:99999;font-family:monospace;font-size:12px;border:1px solid #0f0;border-radius:8px;max-height:35vh;overflow:auto;";
+      document.body.appendChild(box);
     }
-    debugBox.innerHTML += new Date().toLocaleTimeString().split(" ")[0] + " | " + msg + "<br>";
-    debugBox.scrollTop = debugBox.scrollHeight;
+    box.innerHTML += msg + "<br>";
+    box.scrollTop = box.scrollHeight;
   }
-
-  // Intercept clicks on ANY mic/voice button to start the debug session
-  document.addEventListener("click", function(e) {
-    const isMic = e.target.closest("#mic-btn, .mic-btn, #voice-btn, .voice-btn, [data-action='voice'], button[class*='mic'], button[id*='mic'], button[id*='voice']");
-    if (isMic) {
-      logVoice("🎙️ Mic button tapped. Checking API...");
-      
-      const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-      if (!SR) {
-        logVoice("❌ FATAL: SpeechRecognition API NOT SUPPORTED in this mobile browser.");
-        return;
-      }
-      logVoice("✅ Speech API found. Creating instance...");
-
-      try {
-        const rec = new SR();
-        rec.continuous = false;
-        rec.interimResults = false;
-        rec.lang = "en-US";
-
-        rec.onstart = () => logVoice("🟢 State: LISTENING (Waiting for audio...)");
-        rec.onaudiostart = () => logVoice("🎧 Audio stream opened.");
-        rec.onsoundstart = () => logVoice("🔊 Sound detected!");
-        rec.onspeechstart = () => logVoice("🗣️ Speech started!");
-        rec.onspeechend = () => logVoice("⏹️ Speech ended.");
-        rec.onend = () => logVoice("🏁 Session ended.");
-        
-        rec.onresult = (e) => {
-          let transcript = "";
-          for (let i = e.resultIndex; i < e.results.length; i++) {
-            transcript += e.results[i][0].transcript;
-          }
-          logVoice("📝 TRANSCRIPT: " + transcript);
-        };
-
-        rec.onerror = (e) => {
-          logVoice("❌ API ERROR: " + e.error + " (Message: " + (e.message || "None") + ")");
-          if (e.error === "not-allowed") {
-            logVoice("👉 FIX: Tap the 'Aa' or Lock icon in URL bar -> Site Settings -> Mic -> Allow.");
-          }
-        };
-
-        logVoice("🚀 Calling rec.start()...");
-        rec.start();
-      } catch (err) {
-        logVoice("❌ CRASH on start(): " + err.message);
-      }
+  function findAnswerBox() {
+    const ids = ["iv-answer", "answer-input", "interview-answer", "answer", "iv-input", "interview-input", "iv-text"];
+    for (const id of ids) { const el = document.getElementById(id); if (el) return el; }
+    const els = document.querySelectorAll("textarea, input[type=text]");
+    for (const el of els) {
+      const ph = (el.placeholder || "").toLowerCase();
+      if (ph.includes("answer") || ph.includes("type your")) return el;
     }
-  }, true);
-
-  // Auto-hide debug box after 15 seconds of inactivity
-  setInterval(() => {
-    if (debugBox && document.getElementById("cv-voice-debug")) {
-      // Keep it open while testing
-    }
-  }, 15000);
+    return null;
+  }
+  const Orig = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!Orig) { logV("❌ No Speech API on this browser"); return; }
+  function Patched() {
+    const inst = new Orig();
+    inst.addEventListener("start", () => logV("🟢 listening…"));
+    inst.addEventListener("result", (e) => {
+      let t = "";
+      for (let i = e.resultIndex; i < e.results.length; i++) t += e.results[i][0].transcript;
+      logV("📝 " + t);
+      const ab = findAnswerBox();
+      if (ab) {
+        ab.value = (ab.value ? ab.value + " " : "") + t;
+        ab.dispatchEvent(new Event("input", { bubbles: true }));
+        logV("✍️ filled answer box");
+      } else {
+        logV("⚠️ answer box not found");
+      }
+    });
+    inst.addEventListener("error", (e) => logV("❌ " + e.error));
+    inst.addEventListener("end", () => logV("🏁 end"));
+    return inst;
+  }
+  Patched.prototype = Orig.prototype;
+  window.SpeechRecognition = Patched;
+  window.webkitSpeechRecognition = Patched;
+  logV("🎙️ voice bridge armed");
 })();

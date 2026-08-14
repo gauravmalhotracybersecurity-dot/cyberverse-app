@@ -482,7 +482,7 @@ h1,h2,h3,.view-title,.hero h1 { font-family:'Space Grotesk',Inter,sans-serif; le
     <p style="text-align:center;color:#666;font-size:.8rem;margin-top:14px">Share it on LinkedIn - your network sees your score, we get a user. Win-win. 🚀</p>
   </div>
 </div>
-<script src="app2.js?v=20260815r"></script>
+<script src="app2.js?v=20260815s"></script>
 <div id="paywall-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="pw-title">
   <div class="modal-card" style="max-width: 700px;">
     <button class="modal-close" onclick="document.getElementById('paywall-modal').classList.add('hidden')">&times;</button>
@@ -561,6 +561,19 @@ h1,h2,h3,.view-title,.hero h1 { font-family:'Space Grotesk',Inter,sans-serif; le
         if (/^loading/i.test(t) && t.length < 60) nodes[i].style.display = "none";
       }
     }
+    function cvIsCorrect(val, q) {
+      function eq(a) {
+        if (a === val) return true;
+        if (typeof a === "string" && /^[0-9]+$/.test(a) && parseInt(a, 10) === val) return true;
+        if (typeof a === "string" && q.options && q.options[val] && a.toLowerCase() === q.options[val].toLowerCase()) return true;
+        return false;
+      }
+      if (q.answer !== undefined && eq(q.answer)) return true;
+      if (q.correct !== undefined && eq(q.correct)) return true;
+      if (q.answer_index !== undefined && eq(q.answer_index)) return true;
+      if (q.correct_index !== undefined && eq(q.correct_index)) return true;
+      return false;
+    }
     function vis(id) {
       var el = document.getElementById(id);
       return el && el.offsetParent !== null;
@@ -611,10 +624,16 @@ h1,h2,h3,.view-title,.hero h1 { font-family:'Space Grotesk',Inter,sans-serif; le
           var fb = l.querySelector("#ctf-fb-inline");
           fb.style.display = "block";
           if (!sel) { fb.style.color = "#f59e0b"; fb.textContent = "Pick an option first."; return; }
-          var ok = parseInt(sel.value, 10) === q.answer;
+          var val = parseInt(sel.value, 10); var ok = cvIsCorrect(val, q);
           fb.style.color = ok ? "#00ffcc" : "#ef4444";
           fb.textContent = ok ? "Correct! " + (q.explanation || "") : "Incorrect. " + (q.explanation || "");
-          if (ok) { try { window.celebrate(); } catch (e) {} }
+          if (ok) {
+          try { window.celebrate(); } catch (e) {}
+          try {
+            fetch("/api/ctf/submit", { method: "POST", headers: { "Content-Type": "application/json", "Authorization": "Bearer " + findTok() }, body: JSON.stringify({ answer: parseInt(sel.value, 10) }) });
+          } catch (e) {}
+          fb.textContent = "Correct! " + (q.explanation || "") + " +10 XP";
+        }
         });
       }
       api("/api/ctf/today").then(function (d) {

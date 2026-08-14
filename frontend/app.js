@@ -3,19 +3,10 @@
 (function() {
   // 1. Show JS errors on screen (Red banner at bottom of phone)
   window.addEventListener("error", function(e) {
-    var d = document.createElement("div");
-    d.style.cssText = "position:fixed;bottom:0;left:0;right:0;background:#b00020;color:#fff;padding:12px;z-index:99999;font-size:12px;font-family:monospace;word-break:break-word;max-height:40vh;overflow:auto;";
-    d.innerHTML = "<b>JS ERROR:</b> " + e.message + " (Line " + e.lineno + ")";
-    document.body.appendChild(d);
-    setTimeout(function(){ d.remove(); }, 10000);
+    
   });
   window.addEventListener("unhandledrejection", function(e) {
-    var d = document.createElement("div");
-    d.style.cssText = "position:fixed;bottom:0;left:0;right:0;background:#b00020;color:#fff;padding:12px;z-index:99999;font-size:12px;font-family:monospace;word-break:break-word;";
-    var msg = e.reason ? (e.reason.message || e.reason) : "Promise rejected";
-    d.innerHTML = "<b>API/PROMISE ERROR:</b> " + msg;
-    document.body.appendChild(d);
-    setTimeout(function(){ d.remove(); }, 10000);
+    
   });
 
   // 2. Safe LocalStorage Wrapper (Prevents Safari crashes on bad JSON)
@@ -1011,11 +1002,7 @@ async function loadLeaderboard() {
           console.log('Mic permission granted by OS');
         })
         .catch(function(err) {
-          var d = document.createElement("div");
-          d.style.cssText = "position:fixed;bottom:0;left:0;right:0;background:#b00020;color:#fff;padding:12px;z-index:99999;font-size:14px;font-family:monospace;";
-          d.innerHTML = "<b>MIC BLOCKED:</b> " + err.message + ". Tap the 'Aa' or Lock icon in your URL bar to allow Microphone.";
-          document.body.appendChild(d);
-          setTimeout(function(){ d.remove(); }, 8000);
+          
         });
     }
   }, true);
@@ -1024,10 +1011,7 @@ async function loadLeaderboard() {
   window.loadLeaderboard = async function() {
     var list = document.getElementById("league-list") || document.getElementById("leaderboard-list") || document.querySelector("[data-league]");
     if (!list) {
-      var d = document.createElement("div");
-      d.style.cssText = "position:fixed;bottom:0;left:0;right:0;background:#b00020;color:#fff;padding:12px;z-index:99999;font-size:12px;";
-      d.innerHTML = "<b>LEAGUE HTML ERROR:</b> Cannot find #league-list element on this page.";
-      document.body.appendChild(d); setTimeout(function(){ d.remove(); }, 8000);
+      
       return;
     }
     list.innerHTML = "Loading weekly league...";
@@ -1047,10 +1031,7 @@ async function loadLeaderboard() {
       list.innerHTML = html;
     } catch (e) {
       list.innerHTML = "Failed to load league.";
-      var d = document.createElement("div");
-      d.style.cssText = "position:fixed;bottom:0;left:0;right:0;background:#b00020;color:#fff;padding:12px;z-index:99999;font-size:12px;font-family:monospace;";
-      d.innerHTML = "<b>LEAGUE API ERROR:</b> " + (e.message || e) + " (Check Render logs)";
-      document.body.appendChild(d); setTimeout(function(){ d.remove(); }, 10000);
+      
     }
   };
 
@@ -1073,15 +1054,7 @@ async function loadLeaderboard() {
 // ===== VOICE BRIDGE v3 (tap-driven engine + auto-fill) =====
 (function () {
   let box = null;
-  function logV(msg) {
-    if (!box) {
-      box = document.createElement("div");
-      box.style.cssText = "position:fixed;bottom:10px;left:10px;right:10px;background:rgba(0,0,0,.92);color:#0f0;padding:10px;z-index:99999;font-family:monospace;font-size:12px;border:1px solid #0f0;border-radius:8px;max-height:35vh;overflow:auto;";
-      document.body.appendChild(box);
-    }
-    box.innerHTML += msg + "<br>";
-    box.scrollTop = box.scrollHeight;
-  }
+  function logV(msg) { console.log("[voice]", msg); }
   function findAnswerBox() {
     const ids = ["iv-answer", "answer-input", "interview-answer", "answer", "iv-input", "interview-input", "iv-text"];
     for (const id of ids) { const el = document.getElementById(id); if (el) return el; }

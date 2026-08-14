@@ -341,3 +341,29 @@ document.addEventListener("click", function (e) {
   document.addEventListener("click", function () { setTimeout(tick, 200); });
   tick();
 })();
+
+
+// ===== API SHIM (global, JWT autodiscovery) =====
+function __cvFindToken() {
+  try {
+    var direct = localStorage.getItem("cv_token") || localStorage.getItem("token");
+    if (direct) return direct;
+    for (var i = 0; i < localStorage.length; i++) {
+      var k = localStorage.key(i);
+      var v = localStorage.getItem(k);
+      if (v && typeof v === "string" && v.length > 20 && v.split(".").length === 3) return v;
+    }
+  } catch (e) {}
+  return "";
+}
+function api(path, opts) {
+  opts = opts || {};
+  var headers = opts.headers || {};
+  var tok = __cvFindToken();
+  if (tok) headers["Authorization"] = "Bearer " + tok;
+  if (opts.body && !headers["Content-Type"]) headers["Content-Type"] = "application/json";
+  return fetch(path, { method: opts.method || "GET", headers: headers, body: opts.body }).then(function (r) {
+    if (!r.ok) throw new Error("HTTP " + r.status);
+    return r.json();
+  });
+}

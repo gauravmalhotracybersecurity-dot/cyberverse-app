@@ -1,3 +1,14 @@
+// ===== Analytics tracking fallback =====
+function cvTrack(event) {
+  try {
+    fetch("/api/analytics/event", {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({ event: event, t: Date.now() })
+    }).catch(function(){});
+  } catch(e) {}
+}
+
 // ===== Config =====
 const API_BASE = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1"
   ? "http://127.0.0.1:8000"

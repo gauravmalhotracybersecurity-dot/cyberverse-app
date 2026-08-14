@@ -72,6 +72,54 @@ h1,h2,h3,.view-title,.hero h1 { font-family:'Space Grotesk',Inter,sans-serif; le
 </style>
 </head>
 <body>
+  <!-- ===== CV AUTH TRACE (inline ES5: header injector + login flow tracer) ===== -->
+  <script>
+  (function () {
+    function bar(msg) { if (window.__cvBar) window.__cvBar(msg); }
+    function findTok() {
+      var t = null;
+      try { t = localStorage.getItem("cv_token") || localStorage.getItem("token"); } catch (e) {}
+      if (!t) { var m = document.cookie.match(/(?:^|; )cv_token=([^;]+)/); if (m) t = decodeURIComponent(m[1]); }
+      if (!t && window.__cvMemToken) t = window.__cvMemToken;
+      return t;
+    }
+    var of = window.fetch;
+    if (of) {
+      window.fetch = function (input, init) {
+        init = init || {};
+        var url = typeof input === "string" ? input : ((input && input.url) || "");
+        if (url.indexOf("/api/") === 0) {
+          init.headers = init.headers || {};
+          var has = false;
+          try {
+            if (window.Headers && init.headers instanceof Headers) has = init.headers.has("Authorization");
+            else for (var k in init.headers) if (k.toLowerCase() === "authorization") has = true;
+          } catch (e) {}
+          if (!has) {
+            var t = findTok();
+            if (t) init.headers["Authorization"] = "Bearer " + t;
+          }
+        }
+        var pr = of.call(window, input, init);
+        if (url.indexOf("/api/") === 0) {
+          pr.then(function (r) { bar("API " + url + " -> " + r.status); }, function (e) { bar("API " + url + " -> FAIL"); });
+        }
+        return pr;
+      };
+    }
+    var os = Storage.prototype.setItem;
+    Storage.prototype.setItem = function (k, v) {
+      try {
+        if (/token|jwt|auth/i.test(String(k)) && typeof v === "string" && v.length > 10) {
+          window.__cvMemToken = v;
+          bar("TOKEN SAVED as '" + k + "'");
+        }
+      } catch (e) {}
+      return os.apply(this, arguments);
+    };
+  })();
+  </script>
+
   <!-- ===== CV MOBILE BOOT-GUARD (inline ES5, Safari-safe, no desktop impact) ===== -->
   <script>
   (function () {
@@ -513,7 +561,7 @@ h1,h2,h3,.view-title,.hero h1 { font-family:'Space Grotesk',Inter,sans-serif; le
     <p style="text-align:center;color:#666;font-size:.8rem;margin-top:14px">Share it on LinkedIn - your network sees your score, we get a user. Win-win. 🚀</p>
   </div>
 </div>
-<script src="app.js?v=20260815b"></script>
+<script src="app.js?v=20260815c"></script>
 <div id="paywall-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="pw-title">
   <div class="modal-card" style="max-width: 700px;">
     <button class="modal-close" onclick="document.getElementById('paywall-modal').classList.add('hidden')">&times;</button>

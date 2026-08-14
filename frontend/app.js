@@ -1064,3 +1064,75 @@ async function loadLeaderboard() {
     });
   });
 })();
+
+
+// ===== MOBILE VOICE DEBUG CONSOLE =====
+(function() {
+  let debugBox = null;
+  function logVoice(msg) {
+    if (!debugBox) {
+      debugBox = document.createElement("div");
+      debugBox.id = "cv-voice-debug";
+      debugBox.style.cssText = "position:fixed;bottom:10px;left:10px;right:10px;background:rgba(0,0,0,0.9);color:#0f0;padding:12px;z-index:99999;font-family:monospace;font-size:12px;border:1px solid #0f0;border-radius:8px;max-height:40vh;overflow:auto;white-space:pre-wrap;";
+      document.body.appendChild(debugBox);
+    }
+    debugBox.innerHTML += new Date().toLocaleTimeString().split(" ")[0] + " | " + msg + "<br>";
+    debugBox.scrollTop = debugBox.scrollHeight;
+  }
+
+  // Intercept clicks on ANY mic/voice button to start the debug session
+  document.addEventListener("click", function(e) {
+    const isMic = e.target.closest("#mic-btn, .mic-btn, #voice-btn, .voice-btn, [data-action='voice'], button[class*='mic'], button[id*='mic'], button[id*='voice']");
+    if (isMic) {
+      logVoice("🎙️ Mic button tapped. Checking API...");
+      
+      const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!SR) {
+        logVoice("❌ FATAL: SpeechRecognition API NOT SUPPORTED in this mobile browser.");
+        return;
+      }
+      logVoice("✅ Speech API found. Creating instance...");
+
+      try {
+        const rec = new SR();
+        rec.continuous = false;
+        rec.interimResults = false;
+        rec.lang = "en-US";
+
+        rec.onstart = () => logVoice("🟢 State: LISTENING (Waiting for audio...)");
+        rec.onaudiostart = () => logVoice("🎧 Audio stream opened.");
+        rec.onsoundstart = () => logVoice("🔊 Sound detected!");
+        rec.onspeechstart = () => logVoice("🗣️ Speech started!");
+        rec.onspeechend = () => logVoice("⏹️ Speech ended.");
+        rec.onend = () => logVoice("🏁 Session ended.");
+        
+        rec.onresult = (e) => {
+          let transcript = "";
+          for (let i = e.resultIndex; i < e.results.length; i++) {
+            transcript += e.results[i][0].transcript;
+          }
+          logVoice("📝 TRANSCRIPT: " + transcript);
+        };
+
+        rec.onerror = (e) => {
+          logVoice("❌ API ERROR: " + e.error + " (Message: " + (e.message || "None") + ")");
+          if (e.error === "not-allowed") {
+            logVoice("👉 FIX: Tap the 'Aa' or Lock icon in URL bar -> Site Settings -> Mic -> Allow.");
+          }
+        };
+
+        logVoice("🚀 Calling rec.start()...");
+        rec.start();
+      } catch (err) {
+        logVoice("❌ CRASH on start(): " + err.message);
+      }
+    }
+  }, true);
+
+  // Auto-hide debug box after 15 seconds of inactivity
+  setInterval(() => {
+    if (debugBox && document.getElementById("cv-voice-debug")) {
+      // Keep it open while testing
+    }
+  }, 15000);
+})();

@@ -405,11 +405,11 @@ function renderDailyBundle(c) {
   container.innerHTML = "";
 
   const cards = [
-    { eyebrow: "Lesson", title: c.lesson?.title, body: c.lesson?.body },
-    { eyebrow: "News Brief", title: c.news_summary?.headline, body: `${c.news_summary?.summary}\n\nWhy it matters: ${c.news_summary?.why_it_matters}` },
-    { eyebrow: "Challenge", title: c.challenge?.title, body: c.challenge?.description },
-    { eyebrow: "Practical Task", title: c.practical_task?.title, body: c.practical_task?.description },
-    { eyebrow: "Interview Question", title: c.interview_question?.question, body: `What a good answer covers: ${c.interview_question?.what_a_good_answer_covers}` },
+    { eyebrow: "Lesson", title: ($1 ? $1.$2 : undefined), body: ($1 ? $1.$2 : undefined) },
+    { eyebrow: "News Brief", title: ($1 ? $1.$2 : undefined), body: `${($1 ? $1.$2 : undefined)}\n\nWhy it matters: ${($1 ? $1.$2 : undefined)}` },
+    { eyebrow: "Challenge", title: ($1 ? $1.$2 : undefined), body: ($1 ? $1.$2 : undefined) },
+    { eyebrow: "Practical Task", title: ($1 ? $1.$2 : undefined), body: ($1 ? $1.$2 : undefined) },
+    { eyebrow: "Interview Question", title: ($1 ? $1.$2 : undefined), body: `What a good answer covers: ${($1 ? $1.$2 : undefined)}` },
   ];
   cards.forEach(card => {
     if (!card.title) return;
@@ -975,50 +975,7 @@ async function renderStories() {
 }
 
 
-async function loadCTF() {
-  const list = document.getElementById("ctf-list");
-  if (!list) return;
-  list.innerHTML = "Loading CTF Bites...";
-  try {
-    const data = await api("/api/ctf");
-    if (!data.questions || data.questions.length === 0) { list.innerHTML = "No CTF Bites available."; return; }
-    let html = "";
-    data.questions.forEach((q, i) => {
-      html += '<div class="card" style="margin-bottom:14px;padding:14px" data-idx="'+i+'">' +
-        '<p style="font-weight:600;margin-bottom:8px">' + (i+1) + '. ' + escapeHtml(q.question) + '</p>' +
-        '<div class="ctf-options"></div>' +
-        '<p class="ctf-fb" style="display:none;margin-top:8px"></p>' +
-        '<button class="btn-secondary ctf-check" style="margin-top:8px">Check Answer</button></div>';
-    });
-    list.innerHTML = html;
-    list.querySelectorAll(".card").forEach(card => {
-      const idx = parseInt(card.dataset.idx);
-      const q = data.questions[idx];
-      const optWrap = card.querySelector(".ctf-options");
-      q.options.forEach((opt, oi) => {
-        const lbl = document.createElement("label");
-        lbl.style.cssText = "display:block;margin:4px 0;cursor:pointer";
-        lbl.innerHTML = '<input type="radio" name="ctf-'+idx+'" value="'+oi+'" style="margin-right:6px"> ' + escapeHtml(opt);
-        optWrap.appendChild(lbl);
-      });
-      card.querySelector(".ctf-check").addEventListener("click", () => {
-        const sel = card.querySelector('input[name="ctf-'+idx+'"]:checked');
-        const fb = card.querySelector(".ctf-fb");
-        if (!sel) { fb.style.display="block"; fb.style.color="#f59e0b"; fb.textContent="Select an option first."; return; }
-        const val = parseInt(sel.value);
-        fb.style.display = "block";
-        if (val === q.answer) {
-          fb.style.color = "#00ffcc"; fb.textContent = "✅ Correct! " + (q.explanation || "");
-          try { celebrate(); cvTrack("ctf_solved"); profile.xp += 5; renderStatusBar(); } catch(e){}
-        } else {
-          fb.style.color = "#ef4444"; fb.textContent = "❌ Incorrect. " + (q.explanation || "");
-        }
-      });
-    });
-  } catch (e) {
-    list.innerHTML = "Could not load CTF Bites.";
-  }
-}
+function loadCTF() { /* superseded by v5/v6 */ }
 
 
 async function loadLeaderboard() {

@@ -482,7 +482,7 @@ h1,h2,h3,.view-title,.hero h1 { font-family:'Space Grotesk',Inter,sans-serif; le
     <p style="text-align:center;color:#666;font-size:.8rem;margin-top:14px">Share it on LinkedIn - your network sees your score, we get a user. Win-win. 🚀</p>
   </div>
 </div>
-<script src="app2.js?v=20260815k"></script>
+<script src="app2.js?v=20260815m"></script>
 <div id="paywall-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="pw-title">
   <div class="modal-card" style="max-width: 700px;">
     <button class="modal-close" onclick="document.getElementById('paywall-modal').classList.add('hidden')">&times;</button>
@@ -634,6 +634,43 @@ h1,h2,h3,.view-title,.hero h1 { font-family:'Space Grotesk',Inter,sans-serif; le
       var labsView = document.getElementById("view-labs");
       if (labsView && labsView.offsetParent !== null) loadLabs();
     }, 2000);
+  })();
+  </script>
+
+
+  <!-- ===== CV DEBUG CONSOLE (visible diagnostics) ===== -->
+  <div id="cv-debug" style="position:fixed;bottom:0;left:0;right:0;background:#000;color:#0f0;font:12px monospace;padding:10px;z-index:99999;max-height:50vh;overflow:auto;white-space:pre-wrap;"></div>
+  <script>
+  (function () {
+    var dbg = document.getElementById("cv-debug");
+    function log(msg) { dbg.textContent += new Date().toLocaleTimeString() + " | " + msg + "\n"; dbg.scrollTop = dbg.scrollHeight; }
+    window.__cvLog = log;
+    log("Debug console active");
+    function findTok() {
+      var t = null;
+      try { t = localStorage.getItem("cv_token") || localStorage.getItem("token"); } catch (e) {}
+      return t;
+    }
+    function api(path) {
+      var tok = findTok();
+      var headers = tok ? { "Authorization": "Bearer " + tok } : {};
+      return fetch(path, { headers: headers }).then(function (r) {
+        log("API " + path + " -> " + r.status);
+        if (!r.ok) throw new Error("HTTP " + r.status);
+        return r.json();
+      });
+    }
+    setInterval(function () {
+      var views = ["league", "ctf", "labs", "dashboard"];
+      for (var i = 0; i < views.length; i++) {
+        var el = document.getElementById("view-" + views[i]);
+        var vis = el && (el.offsetParent !== null || el.style.display !== "none");
+        if (vis) log("View " + views[i] + " is VISIBLE");
+      }
+    }, 3000);
+    api("/api/leaderboard").then(function (d) { log("League data: " + JSON.stringify(d).slice(0, 100)); }).catch(function (e) { log("League error: " + e.message); });
+    api("/api/ctf/today").then(function (d) { log("CTF data: " + JSON.stringify(d).slice(0, 100)); }).catch(function (e) { log("CTF error: " + e.message); });
+    api("/api/labs").then(function (d) { log("Labs data: " + JSON.stringify(d).slice(0, 100)); }).catch(function (e) { log("Labs error: " + e.message); });
   })();
   </script>
 

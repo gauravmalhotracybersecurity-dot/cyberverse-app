@@ -997,3 +997,70 @@ async function loadLeaderboard() {
     list.innerHTML = "Could not load leaderboard.";
   }
 }
+
+
+// ===== MOBILE MIC & LEAGUE RESCUE =====
+(function() {
+  // 1. Force Mic Permission Prompt (Intercepts click to force OS prompt)
+  document.addEventListener('click', function(e) {
+    const isMic = e.target.closest('#mic-btn, .mic-btn, #voice-btn, .voice-btn, [data-action="voice"], button[class*="mic"], button[id*="mic"], button[id*="voice"]');
+    if (isMic && navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+      navigator.mediaDevices.getUserMedia({ audio: true })
+        .then(function(stream) {
+          stream.getTracks().forEach(function(track) { track.stop(); }); // Stop immediately, just needed to trigger OS prompt
+          console.log('Mic permission granted by OS');
+        })
+        .catch(function(err) {
+          var d = document.createElement("div");
+          d.style.cssText = "position:fixed;bottom:0;left:0;right:0;background:#b00020;color:#fff;padding:12px;z-index:99999;font-size:14px;font-family:monospace;";
+          d.innerHTML = "<b>MIC BLOCKED:</b> " + err.message + ". Tap the 'Aa' or Lock icon in your URL bar to allow Microphone.";
+          document.body.appendChild(d);
+          setTimeout(function(){ d.remove(); }, 8000);
+        });
+    }
+  }, true);
+
+  // 2. Robust League/Leaderboard Loader with Red Debug Banner
+  window.loadLeaderboard = async function() {
+    var list = document.getElementById("league-list") || document.getElementById("leaderboard-list") || document.querySelector("[data-league]");
+    if (!list) {
+      var d = document.createElement("div");
+      d.style.cssText = "position:fixed;bottom:0;left:0;right:0;background:#b00020;color:#fff;padding:12px;z-index:99999;font-size:12px;";
+      d.innerHTML = "<b>LEAGUE HTML ERROR:</b> Cannot find #league-list element on this page.";
+      document.body.appendChild(d); setTimeout(function(){ d.remove(); }, 8000);
+      return;
+    }
+    list.innerHTML = "Loading weekly league...";
+    try {
+      var data = await api("/api/leaderboard");
+      if (!data) throw new Error("Empty API response");
+      var users = data.users || data.leaders || data;
+      if (!Array.isArray(users) || users.length === 0) {
+        list.innerHTML = "<p style='color:var(--text-muted)'>No league members yet. Complete an interview to join!</p>";
+        return;
+      }
+      var html = '<table style="width:100%;border-collapse:collapse"><thead><tr><th style="padding:8px;text-align:left">Rank</th><th style="padding:8px;text-align:left">User</th><th style="padding:8px;text-align:right">XP</th></tr></thead><tbody>';
+      users.forEach(function(u, i) {
+        html += '<tr><td style="padding:8px">' + (i+1) + '</td><td style="padding:8px">' + escapeHtml(u.name || u.full_name || "Anonymous") + '</td><td style="text-align:right;padding:8px;color:var(--accent)">' + (u.xp || 0) + ' XP</td></tr>';
+      });
+      html += '</tbody></table>';
+      list.innerHTML = html;
+    } catch (e) {
+      list.innerHTML = "Failed to load league.";
+      var d = document.createElement("div");
+      d.style.cssText = "position:fixed;bottom:0;left:0;right:0;background:#b00020;color:#fff;padding:12px;z-index:99999;font-size:12px;font-family:monospace;";
+      d.innerHTML = "<b>LEAGUE API ERROR:</b> " + (e.message || e) + " (Check Render logs)";
+      document.body.appendChild(d); setTimeout(function(){ d.remove(); }, 10000);
+    }
+  };
+
+  // 3. Ensure View Router explicitly calls loadLeaderboard on tab switch
+  document.querySelectorAll('.nav-item').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      var view = btn.getAttribute('data-view');
+      if (view === 'league' || view === 'leaderboard') {
+        setTimeout(function() { window.loadLeaderboard(); }, 100);
+      }
+    });
+  });
+})();

@@ -149,7 +149,7 @@ h1,h2,h3,.view-title,.hero h1 { font-family:'Space Grotesk',Inter,sans-serif; le
       <button class="nav-item" data-view="labs"><span class="nav-ico">🧪</span>Lab Log</button>
       <button class="nav-item" data-view="stories"><span class="nav-ico">📖</span>Story Bank</button>
       <button class="nav-item" data-view="roadmap"><span class="nav-ico">🗺️</span>Roadmap</button>
-      <button class="nav-item" data-view="ctf"><span class="nav-ico" style="color:var(--amber)">⚡</span>CTF Bites</button>
+      
       <button class="nav-item" data-view="achievements"><span class="nav-ico">🏆</span>Achievements</button>
       <button class="nav-item" data-view="leaderboard"><span class="nav-ico" style="color:var(--amber)">👑</span>League</button>
       <button class="nav-item" data-view="profile"><span class="nav-ico">⚙</span>Profile</button>
@@ -379,20 +379,7 @@ h1,h2,h3,.view-title,.hero h1 { font-family:'Space Grotesk',Inter,sans-serif; le
     </section>
 
     <!-- ---- CTF BITES ---- -->
-    <section class="view" id="view-ctf">
-      <h1 class="view-title" style="color:var(--amber)">⚡ CTF Bites</h1>
-      <p class="view-sub">One bite-sized challenge a day. Solve it in 60 seconds for a +5 speed bonus.</p>
-      <div class="card" style="max-width:640px">
-        <h3 id="ctf-title">Loading…</h3>
-        <pre id="ctf-prompt" style="white-space:pre-wrap;background:#0d0d0d;border:1px solid #222;border-radius:10px;padding:14px;font-family:'JetBrains Mono',Consolas,monospace;font-size:.9rem"></pre>
-        <div style="display:flex;gap:8px;margin-top:12px">
-          <input type="text" id="ctf-answer" placeholder="Your answer / flag…" autocomplete="off" style="flex:1"/>
-          <button id="ctf-submit" class="btn-primary">Submit</button>
-        </div>
-        <p id="ctf-feedback" class="hint" style="margin-top:12px"></p>
-        <p id="ctf-meta" style="color:var(--text-muted);font-size:.8rem;margin-top:8px"></p>
-      </div>
-    </section>
+    
 
     <!-- ---- ACHIEVEMENTS ---- -->
     <section class="view" id="view-achievements">
@@ -482,7 +469,7 @@ h1,h2,h3,.view-title,.hero h1 { font-family:'Space Grotesk',Inter,sans-serif; le
     <p style="text-align:center;color:#666;font-size:.8rem;margin-top:14px">Share it on LinkedIn - your network sees your score, we get a user. Win-win. 🚀</p>
   </div>
 </div>
-<script src="app2.js?v=20260815s"></script>
+<script src="app2.js?v=20260815t"></script>
 <div id="paywall-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="pw-title">
   <div class="modal-card" style="max-width: 700px;">
     <button class="modal-close" onclick="document.getElementById('paywall-modal').classList.add('hidden')">&times;</button>
@@ -521,7 +508,7 @@ h1,h2,h3,.view-title,.hero h1 { font-family:'Space Grotesk',Inter,sans-serif; le
 </div>
 <div style="text-align:center;padding:20px;font-size:0.8rem;color:#555;"><a href="/terms.html" style="color:#00ffcc">Terms</a> &bull; <a href="/privacy.html" style="color:#00ffcc">Privacy</a></div>
 
-  <!-- ===== CV INLINE LOADERS (v3 final) ===== -->
+  <!-- ===== CV INLINE LOADERS (league only) ===== -->
   <script>
   (function () {
     if (typeof window.toast !== "function") {
@@ -534,7 +521,6 @@ h1,h2,h3,.view-title,.hero h1 { font-family:'Space Grotesk',Inter,sans-serif; le
       };
     }
     if (typeof window.celebrate !== "function") { window.celebrate = function () {}; }
-
     function findTok() {
       var t = null;
       try { t = localStorage.getItem("cv_token") || localStorage.getItem("token"); } catch (e) {}
@@ -561,19 +547,6 @@ h1,h2,h3,.view-title,.hero h1 { font-family:'Space Grotesk',Inter,sans-serif; le
         if (/^loading/i.test(t) && t.length < 60) nodes[i].style.display = "none";
       }
     }
-    function cvIsCorrect(val, q) {
-      function eq(a) {
-        if (a === val) return true;
-        if (typeof a === "string" && /^[0-9]+$/.test(a) && parseInt(a, 10) === val) return true;
-        if (typeof a === "string" && q.options && q.options[val] && a.toLowerCase() === q.options[val].toLowerCase()) return true;
-        return false;
-      }
-      if (q.answer !== undefined && eq(q.answer)) return true;
-      if (q.correct !== undefined && eq(q.correct)) return true;
-      if (q.answer_index !== undefined && eq(q.answer_index)) return true;
-      if (q.correct_index !== undefined && eq(q.correct_index)) return true;
-      return false;
-    }
     function vis(id) {
       var el = document.getElementById(id);
       return el && el.offsetParent !== null;
@@ -597,58 +570,9 @@ h1,h2,h3,.view-title,.hero h1 { font-family:'Space Grotesk',Inter,sans-serif; le
         l.innerHTML = html + '</tbody></table>';
       }).catch(function () { l.innerHTML = "Could not load league."; });
     }
-    function loadCTF() {
-      var view = document.getElementById("view-ctf");
-      if (!view) return;
-      hideLoading(view);
-      var l = document.getElementById("ctf-list");
-      if (!l) { l = document.createElement("div"); l.id = "ctf-list"; l.style.cssText = "margin-top:16px"; view.appendChild(l); }
-      var LOCAL = [
-        {question: "Which Windows Event ID indicates a FAILED logon attempt?", options: ["4624", "4625", "4688", "4769"], answer: 1, explanation: "4625 = failed logon."},
-        {question: "Phishing email with look-alike domain. First action?", options: ["Pay it", "Report and quarantine", "Delete", "Reply"], answer: 1, explanation: "Report and contain."},
-        {question: "DNS tunneling abuses which protocol?", options: ["HTTP", "DNS", "SMTP", "NTP"], answer: 1, explanation: "Data in DNS queries."},
-        {question: "Cyber kill chain: what follows Delivery?", options: ["Recon", "Exploitation", "Installation", "Actions"], answer: 1, explanation: "Delivery > Exploitation."},
-        {question: "Splunk command to count events per host?", options: ["stats count by host", "table host", "fields", "rename"], answer: 0, explanation: "stats count by host."},
-        {question: "CVSS 9.0-10.0 rating?", options: ["Low", "Medium", "High", "Critical"], answer: 3, explanation: "Critical."},
-        {question: "Golden Ticket uses which account hash?", options: ["Administrator", "KRBTGT", "Guest", "System"], answer: 1, explanation: "KRBTGT signs TGTs."}
-      ];
-      function render(l, q) {
-        var html = '<div class="card" style="padding:16px"><p style="font-weight:700;margin-bottom:10px">⚡ ' + esc(q.question) + "</p>";
-        for (var i = 0; i < q.options.length; i++) {
-          html += '<label style="display:block;margin:6px 0;cursor:pointer"><input type="radio" name="ctf-inline" value="' + i + '" style="margin-right:8px">' + esc(q.options[i]) + "</label>";
-        }
-        html += '<button id="ctf-check-inline" class="btn-primary" style="margin-top:10px">Check answer</button><p id="ctf-fb-inline" style="margin-top:10px;display:none"></p></div>';
-        l.innerHTML = html;
-        l.querySelector("#ctf-check-inline").addEventListener("click", function () {
-          var sel = l.querySelector('input[name="ctf-inline"]:checked');
-          var fb = l.querySelector("#ctf-fb-inline");
-          fb.style.display = "block";
-          if (!sel) { fb.style.color = "#f59e0b"; fb.textContent = "Pick an option first."; return; }
-          var val = parseInt(sel.value, 10); var ok = cvIsCorrect(val, q);
-          fb.style.color = ok ? "#00ffcc" : "#ef4444";
-          fb.textContent = ok ? "Correct! " + (q.explanation || "") : "Incorrect. " + (q.explanation || "");
-          if (ok) {
-          try { window.celebrate(); } catch (e) {}
-          try {
-            fetch("/api/ctf/submit", { method: "POST", headers: { "Content-Type": "application/json", "Authorization": "Bearer " + findTok() }, body: JSON.stringify({ answer: parseInt(sel.value, 10) }) });
-          } catch (e) {}
-          fb.textContent = "Correct! " + (q.explanation || "") + " +10 XP";
-        }
-        });
-      }
-      api("/api/ctf/today").then(function (d) {
-        render(l, (d && d.question && d.options) ? d : LOCAL[new Date().getDate() % LOCAL.length]);
-      }).catch(function () { render(l, LOCAL[new Date().getDate() % LOCAL.length]); });
-    }
-    setInterval(function () {
-      if (vis("view-leaderboard") && !done.lg) { done.lg = true; loadLeague(); }
-      if (vis("view-ctf") && !done.ctf) { done.ctf = true; loadCTF(); }
-    }, 800);
+    setInterval(function () { if (vis("view-leaderboard") && !done.lg) { done.lg = true; loadLeague(); } }, 800);
     document.addEventListener("click", function () {
-      setTimeout(function () {
-        if (vis("view-leaderboard") && !done.lg) { done.lg = true; loadLeague(); }
-        if (vis("view-ctf") && !done.ctf) { done.ctf = true; loadCTF(); }
-      }, 150);
+      setTimeout(function () { if (vis("view-leaderboard") && !done.lg) { done.lg = true; loadLeague(); } }, 150);
     });
   })();
   </script>

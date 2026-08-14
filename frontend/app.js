@@ -826,16 +826,16 @@ function celebrate() {
 const ROADMAP = [
   {phase: "Phase 1 - Foundations", weeks: [
     {id:"w1", t:"Networking & Linux basics", cert:"Security+ SY0-701 1.1-1.3", goto:"mentor", items:["TCP/IP, OSI model","Linux permissions","Quiz me on ports"]},
-    {id:"w2", t:"Security fundamentals", cert:"Security+ SY0-701 1.4-2.2", goto:"ctf", items:["CIA triad, AAA, zero trust","Malware types, phishing","Solve a CTF Bite"]},
+    {id:"w2", t:"Security fundamentals", cert:"Security+ SY0-701 1.4-2.2", goto: "interview", items:["CIA triad, AAA, zero trust","Malware types, phishing","Solve a CTF Bite"]},
     {id:"w3", t:"Resume & presence", goto:"resume", items:["Run AI resume review","Rewrite LinkedIn headline","Add hands-on project"]},
     {id:"w4", t:"First mock interview", goto:"interview", items:["Quick Round (3 questions) voice mode","Review scorecard","Re-answer weakest question"]}]},
   {phase: "Phase 2 - Defense", weeks: [
-    {id:"w5", t:"SIEM & log analysis", cert:"Security+ SY0-701 2.4", goto:"ctf", items:["Event IDs 4624, 4625, 4688","Splunk stats vs transaction","CTF log challenges"]},
+    {id:"w5", t:"SIEM & log analysis", cert:"Security+ SY0-701 2.4", goto: "interview", items:["Event IDs 4624, 4625, 4688","Splunk stats vs transaction","CTF log challenges"]},
     {id:"w6", t:"Alert triage drills", goto:"interview", items:["Phishing-click scenario","Validate, enrich, scope, contain","Target score 60+"]},
     {id:"w7", t:"Threat intel & vuln management", goto:"mentor", items:["CVE vs CVSS vs EPSS","Zero-day prioritization","Vuln scenario"]},
     {id:"w8", t:"GRC awareness", goto:"interview", items:["ISO 27001 risk assessment","Vendor risk tiering","GRC mock interview"]}]},
   {phase: "Phase 3 - Hunt & Get Hired", weeks: [
-    {id:"w9", t:"Threat hunting basics", goto:"ctf", items:["Lateral movement indicators","Beaconing intervals","Golden vs silver ticket"]},
+    {id:"w9", t:"Threat hunting basics", goto: "interview", items:["Lateral movement indicators","Beaconing intervals","Golden vs silver ticket"]},
     {id:"w10", t:"Advanced interviews", goto:"interview", items:["Full 6-question voice interview","Defend against follow-ups","Share scorecard"]},
     {id:"w11", t:"Applications sprint", goto:"resume", items:["10 tailored applications","Attach scorecard","Ask for referrals"]},
     {id:"w12", t:"Offer readiness", goto:"interview", items:["Final mock interview","Prepare 'why cybersecurity' story","Download certificate"]}]}

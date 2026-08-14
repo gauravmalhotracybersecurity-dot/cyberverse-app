@@ -482,7 +482,7 @@ h1,h2,h3,.view-title,.hero h1 { font-family:'Space Grotesk',Inter,sans-serif; le
     <p style="text-align:center;color:#666;font-size:.8rem;margin-top:14px">Share it on LinkedIn - your network sees your score, we get a user. Win-win. 🚀</p>
   </div>
 </div>
-<script src="app2.js?v=20260815q"></script>
+<script src="app2.js?v=20260815r"></script>
 <div id="paywall-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="pw-title">
   <div class="modal-card" style="max-width: 700px;">
     <button class="modal-close" onclick="document.getElementById('paywall-modal').classList.add('hidden')">&times;</button>
@@ -521,9 +521,20 @@ h1,h2,h3,.view-title,.hero h1 { font-family:'Space Grotesk',Inter,sans-serif; le
 </div>
 <div style="text-align:center;padding:20px;font-size:0.8rem;color:#555;"><a href="/terms.html" style="color:#00ffcc">Terms</a> &bull; <a href="/privacy.html" style="color:#00ffcc">Privacy</a></div>
 
-  <!-- ===== CV INLINE LOADERS (final) ===== -->
+  <!-- ===== CV INLINE LOADERS (v3 final) ===== -->
   <script>
   (function () {
+    if (typeof window.toast !== "function") {
+      window.toast = function (msg) {
+        var t = document.createElement("div");
+        t.textContent = msg || "";
+        t.style.cssText = "position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#0f172a;color:#00ffcc;border:1px solid #00ffcc;padding:10px 18px;border-radius:10px;z-index:99999;font:14px system-ui,sans-serif;box-shadow:0 8px 30px rgba(0,0,0,.5);";
+        document.body.appendChild(t);
+        setTimeout(function () { t.remove(); }, 3000);
+      };
+    }
+    if (typeof window.celebrate !== "function") { window.celebrate = function () {}; }
+
     function findTok() {
       var t = null;
       try { t = localStorage.getItem("cv_token") || localStorage.getItem("token"); } catch (e) {}
@@ -544,10 +555,10 @@ h1,h2,h3,.view-title,.hero h1 { font-family:'Space Grotesk',Inter,sans-serif; le
       return d.innerHTML;
     }
     function hideLoading(view) {
-      var nodes = view.querySelectorAll("div,p,section");
+      var nodes = view.querySelectorAll("div,p,section,form,article");
       for (var i = 0; i < nodes.length; i++) {
-        var t = nodes[i].textContent || "";
-        if (/loading/i.test(t) && t.length < 60) nodes[i].style.display = "none";
+        var t = (nodes[i].textContent || "").trim();
+        if (/^loading/i.test(t) && t.length < 60) nodes[i].style.display = "none";
       }
     }
     function vis(id) {
@@ -559,12 +570,12 @@ h1,h2,h3,.view-title,.hero h1 { font-family:'Space Grotesk',Inter,sans-serif; le
       var view = document.getElementById("view-leaderboard");
       if (!view) return;
       hideLoading(view);
-      var l = document.getElementById("leaderboard-table") || document.getElementById("league-list");
-      if (!l) { l = document.createElement("div"); l.id = "league-list"; view.appendChild(l); }
+      var l = document.getElementById("league-list");
+      if (!l) { l = document.createElement("div"); l.id = "league-list"; l.style.cssText = "margin-top:16px"; view.appendChild(l); }
       api("/api/leaderboard").then(function (data) {
         var users = (data && data.users) || [];
         if (!users.length) { l.innerHTML = "<p>No league members yet.</p>"; return; }
-        var medals = ["🥇", "🥈", "🥉"];
+        var medals = ["🥇", "", "🥉"];
         var html = '<table style="width:100%;border-collapse:collapse"><thead><tr><th style="padding:8px;text-align:left">#</th><th style="padding:8px;text-align:left">Player</th><th style="padding:8px;text-align:right">XP</th></tr></thead><tbody>';
         for (var i = 0; i < users.length; i++) {
           var u = users[i];
@@ -578,7 +589,7 @@ h1,h2,h3,.view-title,.hero h1 { font-family:'Space Grotesk',Inter,sans-serif; le
       if (!view) return;
       hideLoading(view);
       var l = document.getElementById("ctf-list");
-      if (!l) { l = document.createElement("div"); l.id = "ctf-list"; view.appendChild(l); }
+      if (!l) { l = document.createElement("div"); l.id = "ctf-list"; l.style.cssText = "margin-top:16px"; view.appendChild(l); }
       var LOCAL = [
         {question: "Which Windows Event ID indicates a FAILED logon attempt?", options: ["4624", "4625", "4688", "4769"], answer: 1, explanation: "4625 = failed logon."},
         {question: "Phishing email with look-alike domain. First action?", options: ["Pay it", "Report and quarantine", "Delete", "Reply"], answer: 1, explanation: "Report and contain."},
@@ -603,6 +614,7 @@ h1,h2,h3,.view-title,.hero h1 { font-family:'Space Grotesk',Inter,sans-serif; le
           var ok = parseInt(sel.value, 10) === q.answer;
           fb.style.color = ok ? "#00ffcc" : "#ef4444";
           fb.textContent = ok ? "Correct! " + (q.explanation || "") : "Incorrect. " + (q.explanation || "");
+          if (ok) { try { window.celebrate(); } catch (e) {} }
         });
       }
       api("/api/ctf/today").then(function (d) {

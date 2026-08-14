@@ -997,3 +997,76 @@ async function loadLeaderboard() {
     list.innerHTML = "Could not load leaderboard.";
   }
 }
+
+
+// ===== LEAGUE/CTF OVERRIDES (clean loaders, appended) =====
+function cvEsc(s) {
+  if (!s) return "";
+  return String(s).replace(/[&<>"']/g, function (m) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[m]; });
+}
+function cvFindList(secId, ids, loadingRe) {
+  var l = null;
+  for (var i = 0; i < ids.length; i++) { l = document.getElementById(ids[i]); if (l) return l; }
+  var sv = document.getElementById(secId);
+  if (sv) {
+    var nodes = sv.querySelectorAll("div,p,section");
+    for (var j = 0; j < nodes.length; j++) {
+      if (nodes[j].children.length === 0 && loadingRe.test(nodes[j].textContent)) { l = nodes[j]; break; }
+    }
+    if (!l) { l = document.createElement("div"); sv.appendChild(l); }
+  }
+  return l;
+}
+window.loadLeaderboard = function () {
+  var l = cvFindList("view-league", ["league-list", "leaderboard-list"], /loading leaderboard/i);
+  if (!l) return;
+  l.innerHTML = "Loading weekly league...";
+  api("/api/leaderboard").then(function (data) {
+    var users = (data && (data.users || data.leaders)) || (Array.isArray(data) ? data : []);
+    if (!users.length) { l.innerHTML = "<p style='color:var(--text-muted)'>No league members yet. Finish an interview to join!</p>"; return; }
+    var medals = ["🥇", "", ""];
+    var html = '<table style="width:100%;border-collapse:collapse"><thead><tr><th style="padding:8px;text-align:left">#</th><th style="padding:8px;text-align:left">Player</th><th style="padding:8px;text-align:right">XP</th></tr></thead><tbody>';
+    for (var i = 0; i < users.length; i++) {
+      var u = users[i];
+      html += '<tr style="border-bottom:1px solid #222"><td style="padding:10px 8px">' + (medals[i] || (i + 1)) + '</td><td style="padding:10px 8px">' + cvEsc(u.name || u.full_name || "Anonymous") + (u.is_pro ? ' <span style="color:var(--amber);font-size:.75rem">PRO</span>' : '') + '</td><td style="text-align:right;padding:10px 8px;color:var(--accent)">' + (u.xp || 0) + '</td></tr>';
+    }
+    l.innerHTML = html + '</tbody></table>';
+  }).catch(function () { l.innerHTML = "Could not load league."; });
+};
+window.loadCTF = function () {
+  var l = cvFindList("view-ctf", ["ctf-list", "ctf-container"], /loading/i);
+  if (!l) return;
+  var LOCAL = [
+    {question: "Which Windows Event ID indicates a FAILED logon attempt?", options: ["4624", "4625", "4688", "4769"], answer: 1, explanation: "4625 = failed logon; 4624 = success."},
+    {question: "An email urges urgent invoice payment; the header shows a look-alike domain. First action?", options: ["Pay it", "Report and quarantine", "Delete and ignore", "Reply"], answer: 1, explanation: "Treat as phishing."},
+    {question: "DNS tunneling exfiltrates data by abusing which protocol?", options: ["HTTP", "DNS", "SMTP", "NTP"], answer: 1, explanation: "Data hidden in DNS queries."},
+    {question: "In the cyber kill chain, which stage follows Delivery?", options: ["Reconnaissance", "Exploitation", "Installation", "Actions on Objectives"], answer: 1, explanation: "Delivery > Exploitation."},
+    {question: "Which Splunk command counts events per host?", options: ["stats count by host", "table host", "fields - host", "rename host"], answer: 0, explanation: "stats count by host."},
+    {question: "A CVSS score of 9.0-10.0 is rated as?", options: ["Low", "Medium", "High", "Critical"], answer: 3, explanation: "9.0-10.0 = Critical."},
+    {question: "A Golden Ticket attack forges a TGT using which account hash?", options: ["Administrator", "KRBTGT", "Guest", "LocalSystem"], answer: 1, explanation: "KRBTGT signs TGTs."}
+  ];
+  function render(l, q, src) {
+    var html = '<div class="card" style="padding:16px"><p style="font-weight:700;margin-bottom:10px">⚡ ' + cvEsc(q.question) + '</p><p style="font-size:.75rem;color:var(--text-muted)">source: ' + src + "</p>";
+    for (var i = 0; i < q.options.length; i++) {
+      html += '<label style="display:block;margin:6px 0;cursor:pointer"><input type="radio" name="ctf-opt9" value="' + i + '" style="margin-right:8px">' + cvEsc(q.options[i]) + "</label>";
+    }
+    html += '<button id="ctf-check9" class="btn-primary" style="margin-top:10px">Check answer</button><p id="ctf-fb9" style="margin-top:10px;display:none"></p></div>';
+    l.innerHTML = html;
+    l.querySelector("#ctf-check9").addEventListener("click", function () {
+      var sel = l.querySelector('input[name="ctf-opt9"]:checked');
+      var fb = l.querySelector("#ctf-fb9");
+      fb.style.display = "block";
+      if (!sel) { fb.style.color = "#f59e0b"; fb.textContent = "Pick an option first."; return; }
+      var ok = parseInt(sel.value, 10) === q.answer;
+      fb.style.color = ok ? "#00ffcc" : "#ef4444";
+      fb.textContent = ok ? "✅ Correct! " + (q.explanation || "") : "❌ Not quite. " + (q.explanation || "");
+      if (ok) { try { celebrate(); } catch (e) {} }
+    });
+  }
+  l.innerHTML = "Loading today's CTF Bite...";
+  api("/api/ctf/today").then(function (d) {
+    var q = d && (d.question && d.options ? d : (d.bite || d.data || (d.questions && d.questions[0]) || null));
+    if (q) render(l, q, "live");
+    else render(l, LOCAL[new Date().getDate() % LOCAL.length], "offline");
+  }).catch(function () { render(l, LOCAL[new Date().getDate() % LOCAL.length], "offline"); });
+};

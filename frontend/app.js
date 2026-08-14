@@ -1,3 +1,28 @@
+// ===== STORAGE RESILIENCE (Safari-proof login) =====
+(function () {
+  var mem = {};
+  var origSet = Storage.prototype.setItem;
+  var origGet = Storage.prototype.getItem;
+  Storage.prototype.setItem = function (k, v) {
+    mem[k] = String(v);
+    try { return origSet.call(this, k, v); } catch (e) {
+      try { document.cookie = k + "=" + encodeURIComponent(v) + "; path=/; max-age=604800; Secure; SameSite=Lax"; } catch (e2) {}
+    }
+  };
+  Storage.prototype.getItem = function (k) {
+    var v = null;
+    try { v = origGet.call(this, k); } catch (e) {}
+    if (v === null || v === undefined) {
+      if (k in mem) v = mem[k];
+      else {
+        var m = document.cookie.match(new RegExp("(?:^|; )" + k + "=([^;]+)"));
+        if (m) v = decodeURIComponent(m[1]);
+      }
+    }
+    return v;
+  };
+})();
+
 
 // ===== MOBILE RESCUE: Error Banner & Safe Storage =====
 (function() {

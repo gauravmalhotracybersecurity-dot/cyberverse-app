@@ -469,7 +469,7 @@ h1,h2,h3,.view-title,.hero h1 { font-family:'Space Grotesk',Inter,sans-serif; le
     <p style="text-align:center;color:#666;font-size:.8rem;margin-top:14px">Share it on LinkedIn - your network sees your score, we get a user. Win-win. 🚀</p>
   </div>
 </div>
-<script src="app2.js?v=20260815u"></script>
+<script src="app2.js?v=20260815v"></script>
 <div id="paywall-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="pw-title">
   <div class="modal-card" style="max-width: 700px;">
     <button class="modal-close" onclick="document.getElementById('paywall-modal').classList.add('hidden')">&times;</button>
@@ -639,6 +639,50 @@ h1,h2,h3,.view-title,.hero h1 { font-family:'Space Grotesk',Inter,sans-serif; le
         if (window.toast) toast("Listening... speak now");
       } catch (e4) { active = null; }
     }, true);
+  })();
+  </script>
+
+
+  <!-- ===== CV ONBOARDING FILL (renders the 3 Get-started tasks) ===== -->
+  <script>
+  (function () {
+    var ITEMS = [
+      { key: "cv_onb_resume", label: "Run your first AI resume review", goto: "resume" },
+      { key: "cv_onb_interview", label: "Complete a mock interview", goto: "interview" },
+      { key: "cv_onb_ops", label: "Open today's Daily Ops", goto: "daily" }
+    ];
+    function render() {
+      var card = document.getElementById("onboarding-card") || document.querySelector(".onboarding-card");
+      if (!card) return;
+      var list = document.getElementById("onb-list") || card.querySelector("ul");
+      if (!list) {
+        list = document.createElement("div");
+        list.id = "onb-list";
+        list.style.cssText = "margin-top:12px;display:flex;flex-direction:column;gap:10px";
+        card.appendChild(list);
+      }
+      var html = "";
+      var doneCount = 0;
+      for (var i = 0; i < ITEMS.length; i++) {
+        var done = !!localStorage.getItem(ITEMS[i].key);
+        if (done) doneCount++;
+        html += '<div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:rgba(255,255,255,.03);border:1px solid #223041;border-radius:10px;' + (done ? "opacity:.6;" : "") + '">' +
+          '<input type="checkbox" disabled ' + (done ? "checked" : "") + ' style="accent-color:#00ffcc;width:16px;height:16px"/>' +
+          '<span style="flex:1;font-size:.92rem;' + (done ? "text-decoration:line-through;color:#7d93a8;" : "") + '">' + ITEMS[i].label + "</span>" +
+          (done ? '<span style="color:#00ffcc;font-size:.8rem">Done</span>' : '<button class="btn-secondary cv-onb-go" data-goto="' + ITEMS[i].goto + '" style="padding:6px 14px">Start</button>') +
+          "</div>";
+      }
+      list.innerHTML = html;
+      if (doneCount === 3) card.style.display = "none";
+      var btns = list.querySelectorAll(".cv-onb-go");
+      for (var b = 0; b < btns.length; b++) {
+        btns[b].addEventListener("click", function () {
+          if (window.goToView) goToView(this.getAttribute("data-goto"));
+        });
+      }
+    }
+    setTimeout(render, 600);
+    document.addEventListener("click", function () { setTimeout(render, 500); });
   })();
   </script>
 

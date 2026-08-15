@@ -469,7 +469,7 @@ h1,h2,h3,.view-title,.hero h1 { font-family:'Space Grotesk',Inter,sans-serif; le
     <p style="text-align:center;color:#666;font-size:.8rem;margin-top:14px">Share it on LinkedIn - your network sees your score, we get a user. Win-win. 🚀</p>
   </div>
 </div>
-<script src="app2.js?v=20260816b"></script>
+<script src="app2.js?v=20260816c"></script>
 <div id="paywall-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="pw-title">
   <div class="modal-card" style="max-width: 700px;">
     <button class="modal-close" onclick="document.getElementById('paywall-modal').classList.add('hidden')">&times;</button>
@@ -702,36 +702,40 @@ h1,h2,h3,.view-title,.hero h1 { font-family:'Space Grotesk',Inter,sans-serif; le
       });
     }
     function fillReferral() {
-      var cards = document.querySelectorAll("div,section");
-      var card = null;
-      for (var i = 0; i < cards.length; i++) {
-        if (cards[i].textContent.indexOf("Refer a friend") !== -1 && cards[i].querySelector("input")) { card = cards[i]; break; }
+      var pv = document.getElementById("view-profile") || document;
+      var btns = pv.querySelectorAll("button");
+      var copyBtn = null;
+      for (var i = 0; i < btns.length; i++) {
+        if (btns[i].textContent.trim() === "Copy") { copyBtn = btns[i]; break; }
       }
-      if (!card) return;
-      var input = card.querySelector("input");
+      if (!copyBtn) return;
+      var scope = copyBtn.parentElement, input = null;
+      while (scope && scope !== pv) {
+        input = scope.querySelector("input");
+        if (input) break;
+        scope = scope.parentElement;
+      }
+      if (!input) return;
+      function setLink(link) { if (link && !input.value) input.value = link; }
       var eps = ["/api/referral/link", "/api/referral", "/api/profile/referral"];
       function tryEp(idx) {
         if (idx >= eps.length) {
           api("/api/profile/me").then(function (me) {
-            input.value = location.origin + "/?ref=" + (me.id || me.email || "friend");
+            setLink(location.origin + "/?ref=" + (me.id || me.email || "friend"));
           }).catch(function () {});
           return;
         }
         api(eps[idx]).then(function (d) {
           var link = d.link || d.referral_link || d.url || (d.code ? location.origin + "/?ref=" + d.code : null);
-          if (link) input.value = link;
-          else tryEp(idx + 1);
+          if (link) setLink(link); else tryEp(idx + 1);
         }).catch(function () { tryEp(idx + 1); });
       }
       if (!input.value) tryEp(0);
-      var btns = card.querySelectorAll("button");
-      for (var b = 0; b < btns.length; b++) {
-        if (btns[b].textContent.trim() === "Copy" && !btns[b].dataset.cvWired) {
-          btns[b].dataset.cvWired = "1";
-          btns[b].addEventListener("click", function () {
-            if (input.value && navigator.clipboard) { navigator.clipboard.writeText(input.value); if (window.toast) toast("Referral link copied"); }
-          });
-        }
+      if (!copyBtn.dataset.cvWired) {
+        copyBtn.dataset.cvWired = "1";
+        copyBtn.addEventListener("click", function () {
+          if (input.value && navigator.clipboard) { navigator.clipboard.writeText(input.value); if (window.toast) toast("Referral link copied"); }
+        });
       }
     }
     window.loadReferralData = fillReferral;

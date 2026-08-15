@@ -469,7 +469,7 @@ h1,h2,h3,.view-title,.hero h1 { font-family:'Space Grotesk',Inter,sans-serif; le
     <p style="text-align:center;color:#666;font-size:.8rem;margin-top:14px">Share it on LinkedIn - your network sees your score, we get a user. Win-win. 🚀</p>
   </div>
 </div>
-<script src="app2.js?v=20260815x"></script>
+<script src="app2.js?v=20260816b"></script>
 <div id="paywall-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="pw-title">
   <div class="modal-card" style="max-width: 700px;">
     <button class="modal-close" onclick="document.getElementById('paywall-modal').classList.add('hidden')">&times;</button>
@@ -561,7 +561,7 @@ h1,h2,h3,.view-title,.hero h1 { font-family:'Space Grotesk',Inter,sans-serif; le
       api("/api/leaderboard").then(function (data) {
         var users = (data && data.users) || [];
         if (!users.length) { l.innerHTML = "<p>No league members yet.</p>"; return; }
-        var medals = ["🥇", "🥈", ""];
+        var medals = ["\uD83E\uDD47", "\uD83E\uDD48", "\uD83E\uDD49"];
         var html = '<table style="width:100%;border-collapse:collapse"><thead><tr><th style="padding:8px;text-align:left">#</th><th style="padding:8px;text-align:left">Player</th><th style="padding:8px;text-align:right">XP</th></tr></thead><tbody>';
         for (var i = 0; i < users.length; i++) {
           var u = users[i];
@@ -683,6 +683,102 @@ h1,h2,h3,.view-title,.hero h1 { font-family:'Space Grotesk',Inter,sans-serif; le
     }
     setTimeout(render, 600);
     document.addEventListener("click", function () { setTimeout(render, 500); });
+  })();
+  </script>
+
+
+  <!-- ===== CV GAP FIXES (referral link + story auto-fill) ===== -->
+  <script>
+  (function () {
+    function tok() {
+      var t = null;
+      try { t = localStorage.getItem("cv_token") || localStorage.getItem("token"); } catch (e) {}
+      return t;
+    }
+    function api(path) {
+      return fetch(path, { headers: { Authorization: "Bearer " + tok() } }).then(function (r) {
+        if (!r.ok) throw new Error("HTTP " + r.status);
+        return r.json();
+      });
+    }
+    function fillReferral() {
+      var cards = document.querySelectorAll("div,section");
+      var card = null;
+      for (var i = 0; i < cards.length; i++) {
+        if (cards[i].textContent.indexOf("Refer a friend") !== -1 && cards[i].querySelector("input")) { card = cards[i]; break; }
+      }
+      if (!card) return;
+      var input = card.querySelector("input");
+      var eps = ["/api/referral/link", "/api/referral", "/api/profile/referral"];
+      function tryEp(idx) {
+        if (idx >= eps.length) {
+          api("/api/profile/me").then(function (me) {
+            input.value = location.origin + "/?ref=" + (me.id || me.email || "friend");
+          }).catch(function () {});
+          return;
+        }
+        api(eps[idx]).then(function (d) {
+          var link = d.link || d.referral_link || d.url || (d.code ? location.origin + "/?ref=" + d.code : null);
+          if (link) input.value = link;
+          else tryEp(idx + 1);
+        }).catch(function () { tryEp(idx + 1); });
+      }
+      if (!input.value) tryEp(0);
+      var btns = card.querySelectorAll("button");
+      for (var b = 0; b < btns.length; b++) {
+        if (btns[b].textContent.trim() === "Copy" && !btns[b].dataset.cvWired) {
+          btns[b].dataset.cvWired = "1";
+          btns[b].addEventListener("click", function () {
+            if (input.value && navigator.clipboard) { navigator.clipboard.writeText(input.value); if (window.toast) toast("Referral link copied"); }
+          });
+        }
+      }
+    }
+    window.loadReferralData = fillReferral;
+    setInterval(function () {
+      var pv = document.getElementById("view-profile");
+      if (pv && pv.offsetParent !== null) fillReferral();
+    }, 1500);
+
+    function part(txt, k) {
+      var i = txt.indexOf(k + ":");
+      if (i === -1) return "";
+      i += 2;
+      var next = txt.length;
+      ["S:", "T:", "A:", "R:"].forEach(function (m2) {
+        if (m2 !== k + ":") { var j = txt.indexOf(m2, i); if (j !== -1 && j < next) next = j; }
+      });
+      return txt.slice(i, next).trim();
+    }
+    function storyAutofill() {
+      var sv = document.getElementById("view-stories");
+      if (!sv) return;
+      var sel = sv.querySelector("select");
+      if (!sel || sel.querySelector('option[value="lab"]')) return;
+      var op = document.createElement("option");
+      op.value = "lab";
+      op.textContent = "Auto - from a completed lab";
+      sel.appendChild(op);
+      sel.addEventListener("change", function () {
+        if (sel.value !== "lab") return;
+        api("/api/labs").then(function (d) {
+          var pick = null;
+          for (var i = 0; i < d.labs.length; i++) { if (d.done[d.labs[i].id]) { pick = d.labs[i]; break; } }
+          if (!pick) { if (window.toast) toast("Complete a lab in Lab Log first"); return; }
+          var star = d.done[pick.id].star || "";
+          var title = sv.querySelector('input[placeholder*="time" i]') || sv.querySelector("input");
+          if (title) title.value = pick.title;
+          var tas = sv.querySelectorAll("textarea");
+          if (tas[0]) tas[0].value = part(star, "S");
+          if (tas[1]) tas[1].value = part(star, "T");
+          if (tas[2]) tas[2].value = part(star, "A");
+          if (tas[3]) tas[3].value = part(star, "R");
+          if (window.toast) toast("Story pre-filled from " + pick.title);
+        }).catch(function () { if (window.toast) toast("Could not load labs"); });
+      });
+    }
+    setInterval(storyAutofill, 1500);
+    storyAutofill();
   })();
   </script>
 

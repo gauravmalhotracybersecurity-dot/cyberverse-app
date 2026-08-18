@@ -85,7 +85,7 @@ def send_password_reset_email(to: str, reset_token: str) -> None:
         f"{reset_link}\n\n"
         f"If you didn't request this, you can safely ignore this email."
     )
-    send_email(to, "Reset your CyberVerse AI password", body)
+    # send_email(to, "Reset your CyberVerse AI password", body)  # DISABLED FOR LAUNCH
 
 
 def send_welcome_email(to: str, full_name: str) -> None:
@@ -100,7 +100,7 @@ def send_welcome_email(to: str, full_name: str) -> None:
         "3. Start a mock interview: Try a 5-question interview.\n\n"
         "Best,\nGaurav\nFounder, CyberVerse AI"
     )
-    send_email(to, subject, body)
+    # send_email(to, subject, body)  # DISABLED FOR LAUNCH
 
 
 def send_interview_nudge_email(to: str, full_name: str, role: str) -> None:
@@ -114,7 +114,7 @@ def send_interview_nudge_email(to: str, full_name: str, role: str) -> None:
         f"You've got this.\n"
         f"- The CyberVerse AI Interviewer"
     )
-    send_email(to, subject, body)
+    # send_email(to, subject, body)  # DISABLED FOR LAUNCH
 
 
 def send_verification_email(to: str, link: str) -> None:
@@ -125,7 +125,7 @@ def send_verification_email(to: str, link: str) -> None:
         f"{link}\n\n"
         "If you didn't create this account, you can safely ignore this email."
     )
-    send_email(to, subject, body)
+    # send_email(to, subject, body)  # DISABLED FOR LAUNCH
 
 
 def send_day3_nurture_email(to: str, full_name: str, weak_topics: list, unfinished_interviews: int) -> None:
@@ -145,7 +145,7 @@ def send_day3_nurture_email(to: str, full_name: str, weak_topics: list, unfinish
         f"The longer you wait, the more ground you lose to other candidates.\n\n"
         f"- The CyberVerse AI team"
     )
-    send_email(to, subject, body)
+    # send_email(to, subject, body)  # DISABLED FOR LAUNCH
 
 
 def send_day7_nurture_email(to: str, full_name: str, resume_score: int, xp: int) -> None:
@@ -166,7 +166,7 @@ def send_day7_nurture_email(to: str, full_name: str, resume_score: int, xp: int)
         f"Your future self will thank you.\n\n"
         f"- The CyberVerse AI team"
     )
-    send_email(to, subject, body)
+    # send_email(to, subject, body)  # DISABLED FOR LAUNCH
 
 
 def send_lead_magnet_email(to: str, pdf_url: str) -> None:
@@ -177,4 +177,4 @@ def send_lead_magnet_email(to: str, pdf_url: str) -> None:
         "Want to practice them out loud? The AI interviewer at https://app.grcwithgaurav.com/app.html scores you out of 100 - free.\n\n"
         "- The CyberVerse AI team"
     )
-    send_email(to, subject, body)
+    # send_email(to, subject, body)  # DISABLED FOR LAUNCH

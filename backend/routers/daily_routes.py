@@ -51,7 +51,7 @@ def _bundle_email_body(name, date, content, streak):
 def _send_daily_email(to, name, date, content, streak):
     try:
         subject, body = _bundle_email_body(name, date, content, streak)
-        send_email(to, subject, body)
+        # send_email(to, subject, body)  # DISABLED FOR LAUNCH
     except Exception:
         logger.exception("Background daily email failed for %s", to)
 
@@ -118,7 +118,7 @@ def cron_send_daily_briefs(
             continue
         try:
             subject, body = _bundle_email_body(user.full_name, today, bundle.content, user.streak_days)
-            send_email(user.email, subject, body)
+            # send_email(user.email, subject, body)  # DISABLED FOR LAUNCH
             bundle.emailed_at = dt.datetime.utcnow()
             db.commit()
             sent += 1

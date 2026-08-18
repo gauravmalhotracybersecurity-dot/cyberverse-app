@@ -30,7 +30,7 @@ def signup(request: Request, payload: schemas.SignupRequest, db: Session = Depen
         email=payload.email,
         hashed_password=hash_password(payload.password),
         full_name=payload.full_name,
-        is_verified=False,
+        is_verified=True,
         verify_nonce=_uuid.uuid4().hex,
         referral_code=_uuid.uuid4().hex[:8],
     )
@@ -47,7 +47,7 @@ def signup(request: Request, payload: schemas.SignupRequest, db: Session = Depen
     db.refresh(user)
 
     link = f"{settings.app_base_url}/app.html?verify={user.id}.{user.verify_nonce}"
-    send_verification_email(user.email, link)
+    # send_verification_email(user.email, link)  # DISABLED FOR LAUNCH
     return {"message": "Account created! Check your inbox to verify your email, then log in."}
 
 
@@ -60,8 +60,8 @@ def login(request: Request, payload: schemas.LoginRequest, db: Session = Depends
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect email or password.",
         )
-    if not user.is_verified:
-        raise HTTPException(status_code=403, detail="Please verify your email first. Check your inbox for the verification link.")
+    # if not user.is_verified:  # BYPASSED FOR LAUNCH
+        # raise HTTPException(status_code=403, detail="Please verify your email first. Check your inbox for the verification link.")  # BYPASSED FOR LAUNCH
     token = create_access_token(user.id)
     return schemas.TokenResponse(access_token=token)
 
@@ -138,5 +138,5 @@ def resend_verification(request: Request, payload: schemas.ForgotPasswordRequest
     user.verify_nonce = _uuid.uuid4().hex
     db.commit()
     link = f"{settings.app_base_url}/app.html?verify={user.id}.{user.verify_nonce}"
-    send_verification_email(user.email, link)
+    # send_verification_email(user.email, link)  # DISABLED FOR LAUNCH
     return generic

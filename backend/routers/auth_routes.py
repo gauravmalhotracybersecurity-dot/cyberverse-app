@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, Request, status
+﻿from fastapi import APIRouter, Depends, HTTPException, Request, status
 from sqlalchemy.orm import Session
 
 import models
@@ -48,7 +48,7 @@ def signup(request: Request, payload: schemas.SignupRequest, db: Session = Depen
 
     link = f"{settings.app_base_url}/app.html?verify={user.id}.{user.verify_nonce}"
     # send_verification_email(user.email, link)  # DISABLED FOR LAUNCH
-    return {"message": "Account created! Check your inbox to verify your email, then log in."}
+    return {"message": "Account created successfully! You can now log in."}
 
 
 @router.post("/login", response_model=schemas.TokenResponse)
@@ -140,3 +140,4 @@ def resend_verification(request: Request, payload: schemas.ForgotPasswordRequest
     link = f"{settings.app_base_url}/app.html?verify={user.id}.{user.verify_nonce}"
     # send_verification_email(user.email, link)  # DISABLED FOR LAUNCH
     return generic
+

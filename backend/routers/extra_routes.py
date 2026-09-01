@@ -11,7 +11,7 @@ router = APIRouter(tags=["extra"])
 
 @router.get("/api/leaderboard")
 def leaderboard(user: models.User = Depends(get_current_user), db: Session = Depends(get_db)):
-    rows = db.query(models.User).order_by(models.User.xp.desc()).limit(10).all()
+    rows = [] # League disabled
     users = []
     for u in rows:
         users.append({"name": u.full_name or u.email.split("@")[0], "xp": u.xp or 0,

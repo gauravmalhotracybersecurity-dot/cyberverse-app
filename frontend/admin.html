@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Founder Console — CyberVerse AI</title>
+<title>Founder Console â€” CyberVerse AI</title>
 <style>
 body{background:#0a0a0a;color:#eee;font-family:'Segoe UI',system-ui,sans-serif;margin:0;padding:32px}
 h1{font-family:Consolas,monospace;color:#00ffcc}
@@ -42,7 +42,7 @@ td,th{padding:8px;border-bottom:1px solid #222;text-align:left}
 <div class="stat"><div class="v" id="s-men">0</div><div class="l">Mentor msgs</div></div>
 <div class="stat"><div class="v" id="s-act">0</div><div class="l">Active today</div></div>
 </div>
-<div class="card" style="margin-top:16px"><strong>Signups — last 7 days</strong><div class="bars" id="bars"></div></div>
+<div class="card" style="margin-top:16px"><strong>Signups â€” last 7 days</strong><div class="bars" id="bars"></div></div>
 <div class="card"><strong>Recent signups</strong>
 <table><thead><tr><th>Email</th><th>Name</th><th>Plan</th><th>Date</th></tr></thead><tbody id="rows"></tbody></table></div>
 </div>
@@ -84,14 +84,14 @@ if (token) load();
 </script>
 <div style="max-width:900px;margin:24px auto;padding:20px;background:#111;border:1px solid #222;border-radius:12px">
   <h2 style="margin-top:0;color:#00ffcc">Funnel - last 30 days</h2>
-  <pre id="funnel" style="font-family:Consolas,monospace;font-size:.95rem;line-height:1.8">Loading…</pre>
+  <pre id="funnel" style="font-family:Consolas,monospace;font-size:.95rem;line-height:1.8">Loadingâ€¦</pre>
 </div>
 <script>
 async function loadFunnel() {
   try {
     const t = token || localStorage.getItem("cv_token");
     const r = await fetch("/api/analytics/funnel", { headers: { Authorization: "Bearer " + t } });
-    if (!r.ok) { document.getElementById("funnel").textContent = "HTTP " + r.status + " — " + (await r.text()).slice(0, 400); return; }
+    if (!r.ok) { document.getElementById("funnel").textContent = "HTTP " + r.status + " â€” " + (await r.text()).slice(0, 400); return; }
     const f = await r.json();
     document.getElementById("funnel").textContent =
       "Visitors (unique)     " + f.visitors + "\n" +
@@ -107,5 +107,12 @@ async function loadFunnel() {
 }
 loadFunnel();
 </script>
+<!-- Buildlist Badge -->
+<div style="position:fixed;bottom:20px;right:20px;z-index:99999;">
+  <a href="https://buildlist.io" target="_blank" rel="noopener">
+    <img src="https://buildlist.io/badge.svg" alt="Featured on Buildlist" style="height:40px;width:auto; border-radius:8px; box-shadow: 0 4px 12px rgba(0,0,0,0.5);"/>
+  </a>
+</div>
 </body>
 </html>
+

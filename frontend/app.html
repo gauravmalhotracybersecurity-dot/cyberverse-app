@@ -817,6 +817,24 @@ h1,h2,h3,.view-title,.hero h1 { font-family:'Space Grotesk',Inter,sans-serif; le
 })();
 </script>
 
+
+<script id="cv-prefill">
+(function(){
+  var p = new URLSearchParams(location.search);
+  var em = p.get('email');
+  if (!em) return;
+  function pre(){
+    var tab = document.querySelector('[data-mode="signup"]');
+    if (tab) tab.click();
+    setTimeout(function(){
+      var inp = document.querySelector('input[type="email"]');
+      if (inp) inp.value = em;
+    }, 300);
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', pre); else pre();
+})();
+</script>
+
 </body>
 </html>
 

@@ -50,3 +50,27 @@ def funnel(user: models.User = Depends(get_current_user), db: Session = Depends(
         "payment_clicked": cnt("payment_clicked"), "ctf_solved": cnt("ctf_solved"),
         "share_copied": cnt("share_copied"),
     }
+
+
+@router.post("/lead")
+def capture_lead(payload: dict, db: Session = Depends(get_db)):
+    from sqlalchemy import text as _text
+    from datetime import datetime as _dt
+    try:
+        db.execute(_text("CREATE TABLE IF NOT EXISTS leads (email TEXT, created_at TEXT)"))
+        db.execute(_text("INSERT INTO leads (email, created_at) VALUES (:e, :t)"),
+                   {"e": (payload or {}).get("email", ""), "t": _dt.utcnow().isoformat()})
+        db.commit()
+    except Exception:
+        pass
+    return {"ok": True}
+
+
+@router.get("/leads")
+def list_leads(user: models.User = Depends(get_current_user), db: Session = Depends(get_db)):
+    from sqlalchemy import text as _text
+    try:
+        rows = db.execute(_text("SELECT email, created_at FROM leads ORDER BY created_at DESC LIMIT 200")).fetchall()
+    except Exception:
+        rows = []
+    return [{"email": r[0], "created_at": r[1]} for r in rows]

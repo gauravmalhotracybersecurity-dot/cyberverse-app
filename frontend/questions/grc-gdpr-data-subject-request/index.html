@@ -64,4 +64,43 @@ Practice this question live with an AI interviewer that scores you out of 100.<b
     <img src="https://buildlist.io/badge.svg" alt="Featured on Buildlist" style="height:40px;width:auto; border-radius:8px; box-shadow: 0 4px 12px rgba(0,0,0,0.4); transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'"/>
   </a>
 </div>
+
+<!-- CV EXIT-INTENT POPUP -->
+<div id="cv-exit" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:99999;align-items:center;justify-content:center;">
+  <div style="background:#0d0d0d;border:1px solid #00ffcc;border-radius:14px;max-width:440px;width:92%;padding:28px;position:relative;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.6);">
+    <button id="cv-exit-x" style="position:absolute;top:10px;right:12px;background:none;border:none;color:#888;font-size:20px;cursor:pointer;">X</button>
+    <div style="font-size:1.35rem;font-weight:800;color:#fff;line-height:1.25;">Wait - your resume is <span style="color:#00ffcc">6 seconds</span> from being rejected.</div>
+    <p style="color:#bbb;font-size:.92rem;margin:12px 0 18px;">Get your <strong style="color:#fff">FREE AI Resume Score</strong> + the exact bullets to fix before you go.</p>
+    <form id="cv-exit-form" style="display:flex;flex-direction:column;gap:10px;">
+      <input id="cv-exit-email" type="email" required placeholder="you@domain.com" style="padding:12px;border-radius:8px;border:1px solid #333;background:#151515;color:#fff;font-size:.95rem;outline:none;">
+      <button type="submit" style="padding:12px;border-radius:8px;border:none;background:#00ffcc;color:#001512;font-weight:800;font-size:1rem;cursor:pointer;">Score My Resume Free</button>
+    </form>
+    <div style="color:#666;font-size:.75rem;margin-top:10px;">No spam. Just your score + fixes.</div>
+  </div>
+</div>
+<script id="cv-exit-js">
+(function(){
+  var shown = sessionStorage.getItem('cvExitShown');
+  var box = document.getElementById('cv-exit');
+  function show(){
+    if (shown) return;
+    shown = 1; sessionStorage.setItem('cvExitShown','1');
+    box.style.display = 'flex';
+  }
+  document.addEventListener('mouseout', function(e){
+    if (!e.relatedTarget && e.clientY <= 0) show();
+  });
+  if ('ontouchstart' in window) setTimeout(show, 40000);
+  document.getElementById('cv-exit-x').addEventListener('click', function(){ box.style.display='none'; });
+  box.addEventListener('click', function(e){ if (e.target === box) box.style.display='none'; });
+  document.getElementById('cv-exit-form').addEventListener('submit', function(e){
+    e.preventDefault();
+    var em = document.getElementById('cv-exit-email').value.trim();
+    if (!em) return;
+    fetch('/api/analytics/lead', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({email: em})}).catch(function(){});
+    location.href = '/app.html?email=' + encodeURIComponent(em) + '&mode=signup';
+  });
+})();
+</script>
+
 </body></html>

@@ -16,6 +16,10 @@ TOOL_PATHS = [
     "/tools/iso-gap-assessment",
     "/tools/ats-resume-checker",
     "/tools/risk-register-generator",
+    "/tools/security-policy-generator",
+    "/tools/iso27001-control-finder",
+    "/tools/incident-severity-calculator",
+    "/tools/vendor-risk-assessment",
 ]
 
 @router.get("/", response_class=HTMLResponse)

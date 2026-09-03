@@ -41,6 +41,9 @@ if settings.environment != "production":
     Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="CyberVerse AI API", version="0.2.0")
+from routers import site_routes
+app.include_router(site_routes.router)
+
 
 app.state.limiter = limiter
 

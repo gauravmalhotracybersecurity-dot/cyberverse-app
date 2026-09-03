@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block title %}Free Incident Severity Calculator | GRCWithGaurav{% endblock %}
+{% block description %}Classify security incidents into SEV-1 to SEV-4 using impact, scope, business criticality and containment status - with response tracks and notification flags.{% endblock %}
+{% block canonical %}https://grcwithgaurav.com/tools/incident-severity-calculator/{% endblock %}
+{% block head %}
+<style>
+ .wrap{max-width:900px;margin:0 auto;padding:2rem}
+ .crumbs{color:var(--muted);font-size:.85rem;margin-bottom:1rem}
+ .crumbs a{color:var(--muted)}
+ label{display:block;color:var(--muted);font-size:.85rem;margin:.6rem 0 .25rem}
+ select{width:100%;padding:.6rem;border-radius:8px;border:1px solid #333;background:#151515;color:#fff;box-sizing:border-box}
+ .grid2{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+ @media(max-width:800px){.grid2{grid-template-columns:1fr}}
+ .sev-box{margin-top:1.2rem;padding:1.4rem;border-radius:12px;background:#151515;border:1px solid #333}
+ .sev-num{font-size:2.2rem;font-weight:800}
+ .notice{background:#101a17;border:1px solid #1d4034;color:#9fdcc3;padding:.8rem 1rem;border-radius:10px;font-size:.85rem;margin:1rem 0}
+ .flag{margin-top:.8rem;padding:.7rem 1rem;border-radius:8px;background:#2a1215;border:1px solid #7f1d1d;color:#fca5a5;font-size:.88rem;display:none}
+ .cta-card{margin-top:2.5rem;padding:2rem;border-radius:14px;background:linear-gradient(135deg,#0d1a16,#0a0a0a);border:1px solid var(--accent);text-align:center}
+</style>
+{% endblock %}
+{% block content %}
+<div class="wrap">
+ <div class="crumbs"><a href="/">Home</a> / <a href="/tools">Tools</a> / Incident Severity Calculator</div>
+ <h1>Incident Severity Calculator</h1>
+ <p style="color:var(--muted)">Answer five questions to classify the incident (SEV-1 to SEV-4), get the right response track, and see whether regulatory notification needs a legal review.</p>
+ <div class="notice">&#9888;&#65039; Informational guidance only. Always follow your organization's incident response plan and legal advice.</div>
+ <div class="card" style="padding:1.5rem">
+  <div class="grid2">
+   <div><label>Incident type</label><select id="i-type"><option value="3">Data breach / exfiltration</option><option value="3">Ransomware</option><option value="2">DDoS / availability attack</option><option value="2">Phishing campaign</option><option value="2">Malware on host</option><option value="2">Insider misuse</option><option value="1">Misconfiguration exposure</option><option value="1">Other / unknown</option></select></div>
+   <div><label>Data / systems affected</label><select id="i-data"><option value="3">PII / customer data</option><option value="3">Credentials / secrets</option><option value="3">Critical production systems</option><option value="2">Internal systems only</option><option value="1">Single endpoint</option><option value="0">None identified</option></select></div>
+   <div><label>Scope</label><select id="i-scope"><option value="3">Enterprise-wide / multiple sites</option><option value="2">Multiple hosts</option><option value="1">Single host</option><option value="1">Single account</option></select></div>
+   <div><label>Business impact</label><select id="i-biz"><option value="3">Revenue stopped / regulatory exposure</option><option value="2">Major operational degradation</option><option value="1">Minor impact</option><option value="0">None observed yet</option></select></div>
+   <div><label>Containment status</label><select id="i-cont"><option value="3">Actively spreading</option><option value="2">Not contained</option><option value="1">Partially contained</option><option value="0">Fully contained</option></select></div>
+  </div>
+ </div>
+ <div class="sev-box">
+   <div style="color:var(--muted)">Classification</div>
+   <div class="sev-num" id="out-sev" style="color:#22c55e">SEV-4</div>
+   <p id="out-track" style="color:#c9c9c9;margin:.6rem 0 0"></p>
+   <div class="flag" id="out-flag">&#9878;&#65039; Personal data or regulatory exposure indicated - open the notification review: many regimes (e.g. GDPR 72h, India DPDP "as soon as practicable", sectoral rules) require timely regulator and affected-party notification. Involve legal now.</div>
+ </div>
+ <div class="cta-card">
+  <h2 style="color:#fff;margin:0 0 .5rem">Can you walk an interviewer through this incident?</h2>
+  <p style="color:var(--muted)">CyberVerse AI runs incident-response mock interviews: containment, evidence, communication - graded out loud.</p>
+  <a href="/app.html" class="btn-primary" style="display:inline-block">Practice IR with CyberVerse AI &rarr;</a>
+ </div>
+</div>
+<script>
+function v(id){ return parseInt(document.getElementById(id).value,10); }
+function compute(){
+  var s=v("i-type")+v("i-data")+v("i-scope")+v("i-biz")+v("i-cont");
+  var el=document.getElementById("out-sev"), tr=document.getElementById("out-track");
+  var sev,col,track;
+  if(s>=11){ sev="SEV-1"; col="#ef4444"; track="Critical. Activate the IR plan NOW: war room, executive + legal + comms engaged, evidence preservation started, external forensics on standby."; }
+  else if(s>=8){ sev="SEV-2"; col="#f97316"; track="High. Respond within hours: assigned incident commander, containment actions, stakeholder updates every few hours."; }
+  else if(s>=4){ sev="SEV-3"; col="#eab308"; track="Medium. Respond within 1 business day: ticketed response, containment + monitoring, standard reporting."; }
+  else { sev="SEV-4"; col="#22c55e"; track="Low. Log and monitor: handle in normal queue, document for trend analysis."; }
+  el.textContent=sev+" ("+s+"/15)"; el.style.color=col; tr.textContent=track;
+  document.getElementById("out-flag").style.display=(v("i-data")===3||v("i-biz")===3)?"block":"none";
+}
+["i-type","i-data","i-scope","i-biz","i-cont"].forEach(function(id){ document.getElementById(id).onchange=compute; });
+compute();
+</script>
+{% endblock %}

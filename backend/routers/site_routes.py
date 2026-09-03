@@ -60,6 +60,14 @@ async def learn_article(request: Request, slug: str):
         return RedirectResponse(url="/learn", status_code=302)
     return templates.TemplateResponse("learn/article.html", {"request": request, "article": art, "base_url": BASE_URL})
 
+@router.get("/tools/incident-severity-calculator", response_class=HTMLResponse)
+async def incident_severity_calculator(request: Request):
+    return templates.TemplateResponse("tools/incident_severity_calculator.html", {"request": request})
+
+@router.get("/tools/vendor-risk-assessment", response_class=HTMLResponse)
+async def vendor_risk_assessment(request: Request):
+    return templates.TemplateResponse("tools/vendor_risk_assessment.html", {"request": request})
+
 @router.get("/b2b", response_class=HTMLResponse)
 async def b2b_page(request: Request):
     return templates.TemplateResponse("b2b.html", {"request": request})

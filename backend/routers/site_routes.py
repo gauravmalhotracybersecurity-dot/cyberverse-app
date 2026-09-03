@@ -30,6 +30,10 @@ async def iso_gap_assessment(request: Request):
 async def ats_resume_checker(request: Request):
     return templates.TemplateResponse("tools/ats_resume_checker.html", {"request": request})
 
+@router.get("/tools/risk-register-generator", response_class=HTMLResponse)
+async def risk_register_generator(request: Request):
+    return templates.TemplateResponse("tools/risk_register_generator.html", {"request": request})
+
 @router.get("/learn", response_class=HTMLResponse)
 @router.get("/careers", response_class=HTMLResponse)
 @router.get("/resources", response_class=HTMLResponse)

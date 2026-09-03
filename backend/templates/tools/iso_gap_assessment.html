@@ -1,0 +1,147 @@
+{% extends "base.html" %}
+{% block title %}Free ISO 27001 Gap Assessment | GRCWithGaurav{% endblock %}
+{% block description %}Self-assess your ISMS against 24 key ISO 27001 requirements (Clauses 4-10 + Annex A). Get an overall score, priority gaps and recommended actions. Free.{% endblock %}
+{% block canonical %}https://grcwithgaurav.com/tools/iso-gap-assessment/{% endblock %}
+{% block head %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "ISO 27001 Gap Assessment",
+  "applicationCategory": "BusinessApplication",
+  "operatingSystem": "Web",
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "INR" },
+  "description": "Free ISO 27001 gap assessment with score, priority findings and recommended actions."
+}
+</script>
+<style>
+ .wrap{max-width:1000px;margin:0 auto;padding:2rem}
+ .crumbs{color:var(--muted);font-size:.85rem;margin-bottom:1rem}
+ .crumbs a{color:var(--muted)}
+ h1{color:#fff}
+ .group{color:var(--accent);font-weight:700;margin:1.6rem 0 .6rem;font-size:.95rem}
+ .req-row{display:flex;gap:1rem;align-items:center;justify-content:space-between;padding:.7rem 1rem;border:1px solid #222;border-radius:10px;background:#111;margin-bottom:.5rem;flex-wrap:wrap}
+ .req-row p{margin:0;color:var(--text);font-size:.9rem;flex:1;min-width:240px}
+ select{padding:.45rem;border-radius:8px;border:1px solid #333;background:#151515;color:#fff}
+ .score-box{margin-top:1.2rem;padding:1.2rem;border-radius:10px;background:#151515;border:1px solid #333;display:flex;gap:1.5rem;align-items:center;flex-wrap:wrap}
+ .score-num{font-size:2.4rem;font-weight:800;color:#fff}
+ .badge{padding:.35rem .9rem;border-radius:20px;font-weight:700;font-size:.9rem;color:#000}
+ .finding{border-left:3px solid #ef4444;background:#151515;padding:.7rem 1rem;border-radius:6px;margin-bottom:.5rem;font-size:.88rem}
+ .finding.partial{border-left-color:#eab308}
+ .finding .act{color:var(--muted);display:block;margin-top:.25rem}
+ .notice{background:#101a17;border:1px solid #1d4034;color:#9fdcc3;padding:.8rem 1rem;border-radius:10px;font-size:.85rem;margin:1rem 0}
+ .btn-row{display:flex;gap:.8rem;margin-top:1rem;flex-wrap:wrap}
+ .cta-card{margin-top:2.5rem;padding:2rem;border-radius:14px;background:linear-gradient(135deg,#0d1a16,#0a0a0a);border:1px solid var(--accent);text-align:center}
+</style>
+{% endblock %}
+{% block content %}
+<div class="wrap">
+ <div class="crumbs"><a href="/">Home</a> / <a href="/tools">Tools</a> / ISO 27001 Gap Assessment</div>
+ <h1>ISO 27001 Gap Assessment</h1>
+ <p style="color:var(--muted);max-width:780px">Mark each requirement below. You get an overall compliance score, a gap summary and prioritized recommended actions &mdash; based on ISO/IEC 27001:2022 structure.</p>
+ <div class="notice">&#9888;&#65039; This is a self-assessment for guidance only. It does not replace a formal gap analysis, internal audit, or certification body audit.</div>
+
+ <div id="req-list"></div>
+
+ <div class="score-box">
+   <div><div class="sub" style="color:var(--muted)">Compliance Score</div><div class="score-num" id="out-score">&ndash;</div></div>
+   <span class="badge" id="out-badge" style="background:#333;color:#aaa">Answer to score</span>
+   <div style="color:var(--muted);font-size:.85rem" id="out-counts"></div>
+ </div>
+ <div class="btn-row">
+   <button class="btn-primary" id="btn-copy">Copy Summary</button>
+   <button class="btn-secondary" id="btn-reset">Reset</button>
+ </div>
+
+ <h2 style="color:#fff;margin-top:2.5rem">Priority findings &amp; recommended actions</h2>
+ <div id="findings"><p style="color:var(--muted)">No findings yet &mdash; start marking requirements above.</p></div>
+
+ <div class="cta-card">
+   <h2 style="color:#fff;margin:0 0 .5rem" id="cta-gap-title">Want AI-powered remediation recommendations?</h2>
+   <p style="color:var(--muted)">CyberVerse AI turns your gap list into a prioritized, owner-assigned remediation plan mapped to Annex A controls.</p>
+   <a href="/app.html" class="btn-primary" style="display:inline-block">Analyse with CyberVerse AI &rarr;</a>
+ </div>
+</div>
+
+<script>
+var REQ = [
+ {g:"Clause 4 - Context of the organization", t:"4.1-4.4 Context, interested parties and ISMS scope defined", a:"Document internal/external issues, interested parties and a clear ISMS scope statement."},
+ {g:"Clause 5 - Leadership", t:"5.1 Leadership commitment and information security policy", a:"Obtain signed management support and an approved, communicated security policy."},
+ {g:"Clause 5 - Leadership", t:"5.3 ISMS roles and responsibilities assigned", a:"Assign and communicate ISMS roles (risk owners, asset owners, ISMS manager)."},
+ {g:"Clause 6 - Planning", t:"6.1.2 Risk assessment methodology defined", a:"Define a repeatable risk assessment method: criteria, scales, acceptance levels."},
+ {g:"Clause 6 - Planning", t:"6.1.3 Risk treatment plan and Statement of Applicability (SoA)", a:"Produce a risk treatment plan and SoA with justifications for included/excluded controls."},
+ {g:"Clause 6 - Planning", t:"6.2 Security objectives with plans to achieve them", a:"Set measurable objectives with owners, resources and review dates."},
+ {g:"Clause 7 - Support", t:"7.2/7.3 Competence and awareness programs", a:"Run role-based awareness training and keep competence records."},
+ {g:"Clause 7 - Support", t:"7.5 Documented information controlled (versioning, approval)", a:"Implement approval, version control and retention for ISMS documents."},
+ {g:"Clause 8 - Operation", t:"8.1 Operational planning and control of processes", a:"Keep evidence that risk treatment actions are implemented and controlled."},
+ {g:"Clause 8 - Operation", t:"8.2/8.3 Risk assessments performed at planned intervals", a:"Schedule and perform periodic risk assessments; retain results."},
+ {g:"Clause 9 - Performance evaluation", t:"9.1 Monitoring, measurement, analysis and evaluation", a:"Define security metrics and review them at planned intervals."},
+ {g:"Clause 9 - Performance evaluation", t:"9.2 Internal audit programme (independent, documented)", a:"Run an internal audit programme with competent auditors and reports."},
+ {g:"Clause 9 - Performance evaluation", t:"9.3 Management review covering required inputs", a:"Hold documented management reviews with decisions and actions."},
+ {g:"Clause 10 - Improvement", t:"10.1/10.2 Nonconformity, corrective action, continual improvement", a:"Log nonconformities, perform root-cause analysis, track corrective actions to closure."},
+ {g:"Annex A - Organizational controls", t:"A.5 Policies reviewed and owned", a:"Maintain a policy suite with owners and regular review dates."},
+ {g:"Annex A - Organizational controls", t:"A.6/7.4 Supplier and vendor security management", a:"Assess vendor risk; include security terms and right-to-audit in contracts."},
+ {g:"Annex A - People controls", t:"A.6 People security (screening, terms, awareness)", a:"Apply screening, confidentiality agreements and disciplinary processes."},
+ {g:"Annex A - Physical controls", t:"A.7 Physical security perimeters and entry controls", a:"Secure perimeters, entry controls and equipment protection for premises."},
+ {g:"Annex A - Technological controls", t:"A.8/A.5.9 Asset inventory and information classification", a:"Inventory assets; apply a classification and handling scheme."},
+ {g:"Annex A - Technological controls", t:"A.5.15/A.8 Access control, MFA and user access reviews", a:"Role-based access with MFA; joiner-mover-leaver process; periodic access reviews."},
+ {g:"Annex A - Technological controls", t:"A.8 Cryptography and key management", a:"Encryption policy and key management for data at rest and in transit."},
+ {g:"Annex A - Technological controls", t:"A.8 Logging, monitoring and operational security", a:"Harden systems, centralize logs and monitor for anomalies."},
+ {g:"Annex A - Technological controls", t:"A.8.25/26 Secure development lifecycle", a:"Apply secure coding, code review and test environments separation."},
+ {g:"Annex A - Organizational controls", t:"A.5.24/A.16 Incident management and reporting", a:"Incident response plan with reporting routes and lessons learned."},
+ {g:"Annex A - Organizational controls", t:"A.5.29/A.17 Business continuity and tested backups", a:"Perform BIA; test backups and recovery procedures regularly."},
+ {g:"Annex A - Organizational controls", t:"A.5.31/A.18 Legal, regulatory and compliance review", a:"Identify legal/regulatory requirements; review compliance at intervals."}
+];
+var state = {}; try { state = JSON.parse(localStorage.getItem("cv_gap") || "{}"); } catch(e){}
+var list = document.getElementById("req-list");
+var lastGroup = "";
+REQ.forEach(function(r, i){
+  if (r.g !== lastGroup){ var h=document.createElement("div"); h.className="group"; h.textContent=r.g; list.appendChild(h); lastGroup=r.g; }
+  var row=document.createElement("div"); row.className="req-row";
+  row.innerHTML = "<p>"+r.t+"</p><select data-i='"+i+"'><option value=''>Not assessed</option><option value='C'>Compliant</option><option value='P'>Partially compliant</option><option value='NC'>Non-compliant</option><option value='NA'>Not applicable</option></select>";
+  var sel=row.querySelector("select");
+  if (state[i]) sel.value = state[i];
+  sel.onchange = function(){ state[i]=this.value; localStorage.setItem("cv_gap", JSON.stringify(state)); compute(); };
+  list.appendChild(row);
+});
+function compute(){
+  var pts=0, app=0, cC=0,cP=0,cNC=0,cNA=0, findings=[];
+  REQ.forEach(function(r,i){
+    var v=state[i]; if(!v) return;
+    if(v==="NA"){ cNA++; return; }
+    app++;
+    if(v==="C"){ pts+=1; cC++; }
+    if(v==="P"){ pts+=0.5; cP++; findings.push({i:i,sev:"partial"}); }
+    if(v==="NC"){ cNC++; findings.push({i:i,sev:"nc"}); }
+  });
+  var box=document.getElementById("out-counts");
+  box.innerHTML = "Compliant: "+cC+" &middot; Partial: "+cP+" &middot; Non-compliant: "+cNC+" &middot; N/A: "+cNA+"<br>Answered: "+(cC+cP+cNC+cNA)+" / "+REQ.length;
+  var b=document.getElementById("out-badge");
+  if(app===0){ document.getElementById("out-score").textContent="-"; b.textContent="Answer to score"; b.style.background="#333"; b.style.color="#aaa"; }
+  else {
+    var score=Math.round(pts/app*100);
+    document.getElementById("out-score").textContent=score+"%";
+    var lbl,col; if(score>=80){lbl="Strong";col="#22c55e";} else if(score>=60){lbl="Moderate";col="#eab308";} else if(score>=40){lbl="Weak";col="#f97316";} else {lbl="Critical gaps";col="#ef4444";}
+    b.textContent=lbl; b.style.background=col; b.style.color="#000";
+  }
+  var f=document.getElementById("findings"); f.innerHTML="";
+  findings.sort(function(a,b2){ return (a.sev===b.sev)?0:(a.sev==="nc"?-1:1); });
+  if(findings.length===0){ f.innerHTML="<p style='color:var(--muted)'>No gaps identified so far. Great sign.</p>"; }
+  findings.forEach(function(fd){
+    var d=document.createElement("div"); d.className="finding"+(fd.sev==="partial"?" partial":"");
+    d.innerHTML="<strong>"+(fd.sev==="nc"?"NON-COMPLANT: ":"PARTIAL: ")+"</strong>"+REQ[fd.i].t+"<span class='act'>Recommended: "+REQ[fd.i].a+"</span>";
+    f.appendChild(d);
+  });
+  if(cNC>0) document.getElementById("cta-gap-title").textContent="Your assessment identified "+cNC+" non-compliant area"+(cNC>1?"s":"")+".";
+}
+document.getElementById("btn-reset").onclick=function(){ if(confirm("Reset all answers?")){ state={}; localStorage.removeItem("cv_gap"); location.reload(); } };
+document.getElementById("btn-copy").onclick=function(){
+  var lines=["ISO 27001 Gap Assessment - GRCWithGaurav","Score: "+document.getElementById("out-score").textContent,"","Priority findings:"];
+  REQ.forEach(function(r,i){ var v=state[i]; if(v==="NC"||v==="P"){ lines.push("- ["+(v==="NC"?"NON-COMPLANT":"PARTIAL")+"] "+r.t+" | Action: "+r.a); } });
+  var t=lines.join("\n");
+  if(navigator.clipboard){ navigator.clipboard.writeText(t); }
+  this.textContent="Copied!"; var el=this; setTimeout(function(){ el.textContent="Copy Summary"; },1500);
+};
+compute();
+</script>
+{% endblock %}

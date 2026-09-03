@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}Free GRC Assessment for Businesses | GRCWithGaurav{% endblock %}
+{% block description %}Get a free, scoped GRC assessment: current posture, priority gaps and a 90-day roadmap for ISO 27001, SOC 2 and security governance.{% endblock %}
+{% block content %}
+<div style="max-width:760px;margin:0 auto;padding:2rem">
+ <h1 style="color:#fff">Need help with ISO 27001 or GRC?</h1>
+ <p style="color:var(--muted)">Tell us where you are and where you need to be. You get a scoped assessment: current posture, priority gaps and a prioritized 90-day roadmap. No obligation, no spam.</p>
+ <form id="b2b-form" class="card" style="padding:1.5rem;margin-top:1.5rem">
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem" class="fg">
+   <div><label style="display:block;color:var(--muted);font-size:.85rem;margin:.4rem 0 .25rem">Name *</label><input id="b-name" style="width:100%;padding:.6rem;border-radius:8px;border:1px solid #333;background:#151515;color:#fff;box-sizing:border-box"></div>
+   <div><label style="display:block;color:var(--muted);font-size:.85rem;margin:.4rem 0 .25rem">Work email *</label><input id="b-email" type="email" style="width:100%;padding:.6rem;border-radius:8px;border:1px solid #333;background:#151515;color:#fff;box-sizing:border-box"></div>
+   <div><label style="display:block;color:var(--muted);font-size:.85rem;margin:.4rem 0 .25rem">Company *</label><input id="b-company" style="width:100%;padding:.6rem;border-radius:8px;border:1px solid #333;background:#151515;color:#fff;box-sizing:border-box"></div>
+   <div><label style="display:block;color:var(--muted);font-size:.85rem;margin:.4rem 0 .25rem">Company size</label><select id="b-size" style="width:100%;padding:.6rem;border-radius:8px;border:1px solid #333;background:#151515;color:#fff"><option>1-10</option><option>11-50</option><option>51-200</option><option>201-1000</option><option>1000+</option></select></div>
+   <div><label style="display:block;color:var(--muted);font-size:.85rem;margin:.4rem 0 .25rem">Industry</label><select id="b-industry" style="width:100%;padding:.6rem;border-radius:8px;border:1px solid #333;background:#151515;color:#fff"><option>SaaS</option><option>Fintech</option><option>Healthcare</option><option>Manufacturing</option><option>Consulting</option><option>Other</option></select></div>
+   <div><label style="display:block;color:var(--muted);font-size:.85rem;margin:.4rem 0 .25rem">Current compliance status</label><select id="b-status" style="width:100%;padding:.6rem;border-radius:8px;border:1px solid #333;background:#151515;color:#fff"><option>No formal program</option><option>In progress</option><option>ISO 27001 certified</option><option>SOC 2 certified</option><option>Other</option></select></div>
+   <div><label style="display:block;color:var(--muted);font-size:.85rem;margin:.4rem 0 .25rem">Target timeline</label><select id="b-timeline" style="width:100%;padding:.6rem;border-radius:8px;border:1px solid #333;background:#151515;color:#fff"><option>ASAP</option><option>3 months</option><option>6 months</option><option>12 months</option><option>Exploring</option></select></div>
+  </div>
+  <label style="display:block;color:var(--muted);font-size:.85rem;margin:.8rem 0 .25rem">What do you need help with?</label>
+  <textarea id="b-req" style="width:100%;min-height:110px;padding:.6rem;border-radius:8px;border:1px solid #333;background:#151515;color:#fff;box-sizing:border-box" placeholder="e.g. We need ISO 27001 certification before a Q2 enterprise deal..."></textarea>
+  <input type="text" id="b-website" name="website" tabindex="-1" autocomplete="off" style="position:absolute;left:-9999px" aria-hidden="true">
+  <div style="margin-top:1rem"><button type="submit" class="btn-primary" id="b-submit">Get a Free GRC Assessment</button></div>
+  <p id="b-msg" style="margin-top:.8rem;font-size:.88rem"></p>
+  <p style="color:#666;font-size:.75rem;margin-top:.8rem">We use these details only to respond to your request. See our Privacy Policy.</p>
+ </form>
+</div>
+<script>
+document.getElementById("b2b-form").onsubmit = function(e){
+  e.preventDefault();
+  var msg = document.getElementById("b-msg");
+  var body = { name: document.getElementById("b-name").value, email: document.getElementById("b-email").value, company: document.getElementById("b-company").value, size: document.getElementById("b-size").value, industry: document.getElementById("b-industry").value, status: document.getElementById("b-status").value, timeline: document.getElementById("b-timeline").value, requirement: document.getElementById("b-req").value, website: document.getElementById("b-website").value };
+  fetch("/api/analytics/b2b/lead", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) })
+  .then(function(r){ return r.json(); })
+  .then(function(d){
+    if (d.ok) { msg.style.color = "#22c55e"; msg.textContent = "Request received. We will reply within 1 business day."; document.getElementById("b2b-form").reset(); }
+    else { msg.style.color = "#ef4444"; msg.textContent = d.error || "Something went wrong. Please try again."; }
+  })
+  .catch(function(){ msg.style.color = "#ef4444"; msg.textContent = "Network error. Please try again."; });
+};
+</script>
+{% endblock %}

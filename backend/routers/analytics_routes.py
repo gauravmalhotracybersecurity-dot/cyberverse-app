@@ -74,3 +74,42 @@ def list_leads(user: models.User = Depends(get_current_user), db: Session = Depe
     except Exception:
         rows = []
     return [{"email": r[0], "created_at": r[1]} for r in rows]
+
+
+
+@router.post("/b2b/lead")
+def b2b_lead(payload: dict, db: Session = Depends(get_db)):
+    import re as _re
+    from sqlalchemy import text as _text
+    from datetime import datetime as _dt
+    p = payload or {}
+    if p.get("website"):
+        return {"ok": True}  # honeypot triggered - pretend success, save nothing
+    name = str(p.get("name", "") or "").strip()[:200]
+    email = str(p.get("email", "") or "").strip()[:200]
+    company = str(p.get("company", "") or "").strip()[:200]
+    if not name or not company or not _re.match(r"^[\w.+-]+@[\w-]+\.[\w.]+$", email):
+        return {"ok": False, "error": "Name, work email and company are required."}
+    size = str(p.get("size", "") or "")[:50]
+    industry = str(p.get("industry", "") or "")[:100]
+    status = str(p.get("status", "") or "")[:100]
+    requirement = str(p.get("requirement", "") or "")[:2000]
+    timeline = str(p.get("timeline", "") or "")[:50]
+    try:
+        db.execute(_text("CREATE TABLE IF NOT EXISTS b2b_leads (name TEXT, email TEXT, company TEXT, size TEXT, industry TEXT, status TEXT, requirement TEXT, timeline TEXT, created_at TEXT)"))
+        db.execute(_text("INSERT INTO b2b_leads (name,email,company,size,industry,status,requirement,timeline,created_at) VALUES (:n,:e,:c,:s,:i,:t,:r,:tl,:ca)"),
+                   {"n": name, "e": email, "c": company, "s": size, "i": industry, "t": status, "r": requirement, "tl": timeline, "ca": _dt.utcnow().isoformat()})
+        db.commit()
+    except Exception:
+        return {"ok": False, "error": "Could not save your request. Please try again."}
+    return {"ok": True}
+
+
+@router.get("/b2b/leads")
+def b2b_leads(user: models.User = Depends(get_current_user), db: Session = Depends(get_db)):
+    from sqlalchemy import text as _text
+    try:
+        rows = db.execute(_text("SELECT name,email,company,size,industry,status,requirement,timeline,created_at FROM b2b_leads ORDER BY created_at DESC LIMIT 200")).fetchall()
+    except Exception:
+        rows = []
+    return [{"name": r[0], "email": r[1], "company": r[2], "size": r[3], "industry": r[4], "status": r[5], "requirement": r[6], "timeline": r[7], "created_at": r[8]} for r in rows]

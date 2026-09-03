@@ -60,6 +60,10 @@ async def learn_article(request: Request, slug: str):
         return RedirectResponse(url="/learn", status_code=302)
     return templates.TemplateResponse("learn/article.html", {"request": request, "article": art, "base_url": BASE_URL})
 
+@router.get("/b2b", response_class=HTMLResponse)
+async def b2b_page(request: Request):
+    return templates.TemplateResponse("b2b.html", {"request": request})
+
 @router.get("/careers", response_class=HTMLResponse)
 @router.get("/resources", response_class=HTMLResponse)
 async def placeholders(request: Request):

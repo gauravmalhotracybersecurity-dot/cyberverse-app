@@ -12,7 +12,7 @@ sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
 from content.articles import ARTICLES
 
 # Flip to https://grcwithgaurav.com when the main domain DNS is migrated to Render
-BASE_URL = "https://cyberverse.grcwithgaurav.com"
+BASE_URL = "https://grcwithgaurav.com"
 
 TOOL_PATHS = [
     "/tools/iso-risk-calculator",

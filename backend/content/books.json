@@ -1,1 +1,17 @@
-[]
+[
+  {
+    "title": "The 30-Day AI Security Career Plan",
+    "desc": "Your exact week-by-week roadmap to build a home lab, master interview frameworks, and land a SOC/GRC role in 30 days.",
+    "link": "/app.html"
+  },
+  {
+    "title": "Don't Get Pwned: Password & Digital Hygiene Guide",
+    "desc": "The essential cybersecurity hygiene checklist to protect your identity, credentials, and master passwords from brute force and stuffing attacks.",
+    "link": "/app.html"
+  },
+  {
+    "title": "SOC & GRC Interview Answer Frameworks",
+    "desc": "Access the full library of real interview questions (Golden Ticket, TLS Downgrades, Vendor Risk) with the exact strong-answer frameworks hiring managers want.",
+    "link": "https://app.grcwithgaurav.com/questions/"
+  }
+]

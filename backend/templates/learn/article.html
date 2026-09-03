@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+{% block title %}{{ article.title }} | GRCWithGaurav{% endblock %}
+{% block description %}{{ article.description }}{% endblock %}
+{% block canonical %}{{ base_url }}/learn/{{ article.slug }}/{% endblock %}
+{% block head %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "{{ article.title }}",
+  "description": "{{ article.description }}",
+  "datePublished": "{{ article.date }}",
+  "author": { "@type": "Person", "name": "{{ article.author }}" },
+  "publisher": { "@type": "Organization", "name": "GRCWithGaurav" }
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    { "@type": "ListItem", "position": 1, "name": "Home", "item": "{{ base_url }}/" },
+    { "@type": "ListItem", "position": 2, "name": "Learn", "item": "{{ base_url }}/learn" },
+    { "@type": "ListItem", "position": 3, "name": "{{ article.title }}" }
+  ]
+}
+</script>
+{% if article.faq %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {% for q, a in article.faq %}
+    { "@type": "Question", "name": "{{ q }}", "acceptedAnswer": { "@type": "Answer", "text": "{{ a }}" } }{% if not loop.last %},{% endif %}
+    {% endfor %}
+  ]
+}
+</script>
+{% endif %}
+<style>
+ .wrap{max-width:840px;margin:0 auto;padding:2rem}
+ .crumbs{color:var(--muted);font-size:.85rem;margin-bottom:1rem}
+ .crumbs a{color:var(--muted)}
+ h1{color:#fff;line-height:1.25}
+ .meta{color:var(--muted);font-size:.85rem;margin:.5rem 0 1.5rem}
+ .prose h2{color:#fff;margin-top:2.2rem}
+ .prose p,.prose li{color:#c9c9c9;line-height:1.75}
+ .prose a{color:var(--accent)}
+ .prose table{width:100%;border-collapse:collapse;font-size:.83rem;margin:1rem 0}
+ .prose th,.prose td{border:1px solid #333;padding:.5rem;text-align:left;color:var(--text);vertical-align:top}
+ .prose th{color:var(--accent)}
+ details{background:#111;border:1px solid #222;border-radius:8px;padding:.7rem 1rem;margin:.5rem 0}
+ summary{color:#fff;cursor:pointer;font-weight:600}
+ details p{color:#c9c9c9;margin:.5rem 0 0}
+ .side-box{margin-top:2.5rem;padding:1.4rem;border-radius:12px;background:#111;border:1px solid #222}
+ .side-box h3{color:var(--accent);margin-top:0}
+ .cta-card{margin-top:2rem;padding:2rem;border-radius:14px;background:linear-gradient(135deg,#0d1a16,#0a0a0a);border:1px solid var(--accent);text-align:center}
+</style>
+{% endblock %}
+{% block content %}
+<div class="wrap">
+ <div class="crumbs"><a href="/">Home</a> / <a href="/learn">Learn</a> / {{ article.title }}</div>
+ <h1>{{ article.title }}</h1>
+ <div class="meta">By {{ article.author }} &middot; {{ article.date }} &middot; {{ article.read }}</div>
+ <div class="prose">{{ article.body | safe }}</div>
+
+ {% if article.tools %}
+ <div class="side-box">
+  <h3>Free tools for this guide</h3>
+  <p style="color:var(--muted);margin:0">{% for t in article.tools %}<a href="{{ t.href }}">{{ t.label }}</a>{% if not loop.last %} &middot; {% endif %}{% endfor %}</p>
+ </div>
+ {% endif %}
+
+ {% if article.related %}
+ <div class="side-box">
+  <h3>Continue in this cluster</h3>
+  <ul style="margin:0;padding-left:1.1rem">{% for r in article.related %}<li><a href="/learn/{{ r.slug }}">{{ r.title }}</a></li>{% endfor %}</ul>
+ </div>
+ {% endif %}
+
+ {% if article.faq %}
+ <h2 style="color:#fff;margin-top:2.5rem">Frequently asked questions</h2>
+ {% for q, a in article.faq %}
+ <details><summary>{{ q }}</summary><p>{{ a }}</p></details>
+ {% endfor %}
+ {% endif %}
+
+ <div class="cta-card">
+  <h2 style="color:#fff;margin:0 0 .5rem">Can you explain this in an interview?</h2>
+  <p style="color:var(--muted)">CyberVerse AI asks you this topic out loud and grades your answer like a hiring manager.</p>
+  <a href="/app.html" class="btn-primary" style="display:inline-block">Practice with CyberVerse AI &rarr;</a>
+ </div>
+</div>
+{% endblock %}

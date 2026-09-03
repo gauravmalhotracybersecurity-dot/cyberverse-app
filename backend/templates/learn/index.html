@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}Learn Cybersecurity, GRC & ISO 27001 | GRCWithGaurav{% endblock %}
+{% block description %}Practical, human-reviewed guides on ISO 27001, GRC, SOC careers and AI in cybersecurity - each linked to free tools and CyberVerse AI.{% endblock %}
+{% block content %}
+<div style="max-width:1000px;margin:0 auto;padding:2rem">
+ <h1 style="color:#fff">Learn</h1>
+ <p style="color:var(--muted);max-width:720px">Original, practical guides for security and GRC professionals. Every guide links to a free tool and to CyberVerse AI so you can turn reading into practice.</p>
+ {% for cat, arts in categories.items() %}
+ <h2 style="color:var(--accent);margin-top:2.5rem">{{ cat }}</h2>
+ <div class="grid-3">
+  {% for a in arts %}
+  <div class="card"><h3 style="font-size:1.05rem">{{ a.title }}</h3><p style="font-size:.88rem">{{ a.description }}</p><p style="color:var(--muted);font-size:.78rem">{{ a.date }} &middot; {{ a.read }}</p><a href="/learn/{{ a.slug }}">Read &rarr;</a></div>
+  {% endfor %}
+ </div>
+ {% endfor %}
+ <div style="margin-top:3rem;padding:2rem;border-radius:14px;background:linear-gradient(135deg,#0d1a16,#0a0a0a);border:1px solid var(--accent);text-align:center">
+  <h2 style="color:#fff;margin:0 0 .5rem">Reading is not practicing.</h2>
+  <p style="color:var(--muted)">CyberVerse AI turns every concept above into mock interview questions and grades your answers out loud.</p>
+  <a href="/app.html" class="btn-primary" style="display:inline-block">Practice with CyberVerse AI &rarr;</a>
+ </div>
+</div>
+{% endblock %}

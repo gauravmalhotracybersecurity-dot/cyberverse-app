@@ -64,6 +64,14 @@ async def learn_article(request: Request, slug: str):
 async def b2b_page(request: Request):
     return templates.TemplateResponse("b2b.html", {"request": request})
 
+@router.get("/tools/security-policy-generator", response_class=HTMLResponse)
+async def security_policy_generator(request: Request):
+    return templates.TemplateResponse("tools/security_policy_generator.html", {"request": request})
+
+@router.get("/tools/iso27001-control-finder", response_class=HTMLResponse)
+async def iso27001_control_finder(request: Request):
+    return templates.TemplateResponse("tools/iso27001_control_finder.html", {"request": request})
+
 @router.get("/careers", response_class=HTMLResponse)
 @router.get("/resources", response_class=HTMLResponse)
 async def placeholders(request: Request):

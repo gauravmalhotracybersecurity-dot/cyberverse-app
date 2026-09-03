@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+{% block title %}Free Security Policy Generator | GRCWithGaurav{% endblock %}
+{% block description %}Generate professional drafts for Information Security, Password, Acceptable Use, and Incident Response policies. Free, no signup.{% endblock %}
+{% block canonical %}https://grcwithgaurav.com/tools/security-policy-generator/{% endblock %}
+{% block head %}
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Security Policy Generator","applicationCategory":"BusinessApplication","operatingSystem":"Web","offers":{"@type":"Offer","price":"0","priceCurrency":"INR"}}</script>
+<style>
+ .wrap{max-width:900px;margin:0 auto;padding:2rem}
+ .crumbs{color:var(--muted);font-size:.85rem;margin-bottom:1rem}
+ .crumbs a{color:var(--muted)}
+ label{display:block;color:var(--muted);font-size:.85rem;margin:.6rem 0 .25rem}
+ input,select{width:100%;padding:.6rem;border-radius:8px;border:1px solid #333;background:#151515;color:#fff;box-sizing:border-box}
+ .notice{background:#3a1c1c;border:1px solid #5c2626;color:#fca5a5;padding:.8rem 1rem;border-radius:10px;font-size:.85rem;margin:1rem 0}
+ .doc-box{margin-top:1.5rem;padding:2rem;border-radius:10px;background:#fff;color:#000;font-family: 'Times New Roman', Times, serif;line-height:1.6;max-height:600px;overflow-y:auto;display:none}
+ .doc-box h1{color:#000;font-size:1.5rem;text-align:center;border-bottom:2px solid #000;padding-bottom:.5rem}
+ .doc-box h2{color:#000;font-size:1.1rem;margin-top:1.5rem;border-bottom:1px solid #ccc;padding-bottom:.2rem}
+ .btn-row{display:flex;gap:.8rem;margin-top:1rem;flex-wrap:wrap}
+ .cta-card{margin-top:2.5rem;padding:2rem;border-radius:14px;background:linear-gradient(135deg,#0d1a16,#0a0a0a);border:1px solid var(--accent);text-align:center}
+</style>
+{% endblock %}
+{% block content %}
+<div class="wrap">
+ <div class="crumbs"><a href="/">Home</a> / <a href="/tools">Tools</a> / Security Policy Generator</div>
+ <h1>Security Policy Generator</h1>
+ <p style="color:var(--muted)">Generate professional, ISO 27001-aligned policy drafts for your organization. Fill in the details below to create a baseline document.</p>
+ <div class="notice">&#9888;&#65039; <strong>Important Disclaimer:</strong> Generated policies are drafts for guidance only. They require organizational, legal, and security management review and approval before formal adoption.</div>
+
+ <div class="card" style="padding:1.5rem">
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
+   <div><label>Company Name *</label><input id="p-company" placeholder="e.g. Acme Corp"></div>
+   <div><label>Effective Date</label><input id="p-date" type="date"></div>
+   <div style="grid-column:span 2"><label>Policy Type *</label>
+    <select id="p-type">
+     <option value="infosec">Information Security Policy (Overarching)</option>
+     <option value="password">Password & Authentication Policy</option>
+     <option value="acceptable">Acceptable Use Policy (AUP)</option>
+     <option value="incident">Incident Response Policy</option>
+     <option value="vendor">Vendor & Third-Party Risk Policy</option>
+    </select>
+   </div>
+  </div>
+  <div class="btn-row"><button class="btn-primary" id="btn-gen">Generate Policy Draft</button></div>
+ </div>
+
+ <div class="doc-box" id="doc-out"></div>
+ <div class="btn-row" id="doc-actions" style="display:none">
+  <button class="btn-primary" id="btn-copy">Copy to Clipboard</button>
+  <button class="btn-secondary" id="btn-print">Print / Save PDF</button>
+ </div>
+
+ <div class="cta-card">
+  <h2 style="color:#fff;margin:0 0 .5rem">Policies are just paper without enforcement.</h2>
+  <p style="color:var(--muted)">CyberVerse AI helps you map these policies to technical controls and tests your team on them via mock audits.</p>
+  <a href="/app.html" class="btn-primary" style="display:inline-block">Practice with CyberVerse AI &rarr;</a>
+ </div>
+</div>
+
+<script>
+var TEMPLATES = {
+ infosec: `<h1>Information Security Policy</h1><p><strong>Company:</strong> {{COMPANY}} | <strong>Effective Date:</strong> {{DATE}}</p><h2>1. Purpose</h2><p>The purpose of this policy is to protect {{COMPANY}}'s information assets from all threats, internal or external, deliberate or accidental. This policy ensures the confidentiality, integrity, and availability of information.</p><h2>2. Scope</h2><p>This policy applies to all employees, contractors, and third parties accessing {{COMPANY}} systems and data.</p><h2>3. Roles and Responsibilities</h2><p>Management is responsible for supporting this policy. The Information Security Manager is responsible for its implementation and maintenance. All users must comply with the policy.</p><h2>4. Core Principles</h2><ul><li><strong>Confidentiality:</strong> Data is only accessible to authorized individuals.</li><li><strong>Integrity:</strong> Data is accurate and protected from unauthorized modification.</li><li><strong>Availability:</strong> Systems and data are accessible when needed.</li></ul><h2>5. Compliance & Enforcement</h2><p>Violations of this policy may result in disciplinary action. This policy is reviewed annually.</p>`,
+ password: `<h1>Password & Authentication Policy</h1><p><strong>Company:</strong> {{COMPANY}} | <strong>Effective Date:</strong> {{DATE}}</p><h2>1. Purpose</h2><p>To establish standards for the creation, use, and protection of passwords and authentication mechanisms.</p><h2>2. Requirements</h2><ul><li>Passwords must be at least 12 characters long.</li><li>Must include a mix of uppercase, lowercase, numbers, and symbols.</li><li>Multi-Factor Authentication (MFA) is mandatory for all remote access and privileged accounts.</li><li>Passwords must not be shared or written down in plain text.</li></ul><h2>3. System Administration</h2><p>Systems must enforce password complexity and lock accounts after 5 failed attempts.</p>`,
+ acceptable: `<h1>Acceptable Use Policy (AUP)</h1><p><strong>Company:</strong> {{COMPANY}} | <strong>Effective Date:</strong> {{DATE}}</p><h2>1. Purpose</h2><p>To outline the acceptable use of computer equipment and networks at {{COMPANY}}.</p><h2>2. General Use</h2><ul><li>Company systems are for business purposes. Incidental personal use is permitted if it does not interfere with work.</li><li>Users must not install unauthorized software.</li><li>Users must not attempt to bypass security controls.</li></ul><h2>3. Prohibited Activities</h2><p>Accessing illegal content, harassing others, or using company resources for personal financial gain is strictly prohibited.</p>`,
+ incident: `<h1>Incident Response Policy</h1><p><strong>Company:</strong> {{COMPANY}} | <strong>Effective Date:</strong> {{DATE}}</p><h2>1. Purpose</h2><p>To ensure a consistent, effective approach to handling security incidents.</p><h2>2. Reporting</h2><p>All employees must report suspected security incidents to the IT/Security team immediately. Do not attempt to investigate or "fix" the issue yourself.</p><h2>3. Phases of Response</h2><ul><li><strong>Preparation:</strong> Maintaining tools and training.</li><li><strong>Identification:</strong> Determining if an event is an incident.</li><li><strong>Containment:</strong> Limiting the damage.</li><li><strong>Eradication & Recovery:</strong> Removing the threat and restoring systems.</li><li><strong>Lessons Learned:</strong> Post-incident review.</li></ul>`,
+ vendor: `<h1>Vendor & Third-Party Risk Policy</h1><p><strong>Company:</strong> {{COMPANY}} | <strong>Effective Date:</strong> {{DATE}}</p><h2>1. Purpose</h2><p>To manage the risks associated with third-party vendors who access {{COMPANY}} data or systems.</p><h2>2. Assessment</h2><p>All new vendors must undergo a security assessment before contract signing. Critical vendors must be reassessed annually.</p><h2>3. Contracts</h2><p>Contracts must include "Right to Audit" clauses, data breach notification requirements (within 24 hours), and data return/destruction terms.</p>`
+};
+document.getElementById("btn-gen").onclick=function(){
+  var co=document.getElementById("p-company").value;
+  if(!co){alert("Please enter a Company Name."); return;}
+  var dt=document.getElementById("p-date").value || new Date().toISOString().split("T")[0];
+  var tp=document.getElementById("p-type").value;
+  var html=TEMPLATES[tp].replace(/\{\{COMPANY\}\}/g, co).replace(/\{\{DATE\}\}/g, dt);
+  document.getElementById("doc-out").innerHTML=html;
+  document.getElementById("doc-out").style.display="block";
+  document.getElementById("doc-actions").style.display="flex";
+  document.getElementById("doc-out").scrollIntoView({behavior:"smooth"});
+};
+document.getElementById("btn-copy").onclick=function(){
+  var text=document.getElementById("doc-out").innerText;
+  navigator.clipboard.writeText(text);
+  this.textContent="Copied!"; var el=this; setTimeout(function(){el.textContent="Copy to Clipboard"},1500);
+};
+document.getElementById("btn-print").onclick=function(){window.print();};
+</script>
+{% endblock %}

@@ -89,6 +89,38 @@ async def iso27001_control_finder(request: Request):
 async def placeholders(request: Request):
     return templates.TemplateResponse("index.html", {"request": request})
 
+import json as _json
+
+_BOOKS = []
+try:
+    with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "content", "books.json"), encoding="utf-8") as _bf:
+        _BOOKS = _json.load(_bf)
+except Exception:
+    _BOOKS = []
+
+@router.get("/about", response_class=HTMLResponse)
+async def about_page(request: Request):
+    return templates.TemplateResponse("about.html", {"request": request})
+
+@router.get("/resources", response_class=HTMLResponse)
+async def resources_page(request: Request):
+    return templates.TemplateResponse("resources.html", {"request": request, "books": _BOOKS})
+
+@router.get("/contact", response_class=HTMLResponse)
+async def contact_page(request: Request):
+    return templates.TemplateResponse("contact.html", {"request": request})
+
+# 301 map: old-site URLs -> new equivalents (zero SEO loss at cutover)
+_REDIRECTS = {"/books": "/resources", "/consulting": "/b2b", "/blog": "/learn", "/home": "/", "/about-us": "/about"}
+
+def _make_redir(target):
+    async def _r(request: Request):
+        return RedirectResponse(url=target, status_code=301)
+    return _r
+
+for _old, _new in _REDIRECTS.items():
+    router.add_api_route(_old, _make_redir(_new), methods=["GET"], include_in_schema=False)
+
 @router.get("/sitemap.xml")
 async def sitemap():
     paths = ["/", "/tools", "/learn"] + TOOL_PATHS + ["/learn/" + a["slug"] for a in ARTICLES]

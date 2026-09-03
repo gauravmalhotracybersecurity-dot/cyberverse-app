@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Request, HTTPException
 from fastapi.templating import Jinja2Templates
-from fastapi.responses import HTMLResponse, Response
+from fastapi.responses import HTMLResponse, Response, RedirectResponse
 import os
 from content.articles import ARTICLES
 
@@ -57,7 +57,7 @@ async def learn_index(request: Request):
 async def learn_article(request: Request, slug: str):
     art = next((a for a in ARTICLES if a["slug"] == slug), None)
     if not art:
-        raise HTTPException(status_code=404, detail="Article not found")
+        return RedirectResponse(url="/learn", status_code=302)
     return templates.TemplateResponse("learn/article.html", {"request": request, "article": art, "base_url": BASE_URL})
 
 @router.get("/careers", response_class=HTMLResponse)

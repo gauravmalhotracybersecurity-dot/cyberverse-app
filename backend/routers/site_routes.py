@@ -26,6 +26,10 @@ async def cvss_calculator(request: Request):
 async def iso_gap_assessment(request: Request):
     return templates.TemplateResponse("tools/iso_gap_assessment.html", {"request": request})
 
+@router.get("/tools/ats-resume-checker", response_class=HTMLResponse)
+async def ats_resume_checker(request: Request):
+    return templates.TemplateResponse("tools/ats_resume_checker.html", {"request": request})
+
 @router.get("/learn", response_class=HTMLResponse)
 @router.get("/careers", response_class=HTMLResponse)
 @router.get("/resources", response_class=HTMLResponse)

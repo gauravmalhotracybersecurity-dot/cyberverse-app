@@ -1,0 +1,204 @@
+﻿import subprocess
+
+ats = r"""{% extends "base.html" %}
+{% block title %}Free Cybersecurity Resume ATS Checker | GRCWithGaurav{% endblock %}
+{% block description %}Free in-browser ATS-style resume check for cybersecurity and GRC roles: keyword scan, action verbs, quantification, structure and job alignment. Nothing is uploaded.{% endblock %}
+{% block canonical %}https://grcwithgaurav.com/tools/ats-resume-checker/{% endblock %}
+{% block head %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "Cybersecurity Resume ATS Checker",
+  "applicationCategory": "BusinessApplication",
+  "operatingSystem": "Web",
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "INR" },
+  "description": "Free in-browser ATS-style resume checker for cybersecurity and GRC resumes."
+}
+</script>
+<style>
+ .wrap{max-width:1000px;margin:0 auto;padding:2rem}
+ .crumbs{color:var(--muted);font-size:.85rem;margin-bottom:1rem}
+ .crumbs a{color:var(--muted)}
+ h1{color:#fff}
+ textarea{width:100%;min-height:220px;padding:.8rem;border-radius:8px;border:1px solid #333;background:#151515;color:#fff;box-sizing:border-box;font-size:.9rem}
+ label{display:block;color:var(--muted);font-size:.85rem;margin:.8rem 0 .3rem}
+ .score-box{margin-top:1.2rem;padding:1.2rem;border-radius:10px;background:#151515;border:1px solid #333;display:flex;gap:1.5rem;align-items:center;flex-wrap:wrap}
+ .score-num{font-size:2.4rem;font-weight:800;color:#fff}
+ .badge{padding:.35rem .9rem;border-radius:20px;font-weight:700;font-size:.9rem;color:#000}
+ .bar-row{display:flex;align-items:center;gap:.8rem;margin:.4rem 0;font-size:.85rem}
+ .bar-row .lbl{width:170px;color:var(--muted)}
+ .bar{flex:1;height:8px;background:#222;border-radius:6px;overflow:hidden}
+ .bar i{display:block;height:100%;background:var(--accent)}
+ .finding{border-left:3px solid #22c55e;background:#151515;padding:.6rem 1rem;border-radius:6px;margin-bottom:.5rem;font-size:.88rem}
+ .finding.warn{border-left-color:#eab308}
+ .finding.fail{border-left-color:#ef4444}
+ .notice{background:#101a17;border:1px solid #1d4034;color:#9fdcc3;padding:.8rem 1rem;border-radius:10px;font-size:.85rem;margin:1rem 0}
+ .btn-row{display:flex;gap:.8rem;margin-top:1rem;flex-wrap:wrap}
+ .cta-card{margin-top:2.5rem;padding:2rem;border-radius:14px;background:linear-gradient(135deg,#0d1a16,#0a0a0a);border:1px solid var(--accent);text-align:center}
+</style>
+{% endblock %}
+{% block content %}
+<div class="wrap">
+ <div class="crumbs"><a href="/">Home</a> / <a href="/tools">Tools</a> / Resume ATS Checker</div>
+ <h1>Cybersecurity Resume ATS Checker</h1>
+ <p style="color:var(--muted);max-width:780px">Paste your resume (and optionally the job description). We scan it the way ATS bots do: keywords, action verbs, measurable results, structure, contact info and readability.</p>
+ <div class="notice">&#128274; 100% private: analysis runs entirely in your browser. Your resume is never uploaded or stored. &nbsp;&middot;&nbsp; &#9888;&#65039; This is an ATS-style heuristic score and does not guarantee passing any specific ATS.</div>
+
+ <label>Your resume (paste text or upload .txt)</label>
+ <textarea id="in-resume" placeholder="Paste your resume text here..."></textarea>
+ <div class="btn-row"><input type="file" id="in-file" accept=".txt,.md" style="color:var(--muted);font-size:.85rem"></div>
+ <label>Job description (optional - enables alignment score)</label>
+ <textarea id="in-jd" style="min-height:110px" placeholder="Paste the job description here (optional)..."></textarea>
+ <div class="btn-row"><button class="btn-primary" id="btn-scan">Scan My Resume</button></div>
+
+ <div id="results" style="display:none">
+  <div class="score-box">
+    <div><div style="color:var(--muted)">ATS-Style Score</div><div class="score-num" id="out-score">0</div></div>
+    <span class="badge" id="out-badge">-</span>
+    <div style="color:var(--muted);font-size:.85rem" id="out-words"></div>
+  </div>
+  <h2 style="color:#fff;margin-top:2rem">Breakdown</h2>
+  <div id="bars"></div>
+  <h2 style="color:#fff;margin-top:2rem">Findings</h2>
+  <div id="findings"></div>
+  <h2 style="color:#fff;margin-top:2rem">Missing keywords to add</h2>
+  <p id="missing" style="color:var(--muted)"></p>
+  <div class="cta-card">
+    <h2 style="color:#fff;margin:0 0 .5rem" id="cta-ats-title">Want these fixes written for you?</h2>
+    <p style="color:var(--muted)">CyberVerse AI rewrites your weak bullets with the exact keywords, event IDs and action verbs ATS bots scan for.</p>
+    <a href="/app.html" class="btn-primary" style="display:inline-block">Improve my resume with CyberVerse AI &rarr;</a>
+  </div>
+ </div>
+</div>
+
+<script>
+var TERMS=["siem","splunk","elastic","qradar","arcsight","soc","incident response","triage","mitre att&ck","att&ck","nist","iso 27001","iso27001","soc 2","gdpr","risk assessment","risk register","risk management","vulnerability","cve","cvss","penetration testing","firewall","ids","ips","edr","malware","forensics","threat intelligence","threat hunting","phishing","social engineering","encryption","mfa","multi-factor","iam","access control","active directory","linux","python","sql","tcp/ip","dns","compliance","audit","internal audit","grc","governance","policy","soa","annex a","business continuity","disaster recovery","vendor risk","third-party","data privacy","patch management","backup","monitoring","logging","detection","containment","eradication","recovery","playbook","runbook","cloud","aws","azure","devsecops"];
+var VERBS=["detected","contained","eradicated","recovered","authored","built","deployed","implemented","led","reduced","automated","analyzed","analysed","monitored","triaged","responded","created","designed","configured","hardened","investigated","documented","managed","prevented","blocked","resolved"];
+var STOP=new Set(["the","and","for","with","that","this","from","your","you","our","are","will","have","has","not","but","all","can","who","what","when","where","how","why","their","they","them","than","then","into","about","across","after","before","between","during","through","using","use","used","work","working","role","job","team","company","including","required","requirements","preferred","ability","skills","experience","years","strong","good","great","plus","etc","per","within","without","under","over","more","most","other","such","only","also","both","each","any","some","these","those","been","being","was","were","is","of","in","on","at","to","a","an","or","as","be","we","us","it","its","by","do","does","did","should","would","could","may","might","must","shall","candidate","candidates","ideal","looking","join","help","ensure","responsible","responsibilities","duties","knowledge","understanding","familiarity","familiar","proficiency","proficient","excellent","strong","solid","relevant","related","degree","certification","certifications","security","cybersecurity","cyber"]);
+function low(t){ return t.toLowerCase(); }
+function scan(){
+  var r=low(document.getElementById("in-resume").value);
+  var jd=low(document.getElementById("in-jd").value);
+  var raw=document.getElementById("in-resume").value.trim();
+  var words=raw.split(/\s+/).filter(Boolean);
+  if(words.length<50){ alert("Paste a fuller resume (at least ~50 words)."); return; }
+  var F=[];
+  function add(ok,cls,msg){ F.push({ok:ok,cls:cls,msg:msg}); }
+
+  // 1. Keywords
+  var found=TERMS.filter(function(t){ return r.indexOf(t)>-1; });
+  var kwScore=Math.min(found.length/12,1)*100;
+  add(found.length>=12,"ok","Keyword scan: "+found.length+" cybersecurity/GRC terms found ("+found.slice(0,8).join(", ")+(found.length>8?"...":"")+")");
+  if(found.length<12&&found.length>=6) add(1,"warn","Only "+found.length+" domain keywords found - add more specific tools/frameworks.");
+  if(found.length<6) add(1,"fail","Very few domain keywords ("+found.length+") - ATS filters will likely reject this resume.");
+
+  // 2. Action verbs
+  var vf=VERBS.filter(function(v){ return r.indexOf(v)>-1; });
+  var verbScore=Math.min(vf.length/8,1)*100;
+  add(vf.length>=8,"ok","Action verbs: "+vf.length+" detected ("+vf.slice(0,6).join(", ")+")");
+  if(vf.length<8) add(1,vf.length>=4?"warn":"fail","Only "+vf.length+" action verbs - start bullets with detected/contained/implemented/built.");
+
+  // 3. Quantification
+  var pct=(r.match(/\d+\s*(%|percent)/g)||[]).length;
+  var nums=(r.match(/\b\d{1,4}\b/g)||[]).length;
+  var qScore=Math.min((pct*2+nums/3)/10,1)*100;
+  add(pct>=3&&nums>=10,"ok","Measurable results: "+pct+" percentages, "+nums+" numbers - strong evidence style.");
+  if(!(pct>=3&&nums>=10)) add(1,pct>=1?"warn":"fail","Weak quantification ("+pct+" %, "+nums+" numbers) - add metrics like 'reduced false positives by 40%'.");
+
+  // 4. Structure
+  var headers=["experience","education","skills","certifications","summary","projects"];
+  var hs=headers.filter(function(h){ return new RegExp("^\\s*"+h,"mi").test(raw)||r.indexOf(h)>-1; });
+  var stScore=Math.min(hs.length/4,1)*100;
+  add(hs.length>=4,"ok","Structure: sections found - "+hs.join(", "));
+  if(hs.length<4) add(1,hs.length>=2?"warn":"fail","Missing standard sections ("+hs.length+"/6) - ATS parsers expect Experience, Education, Skills, Certifications.");
+
+  // 5. Contact
+  var hasMail=/[\w.+-]+@[\w-]+\.[\w.]+/.test(r);
+  var hasPhone=/(\+?\d[\d\s\-()]{7,})/.test(r);
+  var hasLi=/linkedin\.com/.test(r);
+  var cScore=(hasMail?50:0)+(hasPhone?25:0)+(hasLi?25:0);
+  add(hasMail&&hasPhone,"ok","Contact info present (email"+(hasPhone?", phone":"")+(hasLi?", LinkedIn":"")+")");
+  if(!hasMail) add(1,"fail","No email address detected - instant ATS rejection.");
+  if(hasMail&&!hasPhone) add(1,"warn","Add a phone number.");
+
+  // 6. Readability & length
+  var sentences=raw.split(/[.!?]+/).filter(function(s){ return s.trim().length>0; });
+  var avg=words.length/Math.max(sentences.length,1);
+  var rdScore=100;
+  if(words.length<300){ rdScore-=40; add(1,"fail","Too short ("+words.length+" words) - aim for 400-700."); }
+  if(words.length>900){ rdScore-=30; add(1,"warn","Too long ("+words.length+" words) - trim to 1-2 pages."); }
+  if(avg>28){ rdScore-=30; add(1,"warn","Sentences average "+Math.round(avg)+" words - keep bullets under ~25 words."); }
+  if(/\b(i|me|my)\b/.test(r)) { rdScore-=10; add(1,"warn","First-person pronouns found - resumes should be implied-first-person without 'I/me/my'."); }
+  rdScore=Math.max(rdScore,0);
+  if(rdScore===100) add(1,"ok","Length and readability in the healthy range.");
+
+  // 7. JD alignment
+  var fitScore=null, missingJd=[];
+  if(jd.trim().length>100){
+    var toks=jd.replace(/[^a-z0-9\s&+/-]/g,"").split(/\s+/).filter(function(t){ return t.length>4 && !STOP.has(t); });
+    var freq={}; toks.forEach(function(t){ freq[t]=(freq[t]||0)+1; });
+    var top=Object.keys(freq).filter(function(t){ return freq[t]>=2; }).sort(function(a,b){ return freq[b]-freq[a]; }).slice(0,25);
+    missingJd=top.filter(function(t){ return r.indexOf(t)===-1; });
+    fitScore=top.length? Math.round((top.length-missingJd.length)/top.length*100):0;
+    add(fitScore>=60,"ok","Job alignment: "+fitScore+"% of the JD's top keywords appear in your resume.");
+    if(fitScore<60) add(1,fitScore>=40?"warn":"fail","Low job alignment ("+fitScore+"%) - mirror the JD's language where truthful.");
+  }
+
+  // Overall
+  var overall;
+  if(fitScore!==null){ overall=kwScore*0.25+fitScore*0.20+verbScore*0.15+qScore*0.10+stScore*0.15+cScore*0.10+rdScore*0.05; }
+  else { overall=kwScore*0.35+verbScore*0.15+qScore*0.15+stScore*0.15+cScore*0.10+rdScore*0.10; }
+  overall=Math.round(overall);
+  document.getElementById("results").style.display="block";
+  document.getElementById("out-score").textContent=overall+"/100";
+  var b=document.getElementById("out-badge"); var lbl,col;
+  if(overall>=80){lbl="ATS-Ready";col="#22c55e";} else if(overall>=60){lbl="Needs Polish";col="#eab308";} else if(overall>=40){lbl="At Risk";col="#f97316";} else {lbl="Likely Rejected";col="#ef4444";}
+  b.textContent=lbl; b.style.background=col;
+  document.getElementById("out-words").innerHTML=words.length+" words &middot; "+found.length+" domain keywords &middot; "+vf.length+" action verbs";
+  var bars=[["Domain keywords",kwScore],["Job alignment",fitScore],["Action verbs",verbScore],["Quantified results",qScore],["Structure",stScore],["Contact info",cScore],["Readability/length",rdScore]];
+  var bh=""; bars.forEach(function(x){ if(x[1]===null) return; bh+="<div class='bar-row'><div class='lbl'>"+x[0]+"</div><div class='bar'><i style='width:"+Math.round(x[1])+"%'></i></div><strong style='color:#fff;width:40px;text-align:right'>"+Math.round(x[1])+"</strong></div>"; });
+  document.getElementById("bars").innerHTML=bh;
+  var fh=""; F.forEach(function(f){ fh+="<div class='finding "+(f.ok==="ok"?"":f.ok)+"'>"+(f.cls==="ok"?"&#9989;":f.cls==="warn"?"&#9888;&#65039;":"&#10060;")+" "+f.msg+"</div>"; });
+  document.getElementById("findings").innerHTML=fh;
+  var missT=TERMS.filter(function(t){ return r.indexOf(t)===-1; }).slice(0,10);
+  var missAll=missT.concat(missingJd.slice(0,8));
+  document.getElementById("missing").innerHTML=missAll.length? missAll.map(function(m){ return "<span style='display:inline-block;background:#151515;border:1px solid #333;border-radius:14px;padding:.2rem .7rem;margin:.15rem;color:#fff'>"+m+"</span>"; }).join("") : "None major - excellent coverage.";
+  document.getElementById("cta-ats-title").textContent="Your resume scored "+overall+"/100. Want these fixes written for you?";
+  document.getElementById("results").scrollIntoView({behavior:"smooth"});
+}
+document.getElementById("btn-scan").onclick=scan;
+document.getElementById("in-file").onchange=function(e){
+  var f=e.target.files[0]; if(!f) return;
+  var rd=new FileReader(); rd.onload=function(){ document.getElementById("in-resume").value=rd.result; }; rd.readAsText(f);
+};
+</script>
+{% endblock %}"""
+open("backend/templates/tools/ats_resume_checker.html", "w", encoding="utf-8").write(ats)
+print("[CREATED] tools/ats_resume_checker.html")
+
+ti = "backend/templates/tools/index.html"
+c = open(ti, encoding="utf-8").read()
+old = '<div class="card"><h3>Resume ATS Checker</h3><p>See if your cybersecurity resume passes the bots.</p><a href="/app.html">Try in CyberVerse AI &rarr;</a></div>'
+new = '<div class="card"><h3>Resume ATS Checker</h3><p>Free in-browser ATS-style scan: keywords, verbs, metrics, structure.</p><a href="/tools/ats-resume-checker">Use Tool &rarr;</a></div>'
+if old in c:
+    open(ti, "w", encoding="utf-8").write(c.replace(old, new))
+    print("[UPDATED] tools index: ATS Checker card now live")
+
+sr = "backend/routers/site_routes.py"
+r = open(sr, encoding="utf-8").read()
+if "ats-resume-checker" not in r:
+    anchor = '@router.get("/learn", response_class=HTMLResponse)'
+    route = '''@router.get("/tools/ats-resume-checker", response_class=HTMLResponse)
+async def ats_resume_checker(request: Request):
+    return templates.TemplateResponse("tools/ats_resume_checker.html", {"request": request})
+
+'''
+    r = r.replace(anchor, route + anchor)
+    open(sr, "w", encoding="utf-8").write(r)
+    print("[UPDATED] site_routes.py: ATS checker route added")
+
+subprocess.run(["git", "add", "-A"])
+subprocess.run(["git", "commit", "-m", "Phase 3: in-browser Resume ATS Checker with JD alignment"])
+subprocess.run(["git", "push", "origin", "main"])
+print("Pushed. Live in ~60s.")

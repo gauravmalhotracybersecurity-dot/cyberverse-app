@@ -18,6 +18,10 @@ async def tools_index(request: Request):
 async def iso_risk_calculator(request: Request):
     return templates.TemplateResponse("tools/iso_risk_calculator.html", {"request": request})
 
+@router.get("/tools/cvss-calculator", response_class=HTMLResponse)
+async def cvss_calculator(request: Request):
+    return templates.TemplateResponse("tools/cvss_calculator.html", {"request": request})
+
 @router.get("/learn", response_class=HTMLResponse)
 @router.get("/careers", response_class=HTMLResponse)
 @router.get("/resources", response_class=HTMLResponse)

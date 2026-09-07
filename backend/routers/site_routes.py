@@ -110,6 +110,10 @@ async def careers_page(request: Request):
     # Redirects to homepage until Careers pages are built in a future phase
     return RedirectResponse(url="/", status_code=302)
 
+@router.get("/refund-policy", response_class=HTMLResponse)
+async def refund_policy_page(request: Request):
+    return templates.TemplateResponse("refunds.html", {"request": request})
+
 @router.get("/admin-leads", response_class=HTMLResponse)
 async def admin_leads_page(request: Request):
     return templates.TemplateResponse("admin_leads.html", {"request": request})

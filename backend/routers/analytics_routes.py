@@ -23,7 +23,7 @@ class EventIn(BaseModel):
 
 @router.post("/event")
 @limiter.limit("120/hour")
-def track(request: Request, payload: EventIn, db: Session = Depends(get_db)):
+def track(request: dict, payload: EventIn, db: Session = Depends(get_db)):
     user_id = None
     auth = request.headers.get("authorization", "")
     if auth.startswith("Bearer "):

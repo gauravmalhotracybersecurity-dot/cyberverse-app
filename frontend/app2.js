@@ -905,64 +905,88 @@ const ROADMAPS = {
    { t: "Mock interview sprint", tag: "Interview", items: ["5 live mock interviews", "Explain exploit chains out loud", "Apply feedback loop"] },
    { t: "Portfolio & ethics", tag: "Ethics", items: ["Public writeups", "Scope & rules of engagement", "Demo day"] } ] } ] }
 };
-function rmRole(){ return localStorage.getItem("cv_rm_role") || "soc"; }
+function rmRole(){ try { return localStorage.getItem("cv_rm_role") || "soc"; } catch(e){ return "soc"; } }
 function syncCoachRole(label){
   var sel = document.querySelector("#view-interview select");
   if (!sel) return;
-  for (var i=0;i<sel.options.length;i++){ if (sel.options[i].text === label){ sel.value = sel.options[i].value; break; } }
+  for (var i = 0; i < sel.options.length; i++) {
+    if (sel.options[i].text === label) { sel.value = sel.options[i].value; break; }
+  }
 }
 function renderRoadmap() {
-  if (localStorage.getItem("cv_roadmap") && !localStorage.getItem("cv_roadmap_soc")) {
-    localStorage.setItem("cv_roadmap_soc", localStorage.getItem("cv_roadmap"));
-  }
+  try {
+    if (localStorage.getItem("cv_roadmap") && !localStorage.getItem("cv_roadmap_soc")) {
+      localStorage.setItem("cv_roadmap_soc", localStorage.getItem("cv_roadmap"));
+    }
+  } catch(e) {}
   var role = rmRole();
   var R = ROADMAPS[role] || ROADMAPS.soc;
-  var titleEl = document.getElementById("rm-title");
-  if (titleEl) titleEl.textContent = "\ud83d\uddfa\ufe0f 90-Day " + R.label + " Roadmap";
-  var chips = document.getElementById("rm-roles");
-  if (chips) {
-    chips.innerHTML = "";
-    Object.keys(ROADMAPS).forEach(function(k){
-      var b = document.createElement("button");
-      b.type = "button";
-      b.textContent = ROADMAPS[k].label;
-      b.style.cssText = "padding:6px 12px;border-radius:16px;font-size:.8rem;cursor:pointer;border:1px solid #333;background:#151515;color:#fff;" + (k===role ? "background:var(--accent);color:#001512;border-color:var(--accent);font-weight:700;" : "");
-      b.onclick = function(){ localStorage.setItem("cv_rm_role", k); syncCoachRole(ROADMAPS[k].label); renderRoadmap(); };
-      chips.appendChild(b);
-    });
+  var view = document.getElementById("view-roadmap");
+  if (view) {
+    var h1 = view.querySelector(".view-title");
+    if (h1) h1.textContent = "\ud83d\uddfa\ufe0f 90-Day " + R.label + " Roadmap";
   }
   var list = document.getElementById("rm-list");
+  if (!list) return;
+  var chips = document.getElementById("rm-roles");
+  if (!chips) {
+    chips = document.createElement("div");
+    chips.id = "rm-roles";
+    chips.style.cssText = "display:flex;gap:.5rem;flex-wrap:wrap;margin:10px 0 18px";
+    list.parentNode.insertBefore(chips, list);
+  }
+  chips.innerHTML = "";
+  Object.keys(ROADMAPS).forEach(function(k){
+    var b = document.createElement("button");
+    b.type = "button";
+    b.textContent = ROADMAPS[k].label;
+    b.style.cssText = "padding:6px 12px;border-radius:16px;font-size:.8rem;cursor:pointer;border:1px solid #333;background:#151515;color:#fff;" + (k === role ? "background:var(--accent);color:#001512;border-color:var(--accent);font-weight:700;" : "");
+    b.onclick = function(){
+      try { localStorage.setItem("cv_rm_role", k); } catch(e) {}
+      syncCoachRole(ROADMAPS[k].label);
+      renderRoadmap();
+    };
+    chips.appendChild(b);
+  });
   var storeKey = "cv_roadmap_" + role;
-  var done = JSON.parse(localStorage.getItem(storeKey) || "{}");
-  var total = R.phases.reduce(function(n,p){ return n + p.weeks.length; }, 0);
-  var doneCount = 0;
-  R.phases.forEach(function(p,pi){ p.weeks.forEach(function(w,wi){ if (done[pi+"-"+wi]) doneCount++; }); });
-  document.getElementById("rm-bar").style.width = Math.round(100*doneCount/total) + "%";
-  document.getElementById("rm-progress").textContent = doneCount + " / " + total + " weeks completed";
+  var done = {};
+  try { done = JSON.parse(localStorage.getItem(storeKey) || "{}"); } catch(e) {}
+  var total = 0, doneCount = 0;
+  R.phases.forEach(function(p){ p.weeks.forEach(function(w){ total++; if (done[R.phases.indexOf(p) + "-" + p.weeks.indexOf(w)]) doneCount++; }); });
+  var bar = document.getElementById("rm-bar");
+  if (bar) bar.style.width = Math.round(100 * doneCount / total) + "%";
+  var prog = document.getElementById("rm-progress");
+  if (prog) prog.textContent = doneCount + " / " + total + " weeks completed";
   list.innerHTML = "";
-  R.phases.forEach(function(ph,pi){
+  R.phases.forEach(function(ph, pi){
     var hd = document.createElement("h2");
     hd.style.cssText = "color:var(--accent);margin:18px 0 10px;font-size:1.15rem";
     hd.textContent = ph.name;
     list.appendChild(hd);
-    ph.weeks.forEach(function(w,wi){
-      var key = pi+"-"+wi;
+    ph.weeks.forEach(function(w, wi){
+      var key = pi + "-" + wi;
+      var itemsHtml = "";
+      for (var i = 0; i < w.items.length; i++) { itemsHtml += "<li>" + w.items[i] + "</li>"; }
       var card = document.createElement("div");
       card.style.cssText = "background:#141414;border:1px solid #222;border-radius:12px;padding:16px;margin-bottom:12px";
-      card.innerHTML = "<div style='display:flex;gap:12px;align-items:flex-start'><input type='checkbox' data-key='"+key+"' style='width:20px;height:20px;margin-top:4px;flex:none'"+(done[key]?" checked":"")+"><div><div style='font-weight:700;color:#fff;font-size:1.05rem'>"+w.t+" <span style='border:1px solid #f5af19;color:#f5af19;border-radius:14px;padding:2px 10px;font-size:.75rem;font-weight:600;margin-left:6px;white-space:nowrap'>"+w.tag+"</span></div><ul style='color:var(--text-muted);margin:8px 0 0;padding-left:18px;line-height:1.7'>"+w.items.map(function(i){return "<li>"+i+"</li>";}).join("")+"</ul><button class='btn-secondary rm-go' data-goto='interview' style='margin-top:10px;padding:6px 14px'>Practice \u2192</button></div></div>";
+      card.innerHTML = "<div style='display:flex;gap:12px;align-items:flex-start'><input type='checkbox' data-key='" + key + "' style='width:20px;height:20px;margin-top:4px;flex:none'" + (done[key] ? " checked" : "") + "><div><div style='font-weight:700;color:#fff;font-size:1.05rem'>" + w.t + " <span style='border:1px solid #f5af19;color:#f5af19;border-radius:14px;padding:2px 10px;font-size:.75rem;font-weight:600;margin-left:6px;white-space:nowrap'>" + w.tag + "</span></div><ul style='color:var(--text-muted);margin:8px 0 0;padding-left:18px;line-height:1.7'>" + itemsHtml + "</ul><button class='btn-secondary rm-go' data-goto='interview' style='margin-top:10px;padding:6px 14px'>Practice \u2192</button></div></div>";
       list.appendChild(card);
     });
   });
-  list.querySelectorAll("input[type=checkbox]").forEach(function(cb){
-    cb.addEventListener("change", function(){
-      var d = JSON.parse(localStorage.getItem(storeKey) || "{}");
-      d[cb.dataset.key] = cb.checked;
-      localStorage.setItem(storeKey, JSON.stringify(d));
+  var cbs = list.querySelectorAll("input[type=checkbox]");
+  for (var c = 0; c < cbs.length; c++) {
+    cbs[c].addEventListener("change", function(){
+      var d = {};
+      try { d = JSON.parse(localStorage.getItem(storeKey) || "{}"); } catch(e) {}
+      d[this.dataset.key] = this.checked;
+      try { localStorage.setItem(storeKey, JSON.stringify(d)); } catch(e) {}
       renderRoadmap();
     });
-  });
-  list.querySelectorAll(".rm-go").forEach(b => b.addEventListener("click", () => goToView(b.dataset.goto)));
-}
+  }
+  var gos = list.querySelectorAll(".rm-go");
+  for (var g = 0; g < gos.length; g++) {
+    gos[g].addEventListener("click", function(){ goToView(this.dataset.goto); });
+  }
 }
 
 

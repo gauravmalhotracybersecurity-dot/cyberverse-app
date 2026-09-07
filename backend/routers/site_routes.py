@@ -114,6 +114,10 @@ async def careers_page(request: Request):
 async def refund_policy_page(request: Request):
     return templates.TemplateResponse("refunds.html", {"request": request})
 
+@router.get("/admin-payments", response_class=HTMLResponse)
+async def admin_payments_page(request: Request):
+    return templates.TemplateResponse("admin_payments.html", {"request": request})
+
 @router.get("/admin-leads", response_class=HTMLResponse)
 async def admin_leads_page(request: Request):
     return templates.TemplateResponse("admin_leads.html", {"request": request})

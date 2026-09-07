@@ -460,3 +460,20 @@ def nl_send(payload: dict, request: _NL_Request, db: Session = Depends(get_db)):
     db.execute(_t("INSERT INTO newsletter_log (created_at, subject, recipients, status) VALUES (:c,:s,:r,:st)"), {"c": _dt.utcnow().isoformat(), "s": subject, "r": sent, "st": "sent"})
     db.commit()
     return {"ok": True, "sent": sent, "total": len(emails)}
+
+
+@router.get("/admin/payments")
+def admin_payments(user: models.User = Depends(get_current_user), db: Session = Depends(get_db)):
+    from sqlalchemy import text as _t
+    out = {"subs": [], "abandoned": []}
+    try:
+        rows = db.execute(_t("SELECT s.user_id, s.plan, s.status, s.provider_payment_id, s.created_at, u.email FROM subscriptions s JOIN users u ON u.id = s.user_id ORDER BY s.created_at DESC LIMIT 300")).fetchall()
+        out["subs"] = [{"user_id": r[0], "plan": r[1], "status": r[2], "payment_id": r[3], "created_at": r[4], "email": r[5]} for r in rows]
+    except Exception:
+        pass
+    try:
+        rows = db.execute(_t("SELECT o.order_id, o.user_id, o.plan, o.created_at, u.email FROM billing_orders o JOIN users u ON u.id = o.user_id WHERE NOT EXISTS (SELECT 1 FROM subscriptions s WHERE s.user_id = o.user_id AND s.plan = o.plan) ORDER BY o.created_at DESC LIMIT 300")).fetchall()
+        out["abandoned"] = [{"order_id": r[0], "user_id": r[1], "plan": r[2], "created_at": r[3], "email": r[4]} for r in rows]
+    except Exception:
+        pass
+    return out

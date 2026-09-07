@@ -477,3 +477,20 @@ def admin_payments(user: models.User = Depends(get_current_user), db: Session = 
     except Exception:
         pass
     return out
+
+
+@router.post("/interview/credential")
+def mint_credential(payload: dict, user: models.User = Depends(get_current_user), db: Session = Depends(get_db)):
+    import uuid
+    from sqlalchemy import text as _t
+    from datetime import datetime as _dt
+    if not getattr(user, "is_premium", False):
+        raise HTTPException(status_code=403, detail="Verified credentials are a Premium feature.")
+    p = payload or {}
+    cred = uuid.uuid4().hex[:10]
+    db.execute(_t("CREATE TABLE IF NOT EXISTS certificates (cred_id TEXT, user_id INTEGER, holder TEXT, role TEXT, score TEXT, created_at TEXT)"))
+    db.execute(_t("INSERT INTO certificates (cred_id, user_id, holder, role, score, created_at) VALUES (:c,:u,:h,:r,:s,:t)"),
+               {"c": cred, "u": user.id, "h": str(p.get("holder",""))[:120], "r": str(p.get("role",""))[:80],
+                "s": str(p.get("score",""))[:10], "t": _dt.utcnow().isoformat()})
+    db.commit()
+    return {"cred_id": cred, "url": "https://grcwithgaurav.com/c/" + cred}

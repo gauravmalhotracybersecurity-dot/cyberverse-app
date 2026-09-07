@@ -887,6 +887,40 @@ h1,h2,h3,.view-title,.hero h1 { font-family:'Space Grotesk',Inter,sans-serif; le
     }
   }, true);
 })();
-</script></body>
+</script>
+<script id="cv-credential">
+(function(){
+  function addVerifyBtn(){
+    var modal = document.getElementById("scorecard-modal");
+    if(!modal || document.getElementById("sc-verify")) return;
+    var anchor = document.getElementById("sc-copy") || document.getElementById("sc-download");
+    var btn = document.createElement("button");
+    btn.id = "sc-verify";
+    btn.className = anchor ? anchor.className : "btn-secondary";
+    btn.style.marginTop = "8px";
+    btn.textContent = "\ud83d\udd17 Copy verification link";
+    if(anchor && anchor.parentNode) anchor.parentNode.insertBefore(btn, anchor.nextSibling);
+    else modal.appendChild(btn);
+    btn.addEventListener("click", function(){
+      var holder = (document.getElementById("stat-name")||{}).textContent || "";
+      var role = (document.getElementById("sc-role")||{}).textContent || "";
+      var score = (document.getElementById("sc-score")||{}).textContent || "";
+      fetch("/api/analytics/interview/credential",{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+localStorage.getItem("cv_token")},body:JSON.stringify({holder:holder,role:role,score:score})})
+      .then(function(r){ return r.json(); }).then(function(d){
+        if(d && d.url){
+          if(navigator.clipboard) navigator.clipboard.writeText(d.url);
+          btn.textContent = "\u2705 Copied: " + d.url;
+          setTimeout(function(){ btn.textContent = "\ud83d\udd17 Copy verification link"; }, 5000);
+        } else {
+          btn.textContent = "\u26a0 Premium required";
+          setTimeout(function(){ btn.textContent = "\ud83d\udd17 Copy verification link"; }, 3000);
+        }
+      }).catch(function(){ btn.textContent = "\u26a0 Network error"; });
+    });
+  }
+  if(document.readyState === "loading") document.addEventListener("DOMContentLoaded", addVerifyBtn); else addVerifyBtn();
+})();
+</script>
+</body>
 </html>
 

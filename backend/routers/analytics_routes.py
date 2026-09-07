@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, Request
-import sys as _sys, os as _os2
-_sys.path.append(_os2.join(_os2.dirname(_os2.abspath(__file__)), ".."))
+import sys as _sys
+from pathlib import Path as _Path
+_sys.path.insert(0, str(_Path(__file__).parent.parent))
 
 from sqlalchemy.orm import Session
 from sqlalchemy import func

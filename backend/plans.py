@@ -9,7 +9,7 @@ PLANS = {
     },
     "pro": {
         "name": "Pro",
-        "price_inr": 499,
+        "price_inr": 499, "price_usd": 6,
         "period": "month",
         "tagline": "For serious job seekers",
         "limits": {"interviews_per_month": 100, "resume_reviews_per_month": 50, "mentor_messages_per_day": 200},
@@ -17,7 +17,7 @@ PLANS = {
     },
     "premium": {
         "name": "Premium",
-        "price_inr": 999,
+        "price_inr": 999, "price_usd": 12,
         "period": "month",
         "tagline": "For GRC professionals & teams",
         "limits": {"interviews_per_month": -1, "resume_reviews_per_month": -1, "mentor_messages_per_day": -1},

@@ -400,3 +400,19 @@ async def cv_no_cache(request, call_next):
     if pth == "/" or pth.endswith((".html", ".js", ".css")):
         response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
     return response
+
+
+@app.get("/api/health/deep")
+def health_deep():
+    status = {"ok": True}
+    try:
+        from database import engine
+        from sqlalchemy import text
+        with engine.connect() as conn:
+            conn.execute(text("SELECT 1"))
+        status["db"] = True
+    except Exception as e:
+        status["db"] = False
+        status["db_error"] = repr(e)[:120]
+        status["ok"] = False
+    return status

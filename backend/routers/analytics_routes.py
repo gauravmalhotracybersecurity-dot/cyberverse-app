@@ -252,19 +252,32 @@ def billing_verify(payload: dict, user: models.User = Depends(get_current_user),
             calc = hmac.new(sec.encode(), (order_id + "|" + payment_id).encode(), hashlib.sha512).hexdigest()
             ok_sig = hmac.compare_digest(calc, signature)
         ok_api = False
-        if not ok_sig and row and row[1] == user.id and key and sec and payment_id:
+        api_err = ""
+        if not ok_sig and row and row[1] == user.id and key and sec:
             try:
-                req = _u.Request("https://api.razorpay.com/v1/payments/" + payment_id)
+                pid = payment_id
+                if not pid:
+                    req0 = _u.Request("https://api.razorpay.com/v1/orders/" + order_id + "/payments")
+                    req0.add_header("Authorization", "Basic " + base64.b64encode((key + ":" + sec).encode()).decode())
+                    with _u.urlopen(req0, timeout=15) as r0:
+                        lst = _j.loads(r0.read())
+                    caps = [x for x in (lst.get("items") or []) if x.get("status") == "captured"]
+                    if caps:
+                        pid = caps[0].get("id")
+                if pid:
+                    req = _u.Request("https://api.razorpay.com/v1/payments/" + pid)
                 req.add_header("Authorization", "Basic " + base64.b64encode((key + ":" + sec).encode()).decode())
                 with _u.urlopen(req, timeout=15) as r:
                     pay = _j.loads(r.read())
                 if pay.get("status") == "captured" and pay.get("order_id") == order_id:
                     ok_api = True
-            except Exception:
+                    payment_id = pid
+            except Exception as _ae:
                 ok_api = False
+                api_err = repr(_ae)[:200]
         if not (ok_sig or ok_api):
             return {"ok": False, "error": "Signature verification failed",
-                    "diag": {"sec_len": len(sec), "has_sig": bool(signature), "order_owned": bool(row and row[1] == user.id)}}
+                    "diag": {"sec_len": len(sec), "has_sig": bool(signature), "order_owned": bool(row and row[1] == user.id), "api_err": api_err}}
         note = ""
         try:
             db.execute(_t("CREATE TABLE IF NOT EXISTS subscriptions (user_id INTEGER, plan TEXT, status TEXT, provider TEXT, provider_payment_id TEXT, current_period_end TEXT, created_at TEXT)"))

@@ -823,146 +823,54 @@ function celebrate() {
 }
 
 
-const ROADMAPS = {
- soc: { label: "SOC Analyst", phases: [
-  { name: "Phase 1 - Foundations", weeks: [
-   { t: "Networking & Linux basics", tag: "Security+ SY0-701.1-1.3", items: ["TCP/IP, OSI model", "Linux permissions", "Quiz me on ports"] },
-   { t: "Security fundamentals", tag: "Security+ SY0-701.1.4-2.2", items: ["CIA triad, AAA, zero trust", "Malware types, phishing", "Solve a CTF Bite"] },
-   { t: "Threat landscape & MITRE ATT&CK", tag: "ATT&CK", items: ["Navigate the ATT&CK matrix", "Map 3 real breaches to TTPs", "Quiz on tactics vs techniques"] },
-   { t: "Logging & SIEM basics", tag: "Splunk Fundamentals", items: ["Install Splunk free tier", "Ingest Sysmon logs", "Write your first SPL query"] } ] },
-  { name: "Phase 2 - Detection & Response", weeks: [
-   { t: "Alert triage drills", tag: "Practice", items: ["True vs false positive drills", "Phishing triage playbook", "Write an escalation note"] },
-   { t: "Use-case building", tag: "Splunk Core", items: ["Correlation search basics", "Threshold tuning", "Document one use case end-to-end"] },
-   { t: "Threat intel workflow", tag: "CTI", items: ["IOC vs TTP thinking", "Enrich an alert with intel", "Write an intel summary"] },
-   { t: "Incident response basics", tag: "IR", items: ["PICERL lifecycle", "Contain a mock ransomware case", "Evidence handling quiz"] } ] },
-  { name: "Phase 3 - Job-ready", weeks: [
-   { t: "Triage case studies", tag: "Portfolio", items: ["Write 2 triage case studies", "Publish on LinkedIn", "Peer review exchange"] },
-   { t: "Resume & ATS pass", tag: "Resume", items: ["Keyword-map to SOC JDs", "Rewrite bullets with metrics", "Run the ATS checker"] },
-   { t: "Mock interview sprint", tag: "Interview", items: ["5 live mock interviews", "Explain detections out loud", "Apply feedback loop"] },
-   { t: "Lab showcase", tag: "Lab Log", items: ["Polish home-lab writeups", "Link labs in resume", "Demo one lab in interview"] } ] } ] },
- grc: { label: "GRC Consultant", phases: [
-  { name: "Phase 1 - Foundations", weeks: [
-   { t: "GRC & frameworks map", tag: "ISO 27001", items: ["Governance, Risk, Compliance pillars", "ISO vs SOC 2 vs NIST CSF", "Quiz on clauses 4-10"] },
-   { t: "Risk fundamentals", tag: "ISO 27001 6.1", items: ["5x5 likelihood-impact method", "Risk appetite vs tolerance", "Score 5 sample risks"] },
-   { t: "Controls & Annex A", tag: "Annex A", items: ["4 themes overview (93 controls)", "Map 10 controls to risks", "Control Finder drill"] },
-   { t: "Policies & documentation", tag: "Practice", items: ["Draft an InfoSec policy", "Version control basics", "Policy review cycle"] } ] },
-  { name: "Phase 2 - Practice", weeks: [
-   { t: "Gap assessment run", tag: "Practice", items: ["Run gap tool on a fictional company", "Prioritize findings", "Write remediation plan"] },
-   { t: "Risk register mastery", tag: "Register", items: ["Build a 15-row register", "Assign owners & target dates", "Justify treatments"] },
-   { t: "Vendor risk management", tag: "VRM", items: ["Design a vendor questionnaire", "Score 3 vendors", "Contract clauses quiz"] },
-   { t: "Compliance monitoring", tag: "Audit", items: ["Evidence collection routines", "Define KPIs & metrics", "Prep a management review"] } ] },
-  { name: "Phase 3 - Job-ready", weeks: [
-   { t: "SoA & audit prep", tag: "SoA", items: ["Build a Statement of Applicability", "Justify excluded controls", "Internal audit checklist"] },
-   { t: "GRC case studies", tag: "Portfolio", items: ["Write 2 GRC case studies", "Publish on LinkedIn", "Peer review exchange"] },
-   { t: "Resume & ATS pass", tag: "Resume", items: ["GRC keyword mapping", "Metrics-driven bullets", "Run the ATS checker"] },
-   { t: "Mock interview sprint", tag: "Interview", items: ["5 live mock interviews", "Explain your risk method out loud", "Apply feedback loop"] } ] } ] },
- seceng: { label: "Security Engineer", phases: [
-  { name: "Phase 1 - Foundations", weeks: [
-   { t: "Networking deep-dive", tag: "Security+", items: ["Subnetting, routing, TLS handshake", "Packet capture lab", "Ports & protocols quiz"] },
-   { t: "Linux & scripting", tag: "Linux", items: ["Hardening basics", "Automate a task in Bash", "Cron + logging lab"] },
-   { t: "Identity & access", tag: "IAM", items: ["MFA/SSO/OAuth flows", "Break-fix AD lab", "Design least privilege"] },
-   { t: "Cloud fundamentals", tag: "Cloud", items: ["Core AWS/Azure services", "IAM policies lab", "Shared responsibility model"] } ] },
-  { name: "Phase 2 - Engineering", weeks: [
-   { t: "Secure architecture", tag: "Design", items: ["Segmentation design", "WAF/proxy placement", "Threat-model a web app"] },
-   { t: "Hardening & baselines", tag: "CIS", items: ["CIS benchmarks overview", "Harden a VM lab", "Config drift check"] },
-   { t: "Detection engineering", tag: "SIEM", items: ["Write 3 detection rules", "Tune false positives", "Document coverage"] },
-   { t: "DevSecOps basics", tag: "CI/CD", items: ["SAST/DAST/SCA gates", "Secret scanning", "Fix a vulnerable pipeline"] } ] },
-  { name: "Phase 3 - Job-ready", weeks: [
-   { t: "Engineering writeups", tag: "Lab Log", items: ["3 build/harden writeups", "Architecture diagrams", "Publish them"] },
-   { t: "Resume & ATS pass", tag: "Resume", items: ["Engineering keyword mapping", "Metrics-driven bullets", "Run the ATS checker"] },
-   { t: "Mock interview sprint", tag: "Interview", items: ["5 live mock interviews", "Whiteboard TLS & OAuth", "Apply feedback loop"] },
-   { t: "System design drill", tag: "Design", items: ["Design a secure SaaS edge", "Discuss tradeoffs out loud", "Peer review"] } ] } ] },
- auditor: { label: "ISO 27001 Auditor", phases: [
-  { name: "Phase 1 - Standard mastery", weeks: [
-   { t: "Clauses 4-7 deep-dive", tag: "ISO 27001", items: ["Context & leadership", "Planning & support", "Clause quiz"] },
-   { t: "Clauses 8-10 + Annex A", tag: "ISO 27001", items: ["Operation & improvement", "Scan all 93 controls", "Mapping exercise"] },
-   { t: "Audit principles", tag: "ISO 19011", items: ["Audit types & ethics", "Programme management", "Auditor competence"] },
-   { t: "Documentation review", tag: "Practice", items: ["Review sample ISMS docs", "Find 10 gaps", "Write review notes"] } ] },
-  { name: "Phase 2 - Auditing", weeks: [
-   { t: "Audit planning", tag: "Practice", items: ["Scope & criteria", "Audit plan & checklist", "Sampling methods"] },
-   { t: "Interviewing auditees", tag: "Practice", items: ["Open-question technique", "Evidence vs assertion", "Note-taking drill"] },
-   { t: "Nonconformity writing", tag: "NC", items: ["Major vs minor NC", "Root-cause phrasing", "Write 5 NC statements"] },
-   { t: "Stage 1 & Stage 2 mock", tag: "Audit", items: ["Run a mock Stage 1", "Run a mock Stage 2", "Write the audit report"] } ] },
-  { name: "Phase 3 - Job-ready", weeks: [
-   { t: "Lead Auditor prep", tag: "ISO LA", items: ["Exam syllabus map", "Practice questions", "Case studies"] },
-   { t: "Auditor portfolio", tag: "Portfolio", items: ["Sample audit report", "Checklist pack", "Publish a summary"] },
-   { t: "Resume & ATS pass", tag: "Resume", items: ["Auditor keyword mapping", "Metrics-driven bullets", "Run the ATS checker"] },
-   { t: "Mock interview sprint", tag: "Interview", items: ["5 live mock interviews", "Defend NC decisions out loud", "Apply feedback loop"] } ] } ] },
- pentest: { label: "Penetration Tester", phases: [
-  { name: "Phase 1 - Foundations", weeks: [
-   { t: "Networking & web basics", tag: "Security+", items: ["HTTP, DNS, TLS in depth", "Burp Suite setup", "Recon basics"] },
-   { t: "Linux & tooling", tag: "Linux", items: ["CLI fluency drills", "nmap/nuclei basics", "Build your lab"] },
-   { t: "Web vulns I", tag: "OWASP", items: ["Injection & XSS labs", "Burp Repeater drills", "7 writeups"] },
-   { t: "Web vulns II", tag: "OWASP", items: ["AuthN/Z & SSRF labs", "API testing basics", "7 writeups"] } ] },
-  { name: "Phase 2 - Practice", weeks: [
-   { t: "Network pentest basics", tag: "eJPT", items: ["Scanning & enumeration", "Priv-esc basics", "Report writing"] },
-   { t: "Active Directory labs", tag: "AD", items: ["Kerberos attacks overview", "Lateral movement lab", "Detection awareness"] },
-   { t: "Reporting & communication", tag: "Report", items: ["Executive vs technical", "Risk rating with CVSS", "Remediation advice"] },
-   { t: "CTF grind", tag: "CTF", items: ["4 easy HTB boxes", "Time-boxed methodology", "Build your notes system"] } ] },
-  { name: "Phase 3 - Job-ready", weeks: [
-   { t: "Specialty depth", tag: "OSCP-prep", items: ["Pick web-API or AD", "20 focused labs", "Mentor review"] },
-   { t: "Resume & ATS pass", tag: "Resume", items: ["Pentest keyword mapping", "Metrics-driven bullets", "Run the ATS checker"] },
-   { t: "Mock interview sprint", tag: "Interview", items: ["5 live mock interviews", "Explain exploit chains out loud", "Apply feedback loop"] },
-   { t: "Portfolio & ethics", tag: "Ethics", items: ["Public writeups", "Scope & rules of engagement", "Demo day"] } ] } ] }
-};
-function rmRole(){ return localStorage.getItem("cv_rm_role") || "soc"; }
-function syncCoachRole(label){
-  var sel = document.querySelector("#view-interview select");
-  if (!sel) return;
-  for (var i=0;i<sel.options.length;i++){ if (sel.options[i].text === label){ sel.value = sel.options[i].value; break; } }
-}
+const ROADMAP = [
+  {phase: "Phase 1 - Foundations", weeks: [
+    {id:"w1", t:"Networking & Linux basics", cert:"Security+ SY0-701 1.1-1.3", goto:"mentor", items:["TCP/IP, OSI model","Linux permissions","Quiz me on ports"]},
+    {id:"w2", t:"Security fundamentals", cert:"Security+ SY0-701 1.4-2.2", goto: "interview", items:["CIA triad, AAA, zero trust","Malware types, phishing","Solve a CTF Bite"]},
+    {id:"w3", t:"Resume & presence", goto:"resume", items:["Run AI resume review","Rewrite LinkedIn headline","Add hands-on project"]},
+    {id:"w4", t:"First mock interview", goto:"interview", items:["Quick Round (3 questions) voice mode","Review scorecard","Re-answer weakest question"]}]},
+  {phase: "Phase 2 - Defense", weeks: [
+    {id:"w5", t:"SIEM & log analysis", cert:"Security+ SY0-701 2.4", goto: "interview", items:["Event IDs 4624, 4625, 4688","Splunk stats vs transaction","CTF log challenges"]},
+    {id:"w6", t:"Alert triage drills", goto:"interview", items:["Phishing-click scenario","Validate, enrich, scope, contain","Target score 60+"]},
+    {id:"w7", t:"Threat intel & vuln management", goto:"mentor", items:["CVE vs CVSS vs EPSS","Zero-day prioritization","Vuln scenario"]},
+    {id:"w8", t:"GRC awareness", goto:"interview", items:["ISO 27001 risk assessment","Vendor risk tiering","GRC mock interview"]}]},
+  {phase: "Phase 3 - Hunt & Get Hired", weeks: [
+    {id:"w9", t:"Threat hunting basics", goto: "interview", items:["Lateral movement indicators","Beaconing intervals","Golden vs silver ticket"]},
+    {id:"w10", t:"Advanced interviews", goto:"interview", items:["Full 6-question voice interview","Defend against follow-ups","Share scorecard"]},
+    {id:"w11", t:"Applications sprint", goto:"resume", items:["10 tailored applications","Attach scorecard","Ask for referrals"]},
+    {id:"w12", t:"Offer readiness", goto:"interview", items:["Final mock interview","Prepare 'why cybersecurity' story","Download certificate"]}]}
+];
 function renderRoadmap() {
-  if (localStorage.getItem("cv_roadmap") && !localStorage.getItem("cv_roadmap_soc")) {
-    localStorage.setItem("cv_roadmap_soc", localStorage.getItem("cv_roadmap"));
-  }
-  var role = rmRole();
-  var R = ROADMAPS[role] || ROADMAPS.soc;
-  var titleEl = document.getElementById("rm-title");
-  if (titleEl) titleEl.textContent = "\ud83d\uddfa\ufe0f 90-Day " + R.label + " Roadmap";
-  var chips = document.getElementById("rm-roles");
-  if (chips) {
-    chips.innerHTML = "";
-    Object.keys(ROADMAPS).forEach(function(k){
-      var b = document.createElement("button");
-      b.type = "button";
-      b.textContent = ROADMAPS[k].label;
-      b.style.cssText = "padding:6px 12px;border-radius:16px;font-size:.8rem;cursor:pointer;border:1px solid #333;background:#151515;color:#fff;" + (k===role ? "background:var(--accent);color:#001512;border-color:var(--accent);font-weight:700;" : "");
-      b.onclick = function(){ localStorage.setItem("cv_rm_role", k); syncCoachRole(ROADMAPS[k].label); renderRoadmap(); };
-      chips.appendChild(b);
-    });
-  }
-  var list = document.getElementById("rm-list");
-  var storeKey = "cv_roadmap_" + role;
-  var done = JSON.parse(localStorage.getItem(storeKey) || "{}");
-  var total = R.phases.reduce(function(n,p){ return n + p.weeks.length; }, 0);
-  var doneCount = 0;
-  R.phases.forEach(function(p,pi){ p.weeks.forEach(function(w,wi){ if (done[pi+"-"+wi]) doneCount++; }); });
-  document.getElementById("rm-bar").style.width = Math.round(100*doneCount/total) + "%";
+  const list = document.getElementById("rm-list");
+  if (!list) return;
+  const done = JSON.parse(localStorage.getItem("cv_roadmap") || "{}");
+  const total = ROADMAP.reduce((n, p) => n + p.weeks.length, 0);
+  const doneCount = Object.values(done).filter(Boolean).length;
+  document.getElementById("rm-bar").style.width = Math.round(100 * doneCount / total) + "%";
   document.getElementById("rm-progress").textContent = doneCount + " / " + total + " weeks completed";
-  list.innerHTML = "";
-  R.phases.forEach(function(ph,pi){
-    var hd = document.createElement("h2");
-    hd.style.cssText = "color:var(--accent);margin:18px 0 10px;font-size:1.15rem";
-    hd.textContent = ph.name;
-    list.appendChild(hd);
-    ph.weeks.forEach(function(w,wi){
-      var key = pi+"-"+wi;
-      var card = document.createElement("div");
-      card.style.cssText = "background:#141414;border:1px solid #222;border-radius:12px;padding:16px;margin-bottom:12px";
-      card.innerHTML = "<div style='display:flex;gap:12px;align-items:flex-start'><input type='checkbox' data-key='"+key+"' style='width:20px;height:20px;margin-top:4px;flex:none'"+(done[key]?" checked":"")+"><div><div style='font-weight:700;color:#fff;font-size:1.05rem'>"+w.t+" <span style='border:1px solid #f5af19;color:#f5af19;border-radius:14px;padding:2px 10px;font-size:.75rem;font-weight:600;margin-left:6px;white-space:nowrap'>"+w.tag+"</span></div><ul style='color:var(--text-muted);margin:8px 0 0;padding-left:18px;line-height:1.7'>"+w.items.map(function(i){return "<li>"+i+"</li>";}).join("")+"</ul><button class='btn-secondary rm-go' data-goto='interview' style='margin-top:10px;padding:6px 14px'>Practice \u2192</button></div></div>";
-      list.appendChild(card);
+  let html = "";
+  ROADMAP.forEach(ph => {
+    html += '<h3 style="color:var(--accent);margin:24px 0 10px">' + ph.phase + "</h3>";
+    ph.weeks.forEach(w => {
+      const isDone = !!done[w.id];
+      html += '<div class="card" style="padding:16px;margin-bottom:10px;' + (isDone ? "opacity:.65;" : "") + '">' +
+        '<div style="display:flex;gap:12px;align-items:flex-start">' +
+        '<input type="checkbox" data-week="' + w.id + '" ' + (isDone ? "checked" : "") + ' style="margin-top:4px;accent-color:var(--accent);width:18px;height:18px;cursor:pointer"/>' +
+        '<div style="flex:1"><div style="font-weight:700">' + w.t +
+        (w.cert ? ' <span style="color:var(--amber);font-size:.72rem;border:1px solid var(--amber);border-radius:10px;padding:1px 8px">' + w.cert + "</span>" : "") +
+        "</div><ul style='margin:8px 0 0;padding-left:18px;color:var(--text-muted);font-size:.9rem'>" +
+        w.items.map(it => "<li>" + it + "</li>").join("") +
+        "</ul><button class='btn-secondary rm-go' data-goto='" + w.goto + "' style='margin-top:10px;padding:6px 14px'>Practice →</button></div></div></div>";
     });
   });
-  list.querySelectorAll("input[type=checkbox]").forEach(function(cb){
-    cb.addEventListener("change", function(){
-      var d = JSON.parse(localStorage.getItem(storeKey) || "{}");
-      d[cb.dataset.key] = cb.checked;
-      localStorage.setItem(storeKey, JSON.stringify(d));
-      renderRoadmap();
-    });
-  });
+  list.innerHTML = html;
+  list.querySelectorAll("input[data-week]").forEach(cb => cb.addEventListener("change", () => {
+    const d = JSON.parse(localStorage.getItem("cv_roadmap") || "{}");
+    d[cb.dataset.week] = cb.checked;
+    localStorage.setItem("cv_roadmap", JSON.stringify(d));
+    renderRoadmap();
+  }));
   list.querySelectorAll(".rm-go").forEach(b => b.addEventListener("click", () => goToView(b.dataset.goto)));
-}
 }
 
 

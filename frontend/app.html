@@ -484,7 +484,7 @@ h1,h2,h3,.view-title,.hero h1 { font-family:'Space Grotesk',Inter,sans-serif; le
       <!-- Pro Card -->
       <div style="background: #151515; border: 1px solid #333; border-radius: 12px; padding: 20px; display: flex; flex-direction: column;">
         <h3 style="margin-top:0; color: var(--accent);">Pro 👑</h3>
-        <div style="font-size: 2rem; font-weight: 800; margin-bottom: 12px;"><span class="cv-price" data-inr="499">499</span> <span style="font-size: 0.9rem; font-weight: 400; color: #888;">lifetime</span></div>
+        <div style="font-size: 2rem; font-weight: 800; margin-bottom: 12px;">499 <span style="font-size: 0.9rem; font-weight: 400; color: #888;">lifetime</span></div>
         <ul style="padding-left: 20px; margin: 0 0 20px 0; flex-grow: 1; color: var(--text-main); font-size: 0.95rem;">
           <li style="margin-bottom: 8px;"><strong>Unlimited</strong> Mock Interviews</li>
           <li style="margin-bottom: 8px;"><strong>Unlimited</strong> Resume Reviews</li>
@@ -497,7 +497,7 @@ h1,h2,h3,.view-title,.hero h1 { font-family:'Space Grotesk',Inter,sans-serif; le
       <div style="background: linear-gradient(145deg, #1a1a1a, #0f0f0f); border: 2px solid #f5af19; border-radius: 12px; padding: 20px; display: flex; flex-direction: column; position: relative;">
         <span style="position: absolute; top: -10px; right: 15px; background: #f5af19; color: black; padding: 2px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 700;">BEST VALUE</span>
         <h3 style="margin-top:0; color: #f5af19;">Premium 🏆</h3>
-        <div style="font-size: 2rem; font-weight: 800; margin-bottom: 12px;"><span class="cv-price" data-inr="999">999</span> <span style="font-size: 0.9rem; font-weight: 400; color: #888;">lifetime</span></div>
+        <div style="font-size: 2rem; font-weight: 800; margin-bottom: 12px;">999 <span style="font-size: 0.9rem; font-weight: 400; color: #888;">lifetime</span></div>
         <ul style="padding-left: 20px; margin: 0 0 20px 0; flex-grow: 1; color: var(--text-main); font-size: 0.95rem;">
           <li style="margin-bottom: 8px;"><strong>Everything in Pro</strong></li>
           <li style="margin-bottom: 8px;"><strong>PDF Certificates</strong> for interviews</li>
@@ -507,7 +507,7 @@ h1,h2,h3,.view-title,.hero h1 { font-family:'Space Grotesk',Inter,sans-serif; le
       </div>
 
     </div>
-    <p style="text-align:center;margin:10px 0 0;font-size:.8rem;color:#9aa4b2">International users: prices are in Indian Rupees (&#8377;). Pro &#8776; $6/mo, Premium &#8776; $12/mo &mdash; billed in INR at checkout.</p><p class="modal-sub" style="text-align:center; margin-top: 20px; font-size: 0.85rem; color: var(--text-muted);">Access activates <strong>automatically</strong> within seconds of payment.</p>
+    <p class="modal-sub" style="text-align:center; margin-top: 20px; font-size: 0.85rem; color: var(--text-muted);">Access activates <strong>automatically</strong> within seconds of payment.</p>
   </div>
 </div>
 <div style="text-align:center;padding:20px;font-size:0.8rem;color:#555;"><a href="/terms.html" style="color:#00ffcc">Terms</a> &bull; <a href="/privacy.html" style="color:#00ffcc">Privacy</a></div>
@@ -519,7 +519,7 @@ h1,h2,h3,.view-title,.hero h1 { font-family:'Space Grotesk',Inter,sans-serif; le
       window.toast = function (msg) {
         var t = document.createElement("div");
         t.textContent = msg || "";
-        t.style.cssText = "position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#0f172a;color:#00ffcc;border:1px solid #00ffcc;padding:10px 18px;border-radius:10px;z-index:<span class="cv-price" data-inr="999">999</span>99;font:14px system-ui,sans-serif;box-shadow:0 8px 30px rgba(0,0,0,.5);";
+        t.style.cssText = "position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#0f172a;color:#00ffcc;border:1px solid #00ffcc;padding:10px 18px;border-radius:10px;z-index:99999;font:14px system-ui,sans-serif;box-shadow:0 8px 30px rgba(0,0,0,.5);";
         document.body.appendChild(t);
         setTimeout(function () { t.remove(); }, 3000);
       };
@@ -791,7 +791,7 @@ h1,h2,h3,.view-title,.hero h1 { font-family:'Space Grotesk',Inter,sans-serif; le
   </script>
 
 <!-- Buildlist Badge -->
-<div style="position:fixed;bottom:20px;right:20px;z-index:<span class="cv-price" data-inr="999">999</span>99;">
+<div style="position:fixed;bottom:20px;right:20px;z-index:99999;">
   <a href="https://buildlist.io" target="_blank" rel="noopener">
     <img src="https://buildlist.io/badge.svg" alt="Featured on Buildlist" style="height:40px;width:auto; border-radius:8px; box-shadow: 0 4px 12px rgba(0,0,0,0.5);"/>
   </a>
@@ -836,33 +836,6 @@ h1,h2,h3,.view-title,.hero h1 { font-family:'Space Grotesk',Inter,sans-serif; le
 })();
 </script>
 
-
-<script id="cv-currency">
-(function(){
-  function isIndia(){
-    try{
-      var tz=(Intl.DateTimeFormat().resolvedOptions().timeZone||"");
-      var lang=(navigator.language||"");
-      return /kolkata|calcutta|india/i.test(tz)||/-IN$/i.test(lang);
-    }catch(e){return false;}
-  }
-  var USD={"499":6,"999":12};
-  function apply(){
-    document.querySelectorAll(".cv-price").forEach(function(sp){
-      var inr=sp.getAttribute("data-inr"); var usd=USD[inr]; if(!usd) return;
-      var small="font-size:.72em;color:#9aa4b2;font-weight:600;margin-left:.4rem";
-      if(isIndia()){ sp.innerHTML="\u20b9"+inr+"<small style='"+small+"'>\u2248 $"+usd+"/mo</small>"; }
-      else { sp.innerHTML="$"+usd+"<small style='"+small+"'>/mo \u00b7 billed as \u20b9"+inr+" INR</small>"; }
-    });
-  }
-  fetch("/api/analytics/plans").then(function(r){return r.json();}).then(function(pl){
-    Object.keys(pl).forEach(function(k){ if(pl[k].price_usd) USD[String(pl[k].price_inr)]=pl[k].price_usd; });
-    apply();
-  }).catch(function(){});
-  var runs=0; var t=setInterval(function(){ apply(); if(++runs>12) clearInterval(t); },1000);
-  if(document.readyState==="loading"){document.addEventListener("DOMContentLoaded",apply);}else{apply();}
-})();
-</script>
 </body>
 </html>
 

@@ -47,6 +47,7 @@ document.getElementById("kit-btn").onclick=function(){
   var em=document.getElementById("kit-email").value.trim();
   if(!em || em.indexOf("@")<1){ document.getElementById("kit-msg").style.color="#ef4444"; document.getElementById("kit-msg").textContent="Enter a valid email."; return; }
   fetch("/api/analytics/lead",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({email:em,source:"starter_kit"})}).catch(function(){});
+  fetch("/api/analytics/newsletter/subscribe",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({email:em,source:"starter_kit"})}).catch(function(){});
   document.getElementById("kit-msg").style.color="#22c55e"; document.getElementById("kit-msg").textContent="Kit unlocked below.";
   document.getElementById("kit-links").style.display="block";
 };

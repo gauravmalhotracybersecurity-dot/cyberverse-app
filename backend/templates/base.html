@@ -66,6 +66,25 @@
             <a href="/admin-leads" style="color:#555">Admin</a>
         </div>
         <p>&copy; 2026 GRCWithGaurav. Cybersecurity. GRC. AI. One Platform.</p>
+    <div style="margin:1.8rem auto 0;max-width:440px">
+        <div style="display:flex;gap:.5rem">
+          <input id="nl-email" placeholder="Weekly GRC digest - free, no spam" style="flex:1;padding:.55rem .8rem;border-radius:8px;border:1px solid #333;background:#151515;color:#fff">
+          <button id="nl-btn" style="background:var(--accent);color:#000;border:none;border-radius:8px;padding:.55rem 1rem;font-weight:700;cursor:pointer">Subscribe</button>
+        </div>
+        <p id="nl-msg" style="font-size:.78rem;color:#666;margin-top:.4rem"></p>
+      </div>
+      <script>
+      document.getElementById("nl-btn").onclick=function(){
+        var em=document.getElementById("nl-email").value.trim();
+        var msg=document.getElementById("nl-msg");
+        if(!em||em.indexOf("@")<1){ msg.style.color="#ef4444"; msg.textContent="Enter a valid email."; return; }
+        fetch("/api/analytics/newsletter/subscribe",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({email:em,source:"footer"})})
+        .then(function(r){return r.json();}).then(function(d){
+          if(d.ok){ msg.style.color="#22c55e"; msg.textContent="Subscribed. First digest lands Monday."; document.getElementById("nl-email").value=""; }
+          else { msg.style.color="#ef4444"; msg.textContent=d.error||"Try again."; }
+        }).catch(function(){ msg.style.color="#ef4444"; msg.textContent="Network error."; });
+      };
+      </script>
     </footer>
 </body>
 </html>

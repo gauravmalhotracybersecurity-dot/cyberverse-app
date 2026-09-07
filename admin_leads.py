@@ -1,0 +1,318 @@
+﻿import re, glob, subprocess
+
+skip = ("venv", "node_modules", ".git")
+
+# ========== 1. BACKEND: patch b2b_leads endpoint + add PATCH/DELETE ==========
+ar = [x for x in glob.glob("**/analytics_routes.py", recursive=True) if not any(t in x for t in skip)][0]
+c = open(ar, encoding="utf-8").read()
+
+# 1a. Replace existing b2b_leads GET to return rowid as id
+old_get = '''@router.get("/b2b/leads")
+def b2b_leads(user: models.User = Depends(get_current_user), db: Session = Depends(get_db)):
+    from sqlalchemy import text as _text
+    try:
+        rows = db.execute(_text("SELECT name,email,company,size,industry,status,requirement,timeline,created_at FROM b2b_leads ORDER BY created_at DESC LIMIT 200")).fetchall()
+    except Exception:
+        rows = []
+    return [{"name": r[0], "email": r[1], "company": r[2], "size": r[3], "industry": r[4], "status": r[5], "requirement": r[6], "timeline": r[7], "created_at": r[8]} for r in rows]'''
+
+new_get = '''@router.get("/b2b/leads")
+def b2b_leads(user: models.User = Depends(get_current_user), db: Session = Depends(get_db)):
+    from sqlalchemy import text as _text
+    try:
+        rows = db.execute(_text("SELECT rowid, name, email, company, size, industry, COALESCE(sales_status,'new'), COALESCE(notes,''), requirement, timeline, created_at FROM b2b_leads ORDER BY rowid DESC LIMIT 500")).fetchall()
+    except Exception:
+        try:
+            db.execute(_text("ALTER TABLE b2b_leads ADD COLUMN sales_status TEXT DEFAULT 'new'"))
+            db.execute(_text("ALTER TABLE b2b_leads ADD COLUMN notes TEXT DEFAULT ''"))
+            db.commit()
+            rows = db.execute(_text("SELECT rowid, name, email, company, size, industry, COALESCE(sales_status,'new'), COALESCE(notes,''), requirement, timeline, created_at FROM b2b_leads ORDER BY rowid DESC LIMIT 500")).fetchall()
+        except Exception:
+            rows = []
+    return [{"id": r[0], "name": r[1], "email": r[2], "company": r[3], "size": r[4], "industry": r[5], "status": r[6], "notes": r[7], "requirement": r[8], "timeline": r[9], "created_at": r[10]} for r in rows]
+
+
+@router.patch("/b2b/leads/{lead_id}")
+def b2b_lead_update(lead_id: int, payload: dict, user: models.User = Depends(get_current_user), db: Session = Depends(get_db)):
+    from sqlalchemy import text as _text
+    p = payload or {}
+    fields, vals = [], {}
+    if "status" in p:
+        fields.append("sales_status = :status")
+        vals["status"] = str(p["status"])[:30]
+    if "notes" in p:
+        fields.append("notes = :notes")
+        vals["notes"] = str(p["notes"])[:5000]
+    if not fields:
+        return {"ok": False, "error": "nothing to update"}
+    vals["id"] = lead_id
+    try:
+        db.execute(_text("UPDATE b2b_leads SET " + ", ".join(fields) + " WHERE rowid = :id"), vals)
+        db.commit()
+        return {"ok": True}
+    except Exception as e:
+        return {"ok": False, "error": str(e)}
+
+
+@router.delete("/b2b/leads/{lead_id}")
+def b2b_lead_delete(lead_id: int, user: models.User = Depends(get_current_user), db: Session = Depends(get_db)):
+    from sqlalchemy import text as _text
+    try:
+        db.execute(_text("DELETE FROM b2b_leads WHERE rowid = :id"), {"id": lead_id})
+        db.commit()
+        return {"ok": True}
+    except Exception as e:
+        return {"ok": False, "error": str(e)}'''
+
+if old_get in c:
+    c = c.replace(old_get, new_get)
+    print("[BACKEND] b2b_leads upgraded + PATCH/DELETE added")
+else:
+    print("[BACKEND][WARN] exact pattern not found - appending endpoints manually")
+    # Fallback: append if pattern differs
+    if '"/b2b/leads/{lead_id}"' not in c:
+        c += "\n\n" + new_get.split("@router.patch")[1]
+        c = c.replace("@router.patch", "\n@router.patch", 1)
+        open(ar, "w", encoding="utf-8").write(c)
+
+open(ar, "w", encoding="utf-8").write(c)
+
+# ========== 2. FRONTEND: admin-leads.html ==========
+tpl = r"""{% extends "base.html" %}
+{% block title %}B2B Leads | Admin{% endblock %}
+{% block head %}
+<style>
+ .wrap{max-width:1280px;margin:0 auto;padding:2rem}
+ .gate{padding:3rem;text-align:center;color:var(--muted)}
+ .gate a{color:var(--accent)}
+ .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:1.5rem}
+ .stat{background:#151515;border:1px solid #222;border-radius:10px;padding:1rem}
+ .stat b{font-size:1.8rem;color:#fff;display:block}
+ .stat span{color:var(--muted);font-size:.85rem}
+ @media(max-width:720px){.stats{grid-template-columns:1fr 1fr}}
+ .toolbar{display:flex;gap:.8rem;margin-bottom:1rem;flex-wrap:wrap;align-items:center}
+ .toolbar input,.toolbar select{padding:.55rem .8rem;border-radius:8px;border:1px solid #333;background:#151515;color:#fff}
+ .toolbar input{flex:1;min-width:220px}
+ .tbl{width:100%;border-collapse:collapse;background:#111;border-radius:10px;overflow:hidden}
+ .tbl th,.tbl td{padding:.6rem .7rem;border-bottom:1px solid #222;text-align:left;vertical-align:top;font-size:.85rem}
+ .tbl th{background:#151515;color:var(--muted);font-weight:600;font-size:.78rem;text-transform:uppercase;letter-spacing:.5px}
+ .tbl tr:hover td{background:#141414}
+ .badge{display:inline-block;padding:.15rem .6rem;border-radius:12px;font-size:.72rem;font-weight:700}
+ .b-new{background:#3b82f6;color:#fff} .b-contacted{background:#eab308;color:#000}
+ .b-discovery{background:#f97316;color:#000} .b-proposal{background:#a855f7;color:#fff}
+ .b-closed-won{background:#22c55e;color:#000} .b-closed-lost{background:#6b7280;color:#fff}
+ select.status{background:#0d0d0d;color:#fff;border:1px solid #333;border-radius:6px;padding:.2rem .4rem;font-size:.8rem}
+ textarea.notes{background:#0d0d0d;color:#fff;border:1px solid #333;border-radius:6px;padding:.3rem;width:100%;min-height:40px;font-size:.8rem;resize:vertical}
+ .btn-sm{padding:.3rem .7rem;border-radius:6px;border:1px solid #333;background:#151515;color:#fff;cursor:pointer;font-size:.8rem}
+ .btn-sm.danger{border-color:#7f1d1d;color:#fca5a5}
+ .btn-sm:hover{border-color:var(--accent);color:var(--accent)}
+ .saved{color:#22c55e;font-size:.75rem;margin-left:.4rem;opacity:0;transition:opacity .3s}
+ .saved.show{opacity:1}
+ .empty{padding:3rem;text-align:center;color:var(--muted)}
+ .row-req{max-width:320px;color:#c9c9c9;font-size:.8rem;line-height:1.4}
+</style>
+{% endblock %}
+{% block content %}
+<div class="wrap">
+ <h1 style="color:#fff">B2B Leads <span style="color:var(--muted);font-size:1rem;font-weight:400">/ admin</span></h1>
+ <p style="color:var(--muted">Submissions from the "Get a Free GRC Assessment" funnel.</p>
+
+ <div id="gate" class="gate" style="display:none">
+   <h2>Not signed in</h2>
+   <p><a href="/app.html">Log in to CyberVerse AI</a>, then reload this page.</p>
+ </div>
+
+ <div id="app" style="display:none">
+   <div class="stats" id="stats"></div>
+
+   <div class="toolbar">
+     <input id="q" placeholder="Search company, email, name, requirement...">
+     <select id="f-status">
+       <option value="">All statuses</option>
+       <option>new</option><option>contacted</option><option>discovery</option>
+       <option>proposal</option><option>closed-won</option><option>closed-lost</option>
+     </select>
+     <button class="btn-sm" id="btn-export">Export CSV</button>
+     <button class="btn-sm" id="btn-reload">Reload</button>
+   </div>
+
+   <div id="content"></div>
+ </div>
+</div>
+
+<script>
+var TOKEN = localStorage.getItem("cv_token");
+var LEADS = [];
+var Q = "", F = "";
+
+function esc(s){ var d=document.createElement("div"); d.textContent=(s==null?"":s); return d.innerHTML; }
+function fmt(d){ try{ return new Date(d).toLocaleString(); }catch(e){ return d||""; } }
+function badgeClass(s){ return "badge b-" + String(s||"new").replace(/\s+/g,"-"); }
+
+async function api(path, opts){
+  opts = opts || {};
+  var h = {"Content-Type":"application/json"};
+  if(TOKEN) h["Authorization"] = "Bearer " + TOKEN;
+  var r = await fetch(path, Object.assign({}, opts, {headers:h}));
+  if(r.status === 401 || r.status === 403){ document.getElementById("gate").style.display="block"; document.getElementById("app").style.display="none"; throw new Error("auth"); }
+  return r.json();
+}
+
+async function load(){
+  try {
+    LEADS = await api("/api/analytics/b2b/leads");
+  } catch(e){ return; }
+  var total = LEADS.length;
+  var newC = LEADS.filter(function(l){return l.status==="new"}).length;
+  var openC = LEADS.filter(function(l){return l.status && l.status.indexOf("closed")!==0}).length;
+  var wonC = LEADS.filter(function(l){return l.status==="closed-won"}).length;
+  document.getElementById("stats").innerHTML =
+    "<div class='stat'><b>"+total+"</b><span>Total leads</span></div>" +
+    "<div class='stat'><b>"+newC+"</b><span>New (untouched)</span></div>" +
+    "<div class='stat'><b>"+openC+"</b><span>In pipeline</span></div>" +
+    "<div class='stat'><b>"+wonC+"</b><span>Closed-won</span></div>";
+  render();
+  document.getElementById("app").style.display = "block";
+}
+
+function render(){
+  var q = Q.toLowerCase();
+  var rows = LEADS.filter(function(l){
+    if(F && l.status !== F) return false;
+    if(!q) return true;
+    return (l.company||"").toLowerCase().indexOf(q)>-1 ||
+           (l.email||"").toLowerCase().indexOf(q)>-1 ||
+           (l.name||"").toLowerCase().indexOf(q)>-1 ||
+           (l.requirement||"").toLowerCase().indexOf(q)>-1;
+  });
+  var ct = document.getElementById("content");
+  if(!rows.length){ ct.innerHTML = "<div class='empty'>No leads match your filters.</div>"; return; }
+  var h = "<table class='tbl'><thead><tr>" +
+    "<th>When</th><th>Name</th><th>Email</th><th>Company</th><th>Size</th><th>Industry</th>" +
+    "<th>Status</th><th>Requirement</th><th>Timeline</th><th>Notes</th><th></th></tr></thead><tbody>";
+  rows.forEach(function(l){
+    h += "<tr data-id='"+l.id+"'>" +
+      "<td>"+esc(fmt(l.created_at))+"</td>" +
+      "<td>"+esc(l.name)+"</td>" +
+      "<td><a href='mailto:"+esc(l.email)+"' style='color:var(--accent)'>"+esc(l.email)+"</a></td>" +
+      "<td><b style='color:#fff'>"+esc(l.company)+"</b></td>" +
+      "<td>"+esc(l.size)+"</td>" +
+      "<td>"+esc(l.industry)+"</td>" +
+      "<td><select class='status' data-f='status' data-id='"+l.id+"'>" +
+        ["new","contacted","discovery","proposal","closed-won","closed-lost"].map(function(s){
+          return "<option"+(s===l.status?" selected":"")+">"+s+"</option>";
+        }).join("") +
+      "</select><span class='saved' id='sv-"+l.id+"-status'>saved</span></td>" +
+      "<td class='row-req'>"+esc(l.requirement)+"</td>" +
+      "<td>"+esc(l.timeline)+"</td>" +
+      "<td><textarea class='notes' data-f='notes' data-id='"+l.id+"'>"+esc(l.notes||"")+"</textarea><span class='saved' id='sv-"+l.id+"-notes'>saved</span></td>" +
+      "<td><button class='btn-sm danger' data-del='"+l.id+"'>Delete</button></td>" +
+      "</tr>";
+  });
+  h += "</tbody></table>";
+  ct.innerHTML = h;
+
+  ct.querySelectorAll("select.status").forEach(function(s){
+    s.onchange = function(){ save(s.dataset.id, "status", s.value); };
+  });
+  ct.querySelectorAll("textarea.notes").forEach(function(t){
+    var timer;
+    t.oninput = function(){
+      clearTimeout(timer);
+      timer = setTimeout(function(){ save(t.dataset.id, "notes", t.value); }, 600);
+    };
+  });
+  ct.querySelectorAll("[data-del]").forEach(function(b){
+    b.onclick = function(){
+      if(!confirm("Delete this lead permanently?")) return;
+      fetch("/api/analytics/b2b/leads/"+b.dataset.del, {method:"DELETE", headers:{"Authorization":"Bearer "+TOKEN,"Content-Type":"application/json"}})
+      .then(function(r){ return r.json(); })
+      .then(function(d){ if(d.ok) load(); else alert("Failed: "+(d.error||"")); });
+    };
+  });
+}
+
+function save(id, field, value){
+  var body = {}; body[field] = value;
+  fetch("/api/analytics/b2b/leads/"+id, {method:"PATCH", headers:{"Authorization":"Bearer "+TOKEN,"Content-Type":"application/json"}, body:JSON.stringify(body)})
+  .then(function(r){ return r.json(); })
+  .then(function(d){
+    if(d.ok){
+      var l = LEADS.find(function(x){return x.id==id});
+      if(l) l[field] = value;
+      var sv = document.getElementById("sv-"+id+"-"+field);
+      if(sv){ sv.classList.add("show"); setTimeout(function(){ sv.classList.remove("show"); }, 1200); }
+    }
+  });
+}
+
+document.getElementById("q").oninput = function(){ Q = this.value; render(); };
+document.getElementById("f-status").onchange = function(){ F = this.value; render(); };
+document.getElementById("btn-reload").onclick = load;
+document.getElementById("btn-export").onclick = function(){
+  if(!LEADS.length){ alert("No leads to export"); return; }
+  var cols = ["id","created_at","name","email","company","size","industry","status","timeline","requirement","notes"];
+  var rows = [cols];
+  LEADS.forEach(function(l){ rows.push(cols.map(function(c){ return l[c]==null?"":l[c]; })); });
+  var csv = rows.map(function(r){ return r.map(function(v){ v=String(v).replace(/"/g,'""'); return '"'+v+'"'; }).join(","); }).join("\n");
+  var a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([csv],{type:"text/csv"}));
+  a.download = "b2b-leads-"+new Date().toISOString().slice(0,10)+".csv";
+  a.click();
+};
+
+if(!TOKEN){
+  document.getElementById("gate").style.display = "block";
+} else {
+  load();
+}
+</script>
+{% endblock %}"""
+
+tp = [x for x in glob.glob("**/templates", recursive=True) if not any(t in x for t in skip) and x.count(os.sep if 'os' in dir() else "\\") >= 0]
+# Find templates dir under backend
+import os
+tpl_dir = None
+for root, dirs, files in os.walk("."):
+    if any(t in root for t in skip): continue
+    if os.path.basename(root) == "templates" and "backend" in root.replace("\\","/"):
+        tpl_dir = root; break
+if tpl_dir:
+    open(os.path.join(tpl_dir, "admin_leads.html"), "w", encoding="utf-8").write(tpl)
+    print("[TEMPLATE] admin_leads.html created in", tpl_dir)
+else:
+    print("[TEMPLATE][WARN] backend/templates not found")
+
+# ========== 3. ROUTE: /admin-leads ==========
+sr = [x for x in glob.glob("**/site_routes.py", recursive=True) if not any(t in x for t in skip)][0]
+r = open(sr, encoding="utf-8").read()
+if '"/admin-leads"' not in r:
+    anchor = '@router.get("/b2b", response_class=HTMLResponse)'
+    if anchor not in r:
+        anchor = '@router.get("/contact", response_class=HTMLResponse)'
+    block = '''@router.get("/admin-leads", response_class=HTMLResponse)
+async def admin_leads_page(request: Request):
+    return templates.TemplateResponse("admin_leads.html", {"request": request})
+
+'''
+    r = r.replace(anchor, block + anchor)
+    open(sr, "w", encoding="utf-8").write(r)
+    print("[ROUTE] /admin-leads added")
+
+# ========== 4. FOOTER: add Admin link ==========
+base = None
+for root, dirs, files in os.walk("."):
+    if any(t in root for t in skip): continue
+    if "base.html" in files and "templates" in root:
+        base = os.path.join(root, "base.html"); break
+if base:
+    bc = open(base, encoding="utf-8").read()
+    if "/admin-leads" not in bc:
+        bc = bc.replace('<a href="/b2b">For Businesses</a>', '<a href="/b2b">For Businesses</a>\n            <a href="/admin-leads" style="color:#555">Admin</a>')
+        open(base, "w", encoding="utf-8").write(bc)
+        print("[FOOTER] Admin link added")
+
+subprocess.run(["git", "add", "-A"])
+subprocess.run(["git", "commit", "-m", "Admin: B2B leads UI with search, pipeline, notes, CSV export"])
+subprocess.run(["git", "push", "origin", "main"])
+print("PUSHED - live in ~60s")

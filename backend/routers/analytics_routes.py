@@ -109,10 +109,49 @@ def b2b_lead(payload: dict, db: Session = Depends(get_db)):
 def b2b_leads(user: models.User = Depends(get_current_user), db: Session = Depends(get_db)):
     from sqlalchemy import text as _text
     try:
-        rows = db.execute(_text("SELECT name,email,company,size,industry,status,requirement,timeline,created_at FROM b2b_leads ORDER BY created_at DESC LIMIT 200")).fetchall()
+        rows = db.execute(_text("SELECT rowid, name, email, company, size, industry, COALESCE(sales_status,'new'), COALESCE(notes,''), requirement, timeline, created_at FROM b2b_leads ORDER BY rowid DESC LIMIT 500")).fetchall()
     except Exception:
-        rows = []
-    return [{"name": r[0], "email": r[1], "company": r[2], "size": r[3], "industry": r[4], "status": r[5], "requirement": r[6], "timeline": r[7], "created_at": r[8]} for r in rows]
+        try:
+            db.execute(_text("ALTER TABLE b2b_leads ADD COLUMN sales_status TEXT DEFAULT 'new'"))
+            db.execute(_text("ALTER TABLE b2b_leads ADD COLUMN notes TEXT DEFAULT ''"))
+            db.commit()
+            rows = db.execute(_text("SELECT rowid, name, email, company, size, industry, COALESCE(sales_status,'new'), COALESCE(notes,''), requirement, timeline, created_at FROM b2b_leads ORDER BY rowid DESC LIMIT 500")).fetchall()
+        except Exception:
+            rows = []
+    return [{"id": r[0], "name": r[1], "email": r[2], "company": r[3], "size": r[4], "industry": r[5], "status": r[6], "notes": r[7], "requirement": r[8], "timeline": r[9], "created_at": r[10]} for r in rows]
+
+
+@router.patch("/b2b/leads/{lead_id}")
+def b2b_lead_update(lead_id: int, payload: dict, user: models.User = Depends(get_current_user), db: Session = Depends(get_db)):
+    from sqlalchemy import text as _text
+    p = payload or {}
+    fields, vals = [], {}
+    if "status" in p:
+        fields.append("sales_status = :status")
+        vals["status"] = str(p["status"])[:30]
+    if "notes" in p:
+        fields.append("notes = :notes")
+        vals["notes"] = str(p["notes"])[:5000]
+    if not fields:
+        return {"ok": False, "error": "nothing to update"}
+    vals["id"] = lead_id
+    try:
+        db.execute(_text("UPDATE b2b_leads SET " + ", ".join(fields) + " WHERE rowid = :id"), vals)
+        db.commit()
+        return {"ok": True}
+    except Exception as e:
+        return {"ok": False, "error": str(e)}
+
+
+@router.delete("/b2b/leads/{lead_id}")
+def b2b_lead_delete(lead_id: int, user: models.User = Depends(get_current_user), db: Session = Depends(get_db)):
+    from sqlalchemy import text as _text
+    try:
+        db.execute(_text("DELETE FROM b2b_leads WHERE rowid = :id"), {"id": lead_id})
+        db.commit()
+        return {"ok": True}
+    except Exception as e:
+        return {"ok": False, "error": str(e)}
 
 
 

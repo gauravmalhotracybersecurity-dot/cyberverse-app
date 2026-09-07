@@ -110,6 +110,10 @@ async def careers_page(request: Request):
     # Redirects to homepage until Careers pages are built in a future phase
     return RedirectResponse(url="/", status_code=302)
 
+@router.get("/admin-leads", response_class=HTMLResponse)
+async def admin_leads_page(request: Request):
+    return templates.TemplateResponse("admin_leads.html", {"request": request})
+
 @router.get("/b2b", response_class=HTMLResponse)
 async def b2b_page(request: Request):
     return templates.TemplateResponse("b2b.html", {"request": request})

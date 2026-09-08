@@ -104,6 +104,12 @@ def b2b_lead(payload: dict, db: Session = Depends(get_db)):
         db.execute(_text("INSERT INTO b2b_leads (name,email,company,size,industry,status,requirement,timeline,created_at) VALUES (:n,:e,:c,:s,:i,:t,:r,:tl,:ca)"),
                    {"n": name, "e": email, "c": company, "s": size, "i": industry, "t": status, "r": requirement, "tl": timeline, "ca": _dt.utcnow().isoformat()})
         db.commit()
+    try:
+        _nl_send({"from": NL_FROM, "to": [_os.environ.get("ADMIN_NOTIFY_EMAIL") or "gauravmalhotra.cybersecurity@gmail.com"],
+                  "subject": "New B2B lead: " + str((payload or {}).get("company", "")),
+                  "html": "<p>New B2B assessment lead:</p><ul><li>Name: " + str((payload or {}).get("name", "")) + "</li><li>Email: " + str((payload or {}).get("email", "")) + "</li><li>Company: " + str((payload or {}).get("company", "")) + "</li><li>Size: " + str((payload or {}).get("size", "")) + "</li><li>Timeline: " + str((payload or {}).get("timeline", "")) + "</li></ul><p>Requirement: " + str((payload or {}).get("requirement", "")) + "</p><p><a href='https://grcwithgaurav.com/admin-leads'>Open admin</a></p>"})
+    except Exception:
+        pass
     except Exception:
         return {"ok": False, "error": "Could not save your request. Please try again."}
     return {"ok": True}
@@ -430,9 +436,16 @@ def nl_subscribe(payload: dict, db: Session = Depends(get_db)):
     if not _re.match(r"^[\w.+-]+@[\w-]+\.[\w.]+$", email):
         return {"ok": False, "error": "Invalid email"}
     _nl_ensure(db)
-    db.execute(_t("INSERT OR IGNORE INTO newsletter_subs (email, source, created_at, unsubscribed) VALUES (:e,:s,:c,0)"), {"e": email, "s": source, "c": _dt.utcnow().isoformat()})
+    cur = db.execute(_t("INSERT OR IGNORE INTO newsletter_subs (email, source, created_at, unsubscribed) VALUES (:e,:s,:c,0)"), {"e": email, "s": source, "c": _dt.utcnow().isoformat()})
     db.execute(_t("UPDATE newsletter_subs SET unsubscribed=0 WHERE email=:e"), {"e": email})
     db.commit()
+    try:
+        if getattr(cur, "rowcount", 1) == 1:
+            _nl_send({"from": NL_FROM, "to": [_os.environ.get("ADMIN_NOTIFY_EMAIL") or "gauravmalhotra.cybersecurity@gmail.com"],
+                      "subject": "New newsletter subscriber: " + email,
+                      "html": "<p>New subscriber: <b>" + email + "</b><br>Source: " + source + "</p><p><a href='https://grcwithgaurav.com/admin-leads'>Open admin</a></p>"})
+    except Exception:
+        pass
     if source == "starter_kit":
         _nl_send({"from": NL_FROM, "to": [email], "subject": "Your Free Cybersecurity Starter Kit is inside", "html": KIT_HTML.replace("__UNSUB__", _nl_quote(email))})
     return {"ok": True}
@@ -513,3 +526,22 @@ def mint_credential(payload: dict, user: models.User = Depends(get_current_user)
                 "s": str(p.get("score",""))[:10], "t": _dt.utcnow().isoformat()})
     db.commit()
     return {"cred_id": cred, "url": "https://grcwithgaurav.com/c/" + cred}
+
+
+@router.get("/admin/audience")
+def admin_audience(user: models.User = Depends(get_current_user), db: Session = Depends(get_db)):
+    from sqlalchemy import text as _t
+    if not _is_admin(user):
+        raise HTTPException(status_code=403, detail="Admin only")
+    out = {"subs": [], "leads": []}
+    try:
+        rows = db.execute(_t("SELECT email, source, created_at FROM newsletter_subs ORDER BY created_at DESC LIMIT 500")).fetchall()
+        out["subs"] = [{"email": r[0], "source": r[1], "created_at": r[2]} for r in rows]
+    except Exception:
+        pass
+    try:
+        rows = db.execute(_t("SELECT email, source, created_at FROM leads ORDER BY created_at DESC LIMIT 500")).fetchall()
+        out["leads"] = [{"email": r[0], "source": r[1], "created_at": r[2]} for r in rows]
+    except Exception:
+        pass
+    return out

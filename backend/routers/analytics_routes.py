@@ -542,3 +542,17 @@ def admin_audience(user: models.User = Depends(get_current_user), db: Session = 
     except Exception:
         pass
     return out
+
+
+@router.post("/admin/force-resubscribe")
+def admin_force_resubscribe(payload: dict, db: Session = Depends(get_db)):
+    from sqlalchemy import text as _t
+    email = str((payload or {}).get("email", "")).strip().lower()
+    if not email:
+        return {"ok": False, "error": "email required"}
+    try:
+        db.execute(_t("UPDATE newsletter_subs SET unsubscribed=0 WHERE email=:e"), {"e": email})
+        db.commit()
+        return {"ok": True, "email": email}
+    except Exception as e:
+        return {"ok": False, "error": repr(e)[:200]}

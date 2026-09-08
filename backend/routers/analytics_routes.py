@@ -464,6 +464,20 @@ KIT_HTML = """<div style="font-family:Arial,sans-serif;background:#0a0a0a;color:
 <p style="font-size:12px;color:#888"><a href="https://grcwithgaurav.com/api/analytics/newsletter/unsubscribe?email=__UNSUB__" style="color:#888">Unsubscribe</a></p>
 </div>"""
 
+WELCOME_HTML = """<div style="font-family:Arial,sans-serif;background:#0a0a0a;color:#e0e0e0;padding:24px">
+<h2 style="color:#00ffcc">You're on the list. Welcome.</h2>
+<p>Every Monday: one email, three links - the best free GRC/cybersecurity guides, tools and one honest career take. No spam, ever.</p>
+<p><strong>Start here (all free):</strong></p>
+<ol style="line-height:2.1">
+<li><a href="https://grcwithgaurav.com/tools" style="color:#00ffcc">10 free GRC tools (risk register, ISO gap assessment, ATS checker)</a></li>
+<li><a href="https://grcwithgaurav.com/app.html" style="color:#00ffcc">AI Mock Interview Coach - free practice session</a></li>
+<li><a href="https://grcwithgaurav.com/learn/how-to-start-grc-career" style="color:#00ffcc">How to Start a GRC Career in 2026 (no IT background)</a></li>
+</ol>
+<p>Reply to this email any time - it reaches Gaurav directly.<br>- Gaurav</p>
+<p style="font-size:12px;color:#888"><a href="https://grcwithgaurav.com/api/analytics/newsletter/unsubscribe?email=__UNSUB__" style="color:#888">Unsubscribe</a></p>
+</div>"""
+
+
 @router.post("/newsletter/subscribe")
 def nl_subscribe(payload: dict, db: Session = Depends(get_db)):
     import re as _re
@@ -484,6 +498,11 @@ def nl_subscribe(payload: dict, db: Session = Depends(get_db)):
         if source == "starter_kit":
             try:
                 _nl_send({"from": NL_FROM, "to": [email], "subject": "Your Free Cybersecurity Starter Kit is inside", "html": KIT_HTML.replace("__UNSUB__", _nl_quote(email))})
+            except Exception:
+                pass
+        else:
+            try:
+                _nl_send({"from": NL_FROM, "to": [email], "subject": "Welcome to GRCWithGaurav", "html": WELCOME_HTML.replace("__UNSUB__", email)})
             except Exception:
                 pass
         return {"ok": True}

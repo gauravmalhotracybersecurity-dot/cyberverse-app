@@ -770,8 +770,8 @@ def admin_seed_abandoned(payload: dict, request: Request, db: Session = Depends(
     # Insert order dated 48h ago so it clears the 24h threshold
     from datetime import timedelta as _td
     old = (_dt.utcnow() - _td(hours=48)).isoformat()
-    db.execute(_t("INSERT INTO billing_orders (order_id, user_id, plan, amount, status, created_at) VALUES (:o,:u,:p,:a,:s,:c)"),
-               {"o": order_id, "u": user_id, "p": plan, "a": 499, "s": "created", "c": old})
+    db.execute(_t("INSERT INTO billing_orders (user_id, order_id, plan, created_at) VALUES (:u,:o,:p,:c)"),
+               {"u": user_id, "o": order_id, "p": plan, "c": old})
     db.commit()
     return {"ok": True, "order_id": order_id, "user_id": user_id, "plan": plan, "created_at": old}
 

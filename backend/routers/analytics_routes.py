@@ -433,6 +433,11 @@ def _nl_send_single_sendgrid(msg, key):
         "content": [{"type": "text/plain", "value": _nl_plain(msg.get("html", ""))}, {"type": "text/html", "value": msg.get("html", "")}]
     }
     
+    _to = (msg.get("to") or [""])[0]
+    sendgrid_msg["headers"] = {
+        "List-Unsubscribe": "<https://grcwithgaurav.com/api/analytics/newsletter/unsubscribe?email=" + _to + ">, <mailto:hello@mail.grcwithgaurav.com?subject=unsubscribe>",
+        "List-Unsubscribe-Post": "List-Unsubscribe=One-Click"
+    }
     url = "https://api.sendgrid.com/v3/mail/send"
     req = _nl_req.Request(url, data=_nl_json.dumps(sendgrid_msg).encode("utf-8"),
         headers={

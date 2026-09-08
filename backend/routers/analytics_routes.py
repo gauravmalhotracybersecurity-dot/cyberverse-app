@@ -386,7 +386,7 @@ from fastapi.responses import HTMLResponse as _NL_HTML
 from fastapi import Request as _NL_Request
 from fastapi import HTTPException as _NL_HTTP
 
-NL_FROM = "Gaurav Malhotra <hello@grcwithgaurav.com>"
+NL_FROM = _os.environ.get("RESEND_FROM_EMAIL", "onboarding@resend.dev")
 
 def _nl_send(messages):
     key = _os.environ.get("RESEND_API_KEY", "")

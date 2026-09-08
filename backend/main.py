@@ -112,6 +112,23 @@ app.include_router(story_routes.router)
 
 @app.get("/api/health")
 def health():
+    try:
+        import importlib as _il
+        try:
+            _ar = _il.import_module("routers.analytics_routes")
+        except Exception:
+            _ar = _il.import_module("backend.routers.analytics_routes")
+        try:
+            from database import SessionLocal as _SL
+        except Exception:
+            from backend.database import SessionLocal as _SL
+        _cdb = _SL()
+        try:
+            _ar.cart_sweep_throttled(_cdb)
+        finally:
+            _cdb.close()
+    except Exception:
+        pass
     return {"status": "ok", "environment": settings.environment}
 
 

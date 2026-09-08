@@ -154,6 +154,18 @@ h1{{color:#fff;margin:.4rem 0 .2rem;font-size:1.7rem}}
 <a class="cta" href="https://grcwithgaurav.com/app.html">Earn yours free &rarr;</a>
 </div></body></html>""")
 
+@router.get("/privacy", response_class=HTMLResponse)
+async def privacy_page(request: Request):
+    return templates.TemplateResponse("privacy.html", {"request": request})
+
+@router.get("/terms", response_class=HTMLResponse)
+async def terms_page(request: Request):
+    return templates.TemplateResponse("terms.html", {"request": request})
+
+@router.get("/disclaimer", response_class=HTMLResponse)
+async def disclaimer_page(request: Request):
+    return templates.TemplateResponse("disclaimer.html", {"request": request})
+
 @router.get("/refund-policy", response_class=HTMLResponse)
 async def refund_policy_page(request: Request):
     return templates.TemplateResponse("refunds.html", {"request": request})

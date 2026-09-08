@@ -609,19 +609,43 @@ async def nl_test_send(payload: dict, request: Request):
     if not email:
         return {"ok": False, "error": "email required"}
     api_key = _os.environ.get("RESEND_API_KEY", "")
-    body = _j.dumps({"from": NL_FROM, "to": [email], "subject": "CyberVerse test", "html": "<p>Test</p>"}).encode()
-    req = _u.Request("https://api.resend.com/emails", data=body, method="POST")
-    req.add_header("Authorization", "Bearer " + api_key)
-    req.add_header("Content-Type", "application/json")
-    try:
-        with _u.urlopen(req, timeout=15) as r:
-            resp = _j.loads(r.read())
-        return {"ok": True, "from": NL_FROM, "response": resp}
-    except HTTPError as e:
-        error_body = e.read().decode() if e.fp else ""
-        return {"ok": False, "from": NL_FROM, "status": e.code, "error_body": error_body[:500], "headers": dict(e.headers)}
-    except Exception as e:
-        return {"ok": False, "from": NL_FROM, "error": repr(e)[:400]}
+    provider = _os.environ.get("EMAIL_PROVIDER", "resend").lower()
+    
+    if provider == "sendgrid":
+        from_email = NL_FROM.split("<")[-1].rstrip(">") if "<" in NL_FROM else NL_FROM
+        from_name = NL_FROM.split("<")[0].strip() if "<" in NL_FROM else ""
+        sendgrid_msg = {
+            "personalizations": [{"to": [{"email": email}]}],
+            "from": {"email": from_email, "name": from_name},
+            "subject": "CyberVerse test",
+            "content": [{"type": "text/html", "value": "<p>If you can read this, SendGrid works!</p>"}]
+        }
+        body = _j.dumps(sendgrid_msg).encode()
+        req = _u.Request("https://api.sendgrid.com/v3/mail/send", data=body, method="POST")
+        req.add_header("Authorization", "Bearer " + api_key)
+        req.add_header("Content-Type", "application/json")
+        try:
+            with _u.urlopen(req, timeout=15) as r:
+                return {"ok": True, "from": NL_FROM, "provider": "sendgrid", "status": r.status}
+        except HTTPError as e:
+            error_body = e.read().decode() if e.fp else ""
+            return {"ok": False, "from": NL_FROM, "provider": "sendgrid", "status": e.code, "error_body": error_body[:500]}
+        except Exception as e:
+            return {"ok": False, "from": NL_FROM, "provider": "sendgrid", "error": repr(e)[:400]}
+    else:
+        body = _j.dumps({"from": NL_FROM, "to": [email], "subject": "CyberVerse test", "html": "<p>Test</p>"}).encode()
+        req = _u.Request("https://api.resend.com/emails", data=body, method="POST")
+        req.add_header("Authorization", "Bearer " + api_key)
+        req.add_header("Content-Type", "application/json")
+        try:
+            with _u.urlopen(req, timeout=15) as r:
+                resp = _j.loads(r.read())
+            return {"ok": True, "from": NL_FROM, "provider": "resend", "response": resp}
+        except HTTPError as e:
+            error_body = e.read().decode() if e.fp else ""
+            return {"ok": False, "from": NL_FROM, "provider": "resend", "status": e.code, "error_body": error_body[:500]}
+        except Exception as e:
+            return {"ok": False, "from": NL_FROM, "provider": "resend", "error": repr(e)[:400]}
 
 
 @router.get("/newsletter/debug")

@@ -436,19 +436,13 @@ def nl_subscribe(payload: dict, db: Session = Depends(get_db)):
     if not _re.match(r"^[\w.+-]+@[\w-]+\.[\w.]+$", email):
         return {"ok": False, "error": "Invalid email"}
     _nl_ensure(db)
-    cur = db.execute(_t("INSERT OR IGNORE INTO newsletter_subs (email, source, created_at, unsubscribed) VALUES (:e,:s,:c,0)"), {"e": email, "s": source, "c": _dt.utcnow().isoformat()})
+    db.execute(_t("INSERT OR IGNORE INTO newsletter_subs (email, source, created_at, unsubscribed) VALUES (:e,:s,:c,0)"), {"e": email, "s": source, "c": _dt.utcnow().isoformat()})
     db.execute(_t("UPDATE newsletter_subs SET unsubscribed=0 WHERE email=:e"), {"e": email})
     db.commit()
-    try:
-        if getattr(cur, "rowcount", 1) == 1:
-            _nl_send({"from": NL_FROM, "to": [_os.environ.get("ADMIN_NOTIFY_EMAIL") or "gauravmalhotra.cybersecurity@gmail.com"],
-                      "subject": "New newsletter subscriber: " + email,
-                      "html": "<p>New subscriber: <b>" + email + "</b><br>Source: " + source + "</p><p><a href='https://grcwithgaurav.com/admin-leads'>Open admin</a></p>"})
-    except Exception:
-        pass
     if source == "starter_kit":
         _nl_send({"from": NL_FROM, "to": [email], "subject": "Your Free Cybersecurity Starter Kit is inside", "html": KIT_HTML.replace("__UNSUB__", _nl_quote(email))})
     return {"ok": True}
+
 
 @router.get("/newsletter/unsubscribe", response_class=_NL_HTML)
 def nl_unsubscribe(email: str = "", db: Session = Depends(get_db)):

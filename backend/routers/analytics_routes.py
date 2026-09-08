@@ -432,8 +432,7 @@ def nl_subscribe(payload: dict, db: Session = Depends(get_db)):
             return {"ok": False, "error": "Invalid email"}
         _nl_ensure(db)
         try:
-            db.execute(_t("INSERT INTO newsletter_subs (email, source, created_at, unsubscribed) VALUES (:e,:s,:c,0) ON CONFLICT (email) DO NOTHING"), {"e": email, "s": source, "c": _dt.utcnow().isoformat()})
-            db.execute(_t("UPDATE newsletter_subs SET unsubscribed=0 WHERE email=:e"), {"e": email})
+            db.execute(_t("INSERT INTO newsletter_subs (email, source, created_at, unsubscribed) VALUES (:e,:s,:c,0) ON CONFLICT (email) DO UPDATE SET unsubscribed=0, source=EXCLUDED.source"), {"e": email, "s": source, "c": _dt.utcnow().isoformat()})
             db.commit()
         except Exception as db_err:
             db.rollback()

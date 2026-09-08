@@ -229,6 +229,7 @@ def billing_checkout(payload: dict, user: models.User = Depends(get_current_user
         req = _u.Request("https://api.razorpay.com/v1/orders", data=data, method="POST")
         req.add_header("Authorization", "Basic " + base64.b64encode((key + ":" + sec).encode()).decode())
         req.add_header("Content-Type", "application/json")
+        req.add_header("User-Agent", "cyberverse-app/1.0")
         try:
             with _u.urlopen(req, timeout=20) as r:
                 order = _j.loads(r.read())
@@ -394,7 +395,7 @@ def _nl_send(messages):
         return {"ok": False, "error": "RESEND_API_KEY not set"}
     url = "https://api.resend.com/emails/batch" if isinstance(messages, list) else "https://api.resend.com/emails"
     req = _nl_req.Request(url, data=_nl_json.dumps(messages).encode("utf-8"),
-        headers={"Authorization": "Bearer " + key, "Content-Type": "application/json"}, method="POST")
+        headers={"Authorization": "Bearer " + key, "Content-Type": "application/json", "User-Agent": "cyberverse-app/1.0"}, method="POST")
     try:
         with _nl_req.urlopen(req, timeout=25) as resp:
             return {"ok": True, "status": getattr(resp, "status", 200)}

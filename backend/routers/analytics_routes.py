@@ -417,6 +417,11 @@ def _nl_send(messages):
         except Exception as e:
             return {"ok": False, "error": str(e)}
 
+def _nl_plain(html):
+    import re as _re2
+    return _re2.sub(r"<[^>]+>", " ", html or "")[:3000]
+
+
 def _nl_send_single_sendgrid(msg, key):
     """Send single email via SendGrid"""
     # Convert Resend format to SendGrid format
@@ -425,7 +430,7 @@ def _nl_send_single_sendgrid(msg, key):
         "from": {"email": msg.get("from", "").split("<")[-1].rstrip(">") if "<" in msg.get("from", "") else msg.get("from", ""),
                  "name": msg.get("from", "").split("<")[0].strip() if "<" in msg.get("from", "") else ""},
         "subject": msg.get("subject", ""),
-        "content": [{"type": "text/html", "value": msg.get("html", "")}]
+        "content": [{"type": "text/plain", "value": _nl_plain(msg.get("html", ""))}, {"type": "text/html", "value": msg.get("html", "")}]
     }
     
     url = "https://api.sendgrid.com/v3/mail/send"
@@ -618,7 +623,7 @@ async def nl_test_send(payload: dict, request: Request):
             "personalizations": [{"to": [{"email": email}]}],
             "from": {"email": from_email, "name": from_name},
             "subject": "CyberVerse test",
-            "content": [{"type": "text/html", "value": "<p>If you can read this, SendGrid works!</p>"}]
+            "content": [{"type": "text/plain", "value": "If you can read this, SendGrid works!"}, {"type": "text/html", "value": "<p>If you can read this, SendGrid works!</p>"}]
         }
         body = _j.dumps(sendgrid_msg).encode()
         req = _u.Request("https://api.sendgrid.com/v3/mail/send", data=body, method="POST")

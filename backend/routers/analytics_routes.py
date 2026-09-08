@@ -391,14 +391,52 @@ NL_FROM = _os.environ.get("RESEND_FROM_EMAIL", "onboarding@resend.dev")
 
 def _nl_send(messages):
     key = _os.environ.get("RESEND_API_KEY", "")
+    provider = _os.environ.get("EMAIL_PROVIDER", "resend").lower()
     if not key:
         return {"ok": False, "error": "RESEND_API_KEY not set"}
-    url = "https://api.resend.com/emails/batch" if isinstance(messages, list) else "https://api.resend.com/emails"
-    req = _nl_req.Request(url, data=_nl_json.dumps(messages).encode("utf-8"),
-        headers={"Authorization": "Bearer " + key, "Content-Type": "application/json", "User-Agent": "cyberverse-app/1.0"}, method="POST")
+    
+    if provider == "sendgrid":
+        # SendGrid API v3
+        if isinstance(messages, list):
+            # Batch send
+            results = []
+            for msg in messages:
+                r = _nl_send_single_sendgrid(msg, key)
+                results.append(r)
+            return {"ok": all(r.get("ok") for r in results), "results": results}
+        else:
+            return _nl_send_single_sendgrid(messages, key)
+    else:
+        # Original Resend API (fallback)
+        url = "https://api.resend.com/emails/batch" if isinstance(messages, list) else "https://api.resend.com/emails"
+        req = _nl_req.Request(url, data=_nl_json.dumps(messages).encode("utf-8"),
+            headers={"Authorization": "Bearer " + key, "Content-Type": "application/json"}, method="POST")
+        try:
+            with _nl_req.urlopen(req, timeout=25) as resp:
+                return {"ok": True, "status": getattr(resp, "status", 200)}
+        except Exception as e:
+            return {"ok": False, "error": str(e)}
+
+def _nl_send_single_sendgrid(msg, key):
+    """Send single email via SendGrid"""
+    # Convert Resend format to SendGrid format
+    sendgrid_msg = {
+        "personalizations": [{"to": [{"email": e} for e in msg.get("to", [])]}],
+        "from": {"email": msg.get("from", "").split("<")[-1].rstrip(">") if "<" in msg.get("from", "") else msg.get("from", ""),
+                 "name": msg.get("from", "").split("<")[0].strip() if "<" in msg.get("from", "") else ""},
+        "subject": msg.get("subject", ""),
+        "content": [{"type": "text/html", "value": msg.get("html", "")}]
+    }
+    
+    url = "https://api.sendgrid.com/v3/mail/send"
+    req = _nl_req.Request(url, data=_nl_json.dumps(sendgrid_msg).encode("utf-8"),
+        headers={
+            "Authorization": "Bearer " + key,
+            "Content-Type": "application/json"
+        }, method="POST")
     try:
         with _nl_req.urlopen(req, timeout=25) as resp:
-            return {"ok": True, "status": getattr(resp, "status", 200)}
+            return {"ok": True, "status": getattr(resp, "status", 202)}
     except Exception as e:
         return {"ok": False, "error": str(e)}
 

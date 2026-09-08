@@ -774,3 +774,30 @@ def admin_seed_abandoned(payload: dict, request: Request, db: Session = Depends(
                {"o": order_id, "u": user_id, "p": plan, "a": 499, "s": "created", "c": old})
     db.commit()
     return {"ok": True, "order_id": order_id, "user_id": user_id, "plan": plan, "created_at": old}
+
+
+@router.get("/admin/db-schema")
+def admin_db_schema(request: Request, db: Session = Depends(get_db)):
+    import os as _os2
+    from sqlalchemy import text as _t
+    secret = request.headers.get("x-admin-secret", "")
+    if secret != _os2.environ.get("ADMIN_SECRET", ""):
+        raise HTTPException(status_code=403, detail="Forbidden")
+    try:
+        tables = db.execute(_t("SELECT table_name FROM information_schema.tables WHERE table_schema = 'public'")).fetchall()
+        out = {"tables": [t[0] for t in tables], "billing_orders": []}
+        if "billing_orders" in [t[0] for t in tables]:
+            cols = db.execute(_t("SELECT column_name, data_type FROM information_schema.columns WHERE table_name = 'billing_orders'")).fetchall()
+            out["billing_orders"] = [{"col": c[0], "type": c[1]} for c in cols]
+        return out
+    except Exception as e:
+        # SQLite fallback
+        try:
+            tables = db.execute(_t("SELECT name FROM sqlite_master WHERE type='table'")).fetchall()
+            out = {"tables": [t[0] for t in tables], "billing_orders": []}
+            if "billing_orders" in [t[0] for t in tables]:
+                cols = db.execute(_t("PRAGMA table_info(billing_orders)")).fetchall()
+                out["billing_orders"] = [{"col": c[1], "type": c[2]} for c in cols]
+            return out
+        except Exception as e2:
+            return {"error": repr(e2)[:300]}

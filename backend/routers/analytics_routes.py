@@ -109,8 +109,21 @@ def b2b_lead(payload: dict, db: Session = Depends(get_db)):
     return {"ok": True}
 
 
+def _is_admin(user):
+    import os
+    raw = os.environ.get("ADMIN_EMAIL", "")
+    if raw:
+        allowed = {x.strip().lower() for x in raw.replace(";", ",").split(",") if x.strip()}
+    else:
+        allowed = {"gauravmalhotra.cybersecurity@gmail.com", "gaurav_malhotra86@yahoo.com", "gauravmalhotra86@yahoo.com"}
+    em = getattr(user, "email", "") or ""
+    return em.lower() in allowed
+
+
 @router.get("/b2b/leads")
 def b2b_leads(user: models.User = Depends(get_current_user), db: Session = Depends(get_db)):
+    if not _is_admin(user):
+        raise HTTPException(status_code=403, detail="Admin only")
     from sqlalchemy import text as _text
     try:
         rows = db.execute(_text("SELECT rowid, name, email, company, size, industry, COALESCE(sales_status,'new'), COALESCE(notes,''), requirement, timeline, created_at FROM b2b_leads ORDER BY rowid DESC LIMIT 500")).fetchall()
@@ -127,6 +140,8 @@ def b2b_leads(user: models.User = Depends(get_current_user), db: Session = Depen
 
 @router.patch("/b2b/leads/{lead_id}")
 def b2b_lead_update(lead_id: int, payload: dict, user: models.User = Depends(get_current_user), db: Session = Depends(get_db)):
+    if not _is_admin(user):
+        raise HTTPException(status_code=403, detail="Admin only")
     from sqlalchemy import text as _text
     p = payload or {}
     fields, vals = [], {}
@@ -149,6 +164,8 @@ def b2b_lead_update(lead_id: int, payload: dict, user: models.User = Depends(get
 
 @router.delete("/b2b/leads/{lead_id}")
 def b2b_lead_delete(lead_id: int, user: models.User = Depends(get_current_user), db: Session = Depends(get_db)):
+    if not _is_admin(user):
+        raise HTTPException(status_code=403, detail="Admin only")
     from sqlalchemy import text as _text
     try:
         db.execute(_text("DELETE FROM b2b_leads WHERE rowid = :id"), {"id": lead_id})
@@ -464,6 +481,8 @@ def nl_send(payload: dict, request: _NL_Request, db: Session = Depends(get_db)):
 
 @router.get("/admin/payments")
 def admin_payments(user: models.User = Depends(get_current_user), db: Session = Depends(get_db)):
+    if not _is_admin(user):
+        raise HTTPException(status_code=403, detail="Admin only")
     from sqlalchemy import text as _t
     out = {"subs": [], "abandoned": []}
     try:

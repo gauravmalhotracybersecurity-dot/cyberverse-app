@@ -560,18 +560,27 @@ def admin_force_resubscribe(payload: dict, db: Session = Depends(get_db)):
 
 @router.post("/newsletter/test-send")
 async def nl_test_send(payload: dict, request: Request):
-    import os as _os
+    import os as _os, json as _j
+    from urllib import request as _u
+    from urllib.error import HTTPError
     secret = request.headers.get("x-admin-secret", "")
     if secret != _os.environ.get("ADMIN_SECRET", ""):
         raise HTTPException(status_code=403, detail="Forbidden")
     email = str((payload or {}).get("email", "")).strip()
     if not email:
         return {"ok": False, "error": "email required"}
+    api_key = _os.environ.get("RESEND_API_KEY", "")
+    body = _j.dumps({"from": NL_FROM, "to": [email], "subject": "CyberVerse test", "html": "<p>Test</p>"}).encode()
+    req = _u.Request("https://api.resend.com/emails", data=body, method="POST")
+    req.add_header("Authorization", "Bearer " + api_key)
+    req.add_header("Content-Type", "application/json")
     try:
-        result = _nl_send({"from": NL_FROM, "to": [email],
-                           "subject": "CyberVerse test email",
-                           "html": "<p>If you can read this, the newsletter pipeline works.</p>"})
-        return {"ok": True, "from": NL_FROM, "result": str(result)[:300]}
+        with _u.urlopen(req, timeout=15) as r:
+            resp = _j.loads(r.read())
+        return {"ok": True, "from": NL_FROM, "response": resp}
+    except HTTPError as e:
+        error_body = e.read().decode() if e.fp else ""
+        return {"ok": False, "from": NL_FROM, "status": e.code, "error_body": error_body[:500], "headers": dict(e.headers)}
     except Exception as e:
         return {"ok": False, "from": NL_FROM, "error": repr(e)[:400]}
 

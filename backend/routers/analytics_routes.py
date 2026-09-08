@@ -513,3 +513,22 @@ def mint_credential(payload: dict, user: models.User = Depends(get_current_user)
                 "s": str(p.get("score",""))[:10], "t": _dt.utcnow().isoformat()})
     db.commit()
     return {"cred_id": cred, "url": "https://grcwithgaurav.com/c/" + cred}
+
+
+@router.get("/admin/audience")
+def admin_audience(user: models.User = Depends(get_current_user), db: Session = Depends(get_db)):
+    from sqlalchemy import text as _t
+    if not _is_admin(user):
+        raise HTTPException(status_code=403, detail="Admin only")
+    out = {"subs": [], "leads": []}
+    try:
+        rows = db.execute(_t("SELECT email, source, created_at FROM newsletter_subs ORDER BY created_at DESC LIMIT 500")).fetchall()
+        out["subs"] = [{"email": r[0], "source": r[1], "created_at": r[2]} for r in rows]
+    except Exception:
+        pass
+    try:
+        rows = db.execute(_t("SELECT email, source, created_at FROM leads ORDER BY created_at DESC LIMIT 500")).fetchall()
+        out["leads"] = [{"email": r[0], "source": r[1], "created_at": r[2]} for r in rows]
+    except Exception:
+        pass
+    return out

@@ -556,3 +556,21 @@ def admin_force_resubscribe(payload: dict, db: Session = Depends(get_db)):
         return {"ok": True, "email": email}
     except Exception as e:
         return {"ok": False, "error": repr(e)[:200]}
+
+
+@router.post("/newsletter/test-send")
+async def nl_test_send(payload: dict, request: Request):
+    import os as _os
+    secret = request.headers.get("x-admin-secret", "")
+    if secret != _os.environ.get("ADMIN_SECRET", ""):
+        raise HTTPException(status_code=403, detail="Forbidden")
+    email = str((payload or {}).get("email", "")).strip()
+    if not email:
+        return {"ok": False, "error": "email required"}
+    try:
+        result = _nl_send({"from": NL_FROM, "to": [email],
+                           "subject": "CyberVerse test email",
+                           "html": "<p>If you can read this, the newsletter pipeline works.</p>"})
+        return {"ok": True, "from": NL_FROM, "result": str(result)[:300]}
+    except Exception as e:
+        return {"ok": False, "from": NL_FROM, "error": repr(e)[:400]}

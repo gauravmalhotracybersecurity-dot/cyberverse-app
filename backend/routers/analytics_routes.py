@@ -425,24 +425,28 @@ def nl_subscribe(payload: dict, db: Session = Depends(get_db)):
     import re as _re
     from sqlalchemy import text as _t
     from datetime import datetime as _dt
-    email = str((payload or {}).get("email", "")).strip().lower()[:200]
-    source = str((payload or {}).get("source", "footer"))[:50]
-    if not _re.match(r"^[\w.+-]+@[\w-]+\.[\w.]+$", email):
-        return {"ok": False, "error": "Invalid email"}
-    _nl_ensure(db)
-    db.execute(_t("INSERT OR IGNORE INTO newsletter_subs (email, source, created_at, unsubscribed) VALUES (:e,:s,:c,0)"), {"e": email, "s": source, "c": _dt.utcnow().isoformat()})
-    db.execute(_t("UPDATE newsletter_subs SET unsubscribed=0 WHERE email=:e"), {"e": email})
-    db.commit()
     try:
-        _nl_send({"from": NL_FROM,
-                  "to": [_os.environ.get("ADMIN_NOTIFY_EMAIL") or "gauravmalhotra.cybersecurity@gmail.com"],
-                  "subject": "New newsletter subscriber: " + email,
-                  "html": "<p><b>" + email + "</b> just subscribed.<br>Source: " + source + "</p><p><a href='https://grcwithgaurav.com/admin-leads'>Open admin</a></p>"})
-    except Exception:
-        pass
-    if source == "starter_kit":
-        _nl_send({"from": NL_FROM, "to": [email], "subject": "Your Free Cybersecurity Starter Kit is inside", "html": KIT_HTML.replace("__UNSUB__", _nl_quote(email))})
-    return {"ok": True}
+        email = str((payload or {}).get("email", "")).strip().lower()[:200]
+        source = str((payload or {}).get("source", "footer"))[:50]
+        if not _re.match(r"^[\w.+-]+@[\w-]+\.[\w.]+$", email):
+            return {"ok": False, "error": "Invalid email"}
+        _nl_ensure(db)
+        try:
+            db.execute(_t("INSERT OR IGNORE INTO newsletter_subs (email, source, created_at, unsubscribed) VALUES (:e,:s,:c,0)"), {"e": email, "s": source, "c": _dt.utcnow().isoformat()})
+            db.execute(_t("UPDATE newsletter_subs SET unsubscribed=0 WHERE email=:e"), {"e": email})
+            db.commit()
+        except Exception as db_err:
+            db.rollback()
+            return {"ok": False, "error": "Database error: " + repr(db_err)[:100]}
+        if source == "starter_kit":
+            try:
+                _nl_send({"from": NL_FROM, "to": [email], "subject": "Your Free Cybersecurity Starter Kit is inside", "html": KIT_HTML.replace("__UNSUB__", _nl_quote(email))})
+            except Exception:
+                pass
+        return {"ok": True}
+    except Exception as e:
+        return {"ok": False, "error": repr(e)[:200]}
+
 
 @router.get("/newsletter/unsubscribe", response_class=_NL_HTML)
 def nl_unsubscribe(email: str = "", db: Session = Depends(get_db)):

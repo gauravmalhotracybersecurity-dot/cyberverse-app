@@ -20,9 +20,11 @@
 {% endblock %}
 {% block content %}
 <div class="wrap">
+ <div id="admin-head" style="display:none">
  <h1 style="color:#fff">Payments &amp; Subscriptions <span style="color:var(--muted);font-size:1rem;font-weight:400">/ admin</span></h1>
  <p class="hint"><a href="/admin-leads" style="color:var(--accent)">&larr; B2B leads</a></p>
- <div id="gate" class="gate" style="display:none"><h2>Not signed in</h2><p><a href="/app.html">Log in</a>, then reload.</p></div>
+ </div>
+ <div id="checking" style="padding:3rem;text-align:center;color:var(--muted)">Verifying access&hellip;</div>
  <div id="app" style="display:none">
   <div class="stats" id="stats"></div>
   <h2>Active subscriptions</h2>
@@ -37,10 +39,11 @@
 var TOKEN = localStorage.getItem("cv_token");
 var DATA = null;
 var PRICE = {pro: 499, premium: 999};
+if(!TOKEN){ location.replace("/app.html"); }
 function esc(s){ var d=document.createElement("div"); d.textContent=(s==null?"":s); return d.innerHTML; }
 function fmt(d){ try{ return new Date(d).toLocaleString(); }catch(e){ return d||""; } }
 fetch("/api/analytics/admin/payments", {headers:{"Authorization":"Bearer "+TOKEN}})
-.then(function(r){ if(r.status===401||r.status===403){ document.getElementById("gate").style.display="block"; throw new Error("auth"); } return r.json(); })
+.then(function(r){ if(r.status===401||r.status===403){ location.replace("/app.html"); throw new Error("auth"); } return r.json(); })
 .then(function(d){
   DATA = d;
   var rev = 0, pro = 0, pre = 0;
@@ -59,6 +62,8 @@ fetch("/api/analytics/admin/payments", {headers:{"Authorization":"Bearer "+TOKEN
   a += "</table>";
   document.getElementById("aband").innerHTML = d.abandoned.length ? a : "<p class='hint'>No abandoned checkouts. Clean funnel!</p>";
   document.getElementById("app").style.display = "block";
+  var _h=document.getElementById("admin-head"); if(_h)_h.style.display="block";
+  var _c=document.getElementById("checking"); if(_c)_c.style.display="none";
 })
 .catch(function(e){ if(e.message!=="auth") console.log("payments admin error:", e); });
 document.getElementById("btn-csv").onclick = function(){

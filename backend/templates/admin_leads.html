@@ -34,13 +34,12 @@
 {% endblock %}
 {% block content %}
 <div class="wrap">
+ <div id="admin-head" style="display:none">
  <h1 style="color:#fff">B2B Leads <span style="color:var(--muted);font-size:1rem;font-weight:400">/ admin</span></h1>
  <p style="color:var(--muted">Submissions from the "Get a Free GRC Assessment" funnel. &middot; <a href="/admin-payments" style="color:var(--accent)">View payments &amp; subscriptions &rarr;</a></p>
-
- <div id="gate" class="gate" style="display:none">
-   <h2>Not signed in</h2>
-   <p><a href="/app.html">Log in to CyberVerse AI</a>, then reload this page.</p>
  </div>
+ <div id="checking" style="padding:3rem;text-align:center;color:var(--muted)">Verifying access&hellip;</div>
+
 
  <div id="app" style="display:none">
    <div class="stats" id="stats"></div>
@@ -74,7 +73,7 @@ async function api(path, opts){
   var h = {"Content-Type":"application/json"};
   if(TOKEN) h["Authorization"] = "Bearer " + TOKEN;
   var r = await fetch(path, Object.assign({}, opts, {headers:h}));
-  if(r.status === 401 || r.status === 403){ document.getElementById("gate").style.display="block"; document.getElementById("app").style.display="none"; throw new Error("auth"); }
+  if(r.status === 401 || r.status === 403){ location.replace("/app.html"); throw new Error("auth"); }
   return r.json();
 }
 
@@ -93,6 +92,8 @@ async function load(){
     "<div class='stat'><b>"+wonC+"</b><span>Closed-won</span></div>";
   render();
   document.getElementById("app").style.display = "block";
+  var _h=document.getElementById("admin-head"); if(_h)_h.style.display="block";
+  var _c=document.getElementById("checking"); if(_c)_c.style.display="none";
 }
 
 function render(){
@@ -181,10 +182,6 @@ document.getElementById("btn-export").onclick = function(){
   a.click();
 };
 
-if(!TOKEN){
-  document.getElementById("gate").style.display = "block";
-} else {
-  load();
-}
+if(!TOKEN){ location.replace("/app.html"); } else { load(); }
 </script>
 {% endblock %}

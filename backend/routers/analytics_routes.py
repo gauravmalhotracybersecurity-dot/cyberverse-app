@@ -574,3 +574,18 @@ async def nl_test_send(payload: dict, request: Request):
         return {"ok": True, "from": NL_FROM, "result": str(result)[:300]}
     except Exception as e:
         return {"ok": False, "from": NL_FROM, "error": repr(e)[:400]}
+
+
+@router.get("/newsletter/debug")
+async def nl_debug(request: Request):
+    import os as _os
+    secret = request.headers.get("x-admin-secret", "")
+    if secret != _os.environ.get("ADMIN_SECRET", ""):
+        raise HTTPException(status_code=403, detail="Forbidden")
+    return {
+        "RESEND_API_KEY_set": bool(_os.environ.get("RESEND_API_KEY")),
+        "RESEND_API_KEY_prefix": (_os.environ.get("RESEND_API_KEY") or "")[:8] + "...",
+        "RESEND_FROM_EMAIL": _os.environ.get("RESEND_FROM_EMAIL"),
+        "NL_FROM_constant": NL_FROM,
+        "grcwithgaurav.com_domain_verified": "Check Resend dashboard"
+    }

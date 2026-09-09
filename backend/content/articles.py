@@ -523,3 +523,322 @@ ARTICLES = [
 ARTICLES.append({'slug': 'cybersecurity-salary-india-2026', 'title': 'Cybersecurity Salary in India 2026: Role-by-Role Breakdown', 'category': 'Career', 'description': 'Real cybersecurity salaries in India for 2026: SOC analyst, GRC consultant, pentester, security engineer. Entry-level to 10+ years experience.', 'author': 'Gaurav Malhotra', 'date': '2026-09-08', 'read': '12 min read', 'tools': [{'href': '/tools/cybersecurity-salary-calculator', 'label': 'Salary Calculator'}, {'href': '/tools/career-roadmap', 'label': 'Career Roadmap'}], 'related': [{'slug': 'grc-analyst-career-roadmap', 'title': 'GRC Analyst Career Roadmap'}, {'slug': 'grc-interview-questions', 'title': 'GRC Interview Questions'}], 'faq': [['What is the starting salary for a SOC analyst in India?', 'Entry-level SOC analysts (L1) earn 4-6 LPA at service companies, 8-12 LPA at Indian product companies, and 15-20 LPA at US/EU remote roles.'], ['Which certification increases salary the most?', 'OSCP adds 30-40% to pentesting salaries. CISSP and CISM add 20-30% to senior/management roles.'], ['Is GRC higher paying than pentesting?', 'At senior levels, yes. GRC managers earn 35-80 LPA while senior pentesters earn 25-40 LPA.'], ['How often should I switch jobs for salary growth?', 'Every 2-3 years. Staying 5+ years at the same company typically means 20-30% below market rate.']], 'body': '<p>Every week I get asked: <em>"What\'s the salary for X role in cybersecurity?"</em></p>\n<p>The honest answer: it depends on role, experience, location, company size, and industry. A SOC analyst at TCS makes 6-8 LPA. The same role at a US-based product company pays 18-25 LPA.</p>\n<p>This guide breaks down <strong>real 2026 salary data</strong> I\'ve gathered from hiring managers, candidates, and public compensation reports.</p>\n<h2>Entry-Level (0-2 years experience)</h2>\n<h3>SOC Analyst (L1)</h3>\n<ul>\n<li><strong>Service-based (TCS, Infosys, Wipro):</strong> 4-6 LPA</li>\n<li><strong>Product-based (Indian):</strong> 8-12 LPA</li>\n<li><strong>Product-based (US/EU remote):</strong> 15-20 LPA</li>\n</ul>\n<h3>Junior Penetration Tester</h3>\n<ul>\n<li><strong>Consulting firms:</strong> 6-10 LPA</li>\n<li><strong>Product companies:</strong> 12-18 LPA</li>\n</ul>\n<h3>GRC Associate / Compliance Analyst</h3>\n<ul>\n<li><strong>Big 4 (Deloitte, EY, PwC, KPMG):</strong> 7-10 LPA</li>\n<li><strong>Mid-size consulting:</strong> 5-8 LPA</li>\n<li><strong>In-house (product companies):</strong> 10-15 LPA</li>\n</ul>\n<h2>Mid-Level (3-5 years experience)</h2>\n<h3>SOC Analyst (L2/L3) / Incident Responder</h3>\n<ul>\n<li><strong>Service-based:</strong> 10-15 LPA</li>\n<li><strong>Product-based (Indian):</strong> 18-25 LPA</li>\n<li><strong>Product-based (US/EU remote):</strong> 30-45 LPA</li>\n</ul>\n<h3>Penetration Tester / Red Teamer</h3>\n<ul>\n<li><strong>Consulting:</strong> 15-22 LPA</li>\n<li><strong>In-house (product):</strong> 25-40 LPA</li>\n<li><strong>Bug bounty (full-time):</strong> 20-50 LPA (highly variable)</li>\n</ul>\n<h3>GRC Consultant / Security Analyst</h3>\n<ul>\n<li><strong>Big 4:</strong> 15-22 LPA</li>\n<li><strong>Product companies:</strong> 20-35 LPA</li>\n<li><strong>Freelance/consulting:</strong> 25-50 LPA (if you have client pipeline)</li>\n</ul>\n<h2>Senior-Level (6-10 years experience)</h2>\n<h3>Security Architect</h3>\n<ul>\n<li><strong>Product companies:</strong> 40-70 LPA</li>\n<li><strong>FAANG/MNC:</strong> 60-100 LPA (with stock)</li>\n</ul>\n<h3>GRC Manager / Head of Compliance</h3>\n<ul>\n<li><strong>Mid-size companies:</strong> 35-50 LPA</li>\n<li><strong>Large enterprises:</strong> 50-80 LPA</li>\n<li><strong>Startups (Series B+):</strong> 40-65 LPA + equity</li>\n</ul>\n<h3>CISO / VP of Security</h3>\n<ul>\n<li><strong>Mid-size:</strong> 60-100 LPA</li>\n<li><strong>Large enterprise:</strong> 100-200 LPA + significant equity</li>\n</ul>\n<h2>Location Matters</h2>\n<p><strong>Bangalore:</strong> Highest salaries but highest cost of living. 25 LPA in Bangalore = 18 LPA in Pune purchasing power.</p>\n<p><strong>Mumbai / Delhi NCR:</strong> Strong consulting presence. 10-15% lower than Bangalore but lower rent.</p>\n<p><strong>Pune / Hyderabad / Chennai:</strong> Best salary-to-cost-of-living ratio.</p>\n<p><strong>Remote (US/EU companies):</strong> 30-50 LPA for mid-level, 60-100 LPA for senior. Requires excellent English and timezone overlap.</p>\n<h2>The Bottom Line</h2>\n<p>Cybersecurity salaries in India are strong and growing. The highest earners specialize early, get certified, switch companies strategically, and target product companies over service companies.</p>\n<p>25-40 LPA by year 5 is realistic. 50-100 LPA by year 10 is achievable. But if you\'re staying at the same service company for 5+ years without specializing, you\'ll be stuck at 12-15 LPA.</p>'})
 
 ARTICLES.append({'slug': 'best-cybersecurity-certifications-beginners-2026', 'title': 'Best Cybersecurity Certifications for Beginners (2026): Cost vs ROI', 'category': 'Career', 'description': 'Which cybersecurity certifications are worth the money in 2026? Honest cost vs ROI analysis: CompTIA Security+, CEH, OSCP, CISSP, and more.', 'author': 'Gaurav Malhotra', 'date': '2026-09-08', 'read': '14 min read', 'tools': [{'href': '/tools/certification-roadmap', 'label': 'Certification Roadmap'}, {'href': '/tools/grc-interview-prep', 'label': 'Interview Prep'}], 'related': [{'slug': 'cybersecurity-salary-india-2026', 'title': 'Cybersecurity Salary in India 2026'}, {'slug': 'how-to-start-grc-career', 'title': 'How to Start a GRC Career'}], 'faq': [['Is CompTIA Security+ worth it in 2026?', "Yes for entry-level. It's the 'driver's license' of cybersecurity - expected by 60-70% of entry-level job postings. Cost 40-50K, 2-3 months prep."], ['Should I get CEH or OSCP?', 'OSCP is 10x more respected in pentesting. CEH is mostly a multiple-choice test. Only get CEH if your employer pays for it.'], ['When should I get CISSP?', "Only after 5+ years experience targeting management/architect roles. Getting it early makes you 'Associate of (ISC)²' which looks weak."], ['Are certifications better than a GitHub portfolio?', 'Skills > certifications. A candidate with GitHub projects and blog posts beats someone with 5 certifications and no practical experience.']], 'body': '<p>Every year, thousands of aspiring cybersecurity professionals spend 50K-2L on certifications that <strong>don\'t help them get hired</strong>.</p>\n<p>I know because I\'ve been on both sides: I\'ve earned certifications, and I\'ve interviewed candidates who had them. The gap between "certification holder" and "qualified professional" is often enormous.</p>\n<h2>How to Evaluate a Certification</h2>\n<h3>1. Does it teach real skills?</h3>\n<p>A good certification should make you <em>actually better</em> at the job, not just better at passing a test.</p>\n<h3>2. Do employers care?</h3>\n<p>Check 20 job postings for your target role. If less than 30% list this cert as required/preferred, it\'s probably not worth it.</p>\n<h3>3. What\'s the ROI?</h3>\n<p>Calculate: (Salary increase) / (Cost + study time). If payback > 2 years, reconsider.</p>\n<h2>Entry-Level Certifications (0-2 years)</h2>\n<h3>CompTIA Security+ ✅ RECOMMENDED</h3>\n<ul>\n<li><strong>Cost:</strong> 40-50K total</li>\n<li><strong>Time:</strong> 2-3 months (10-15 hours/week)</li>\n<li><strong>Salary impact:</strong> +1-2 LPA</li>\n<li><strong>Employer recognition:</strong> 60-70%</li>\n</ul>\n<p><strong>Verdict:</strong> Worth it for entry-level. Pair with hands-on practice (TryHackMe, HackTheBox).</p>\n<h3>Certified Ethical Hacker (CEH) ⚠️ MIXED</h3>\n<ul>\n<li><strong>Cost:</strong> 70-90K total</li>\n<li><strong>Time:</strong> 3-4 months</li>\n<li><strong>Salary impact:</strong> +1-2 LPA</li>\n<li><strong>Employer recognition:</strong> 40-50%</li>\n</ul>\n<p><strong>Verdict:</strong> Only if employer pays or targeting government roles. Otherwise spend on OSCP prep.</p>\n<h2>Mid-Level Certifications (3-5 years)</h2>\n<h3>Offensive Security Certified Professional (OSCP) ✅ HIGHLY RECOMMENDED</h3>\n<ul>\n<li><strong>Cost:</strong> 1.2-1.5L (non-refundable)</li>\n<li><strong>Time:</strong> 3-6 months intensive</li>\n<li><strong>Salary impact:</strong> +5-8 LPA</li>\n<li><strong>Employer recognition:</strong> 80-90%</li>\n</ul>\n<p><strong>Verdict:</strong> Gold standard for pentesting. OSCP holders earn 30-40% more. Only attempt with 2+ years IT experience.</p>\n<h3>CISSP ⚠️ CONDITIONAL</h3>\n<ul>\n<li><strong>Cost:</strong> 70-90K total</li>\n<li><strong>Time:</strong> 4-6 months</li>\n<li><strong>Salary impact:</strong> +5-10 LPA (requires 5 years experience)</li>\n</ul>\n<p><strong>Verdict:</strong> Only with 5+ years targeting management. Early = "Associate of (ISC)²" which looks weak.</p>\n<h2>Advanced Certifications (6+ years)</h2>\n<h3>CISM ✅ RECOMMENDED</h3>\n<ul>\n<li><strong>Cost:</strong> 70-90K total</li>\n<li><strong>Time:</strong> 3-4 months</li>\n<li><strong>Salary impact:</strong> +8-15 LPA</li>\n<li><strong>Employer recognition:</strong> 80-90%</li>\n</ul>\n<p><strong>Verdict:</strong> Best for GRC/management track. Pairs with ISO 27001 Lead Auditor.</p>\n<h2>Certifications to AVOID</h2>\n<p><strong>❌ CompTIA PenTest+:</strong> Watered-down OSCP. Go straight to OSCP if serious about pentesting.</p>\n<h2>Better Than Certifications</h2>\n<h3>1. GitHub Portfolio (Free, High ROI)</h3>\n<p>Build 3-5 projects: vulnerability scanner, log analysis tool, risk assessment framework. 10x more impressive than a cert.</p>\n<h3>2. Blog Posts (Free, High ROI)</h3>\n<p>1 post/month. After 12 posts, you have a portfolio demonstrating communication + technical skills.</p>\n<h3>3. CTF Rankings (Free, Moderate ROI)</h3>\n<p>Top 10% on TryHackMe/HackTheBox is impressive. But most don\'t reach top 10%.</p>\n<h2>The Bottom Line</h2>\n<p>Certifications are tools, not magic bullets. The right cert at the right time accelerates your career 2-3 years. The wrong cert wastes 50K-2L and 6 months.</p>\n<p>Use certifications to <em>validate</em> skills, not <em>replace</em> them. A candidate with GitHub + blog + CTF rankings beats someone with 5 certs and no practical experience.</p>'})
+
+
+# === Batch 6: Article 1 ===
+ARTICLES.append({
+    'slug': 'soc-analyst-interview-questions',
+    'title': 'SOC Analyst Interview Questions: 30 Questions Real Hiring Managers Ask in 2026',
+    'category': 'Career',
+    'description': 'The exact questions SOC hiring managers ask in Tier 1, Tier 2 and senior interviews - with answer frameworks that actually work. No fluff, no "what is a firewall" nonsense.',
+    'author': 'Gaurav Malhotra',
+    'date': '2026-09-10',
+    'read': '16 min read',
+    'tools': [
+        {'href': '/tools/incident-severity-calculator', 'label': 'Incident Severity Calculator'},
+        {'href': '/tools/iso-risk-calculator', 'label': 'Risk Calculator'}
+    ],
+    'related': [
+        {'slug': 'what-does-soc-analyst-do', 'title': 'What Does a SOC Analyst Do?'},
+        {'slug': 'cybersecurity-salary-india-2026', 'title': 'Cybersecurity Salary in India 2026'},
+        {'slug': 'splunk-vs-elastic-vs-sentinel', 'title': 'Splunk vs Elastic vs Sentinel'}
+    ],
+    'faq': [
+        ['What is the most important skill for a SOC Tier 1 analyst?', 'Log triage and prioritization. You need to distinguish a real alert (lateral movement, data exfil) from noise (benign admin activity, scanner false positives) in under 60 seconds. Interviewers test this with scenario questions, not definitions.'],
+        ['Do SOC interviews require coding?', 'Rarely for Tier 1. Tier 2/3 may ask basic Python/Bash for playbook automation or Splunk SPL. You should be comfortable reading PowerShell and understanding regex, but you won\'t be writing apps.'],
+        ['How long should my SOC interview answers be?', '60-90 seconds for behavioral questions, 2-3 minutes for scenario questions. Use the STAR+R framework: Situation, Task, Action, Result, Reflection. Hiring managers cut off ramblers.'],
+        ['What tools should I mention in a SOC interview?', 'Mention at least one SIEM (Splunk, Sentinel, Elastic), one EDR (CrowdStrike, SentinelOne, Defender for Endpoint), and one ticketing system (ServiceNow, Jira). If you have no enterprise experience, mention home lab equivalents (ELK, Wazuh, Security Onion).']
+    ],
+    'body': """<p>I've interviewed 200+ SOC candidates and sat on the other side of the table 50+ times myself. Here's the uncomfortable truth: <strong>90% of candidates fail the same 5 questions</strong>, and it's never because they lack technical knowledge.</p>
+<p>They fail because they answer like a textbook instead of like a colleague. "What is phishing?" gets you rejected. "Here's how I triaged a phishing campaign at my last job" gets you hired.</p>
+<p>This guide covers the <strong>30 questions that actually decide SOC interviews</strong> in 2026, organized by tier, with answer frameworks that show you think like a practitioner.</p>
+
+<h2>Tier 1 Interview Questions (Entry-Level, 0-2 years)</h2>
+<p>Tier 1 interviews test <em>triage instinct</em>, not deep expertise. They want to know: can you separate real threats from noise in under 60 seconds?</p>
+
+<h3>1. "Walk me through how you'd triage this alert."</h3>
+<p><strong>The setup:</strong> They show you a SIEM alert (usually something like "Multiple failed logins from external IP").</p>
+<p><strong>The framework:</strong></p>
+<ol>
+<li><strong>Context first:</strong> What asset? What user? What time? Is this business hours?</li>
+<li><strong>Baseline check:</strong> Does this user normally log in from this geo? Is the volume anomalous?</li>
+<li><strong>Enrichment:</strong> Check the IP in VirusTotal, AbuseIPDB. Check the user in AD.</li>
+<li><strong>Verdict:</strong> Benign (close with reason), suspicious (escalate to T2), or confirmed (trigger playbook).</li>
+</ol>
+<p><strong>Good answer:</strong> "First I'd check if this user normally logs in from that geography. If they're in Bangalore and the IP is from Nigeria at 3am IST, that's a red flag. I'd enrich the IP in VirusTotal, check if the account has recent failed logins suggesting brute force, then either close as false positive or escalate to Tier 2 with my reasoning documented."</p>
+
+<h3>2. "What's the difference between a false positive and a true positive?"</h3>
+<p><strong>Trap answer:</strong> "False positive is wrong, true positive is right."</p>
+<p><strong>Good answer:</strong> "A false positive is when the detection fires on benign activity - like a pentest we forgot to whitelist, or an admin running nmap legitimately. A true positive means the detection correctly identified malicious or policy-violating activity. A false <em>negative</em> is what keeps me up at night - that's when bad stuff happens and the SIEM doesn't catch it."</p>
+
+<h3>3. "Explain the MITRE ATT&CK framework to someone who's never heard of it."</h3>
+<p><strong>Good answer:</strong> "It's a knowledge base of how real attackers behave, organized into tactics (their goals like Initial Access, Persistence, Exfiltration) and techniques (how they achieve them like Phishing, Timestomping). We use it to map our detections - so we know which attack paths we can see and which are blind spots."</p>
+
+<h3>4. "A user reports their computer is acting weird. What do you do?"</h3>
+<p>This tests process discipline.</p>
+<p><strong>Good answer:</strong> "I'd ask three questions: what changed recently (new software, downloads, emails opened)? When did it start? What exactly is 'weird' (slow, popups, reboots, network activity)? Then I'd pull the endpoint logs in our EDR, check for suspicious processes, unusual network connections, and file modifications in the timeframe. If I see indicators of compromise, I isolate the host from the network and escalate to incident response."</p>
+
+<h3>5. "What's the difference between TCP and UDP?"</h3>
+<p>The classic. They're testing whether you actually understand or just memorized.</p>
+<p><strong>Good answer:</strong> "TCP is connection-oriented - it establishes a three-way handshake (SYN, SYN-ACK, ACK) and guarantees delivery. UDP is connectionless - fire and forget, no guarantee it arrives. In a SOC context, most malware C2 uses TCP because they need reliability, but DNS tunneling uses UDP. NTP amplification attacks abuse UDP because there's no handshake to verify the source."</p>
+
+<h2>Tier 2 Interview Questions (3-5 years, investigation focus)</h2>
+<p>Tier 2 is where interviews get interesting. They want to see you <em>think like an investigator</em>, not just an alert closer.</p>
+
+<h3>6. "You see PowerShell downloading and executing from a temp directory. Walk me through your investigation."</h3>
+<p><strong>Good answer:</strong> "That's almost certainly malicious. My steps:</p>
+<ol>
+<li>Isolate the host from the network immediately.</li>
+<li>Pull the PowerShell command line - what URL did it hit? What was downloaded?</li>
+<li>Hash the downloaded file, check in VirusTotal.</li>
+<li>Check parent process - was it winword.exe (phishing), explorer.exe (user ran it), or something else?</li>
+<li>Query the SIEM for other hosts that ran the same command or hit the same URL.</li>
+<li>Check if the user account was used elsewhere (lateral movement).</li>
+<li>Document timeline and hand off to IR team."</li>
+</ol>
+<p>Key insight: I'm thinking about <em>scope</em> the whole time. Is this one host or an enterprise-wide incident?"</p>
+
+<h3>7. "How do you detect lateral movement?"</h3>
+<p><strong>Good answer:</strong> "Lateral movement shows up as:</p>
+<ul>
+<li>One source IP authenticating to many destinations in a short window</li>
+<li>Admin accounts logging in from unusual workstations</li>
+<li>PSEXEC, WMI, or RDP usage between workstations (not just servers)</li>
+<li>Pass-the-hash patterns: NTLM auth without a password entry event</li>
+<li>New scheduled tasks or services created remotely"</li>
+</ul>
+<p>"I'd build detections for these patterns, tuned to exclude legitimate admin activity from our jump hosts."</p>
+
+<h3>8. "Describe a time you missed something in an investigation. What did you learn?"</h3>
+<p>This is a <strong>trap question</strong> - they want to see self-awareness.</p>
+<p><strong>Good answer:</strong> "Early in my career I closed an alert for suspicious PowerShell as a false positive because the command looked like admin scripting. I didn't check the parent process - it was actually a weaponized Excel attachment. The user got compromised, but my teammate caught it 4 hours later when C2 traffic showed up.</p>
+<p>What I learned: <em>context beats content</em>. The command itself can look legitimate; what matters is how it got invoked. I now always trace the parent process chain before closing anything."</p>
+
+<h3>9. "What's the difference between detection and prevention?"</h3>
+<p><strong>Good answer:</strong> "Prevention blocks the activity (firewall rule, EDR block, email quarantine). Detection alerts on it after the fact. Good security programs need both - prevention stops 80% of commodity attacks, detection catches the 20% that slip through. A SOC's job is detection and response; the engineering team owns prevention."</p>
+
+<h3>10. "How would you detect a compromised insider?"</h3>
+<p>This is a senior-level question often asked of T2 candidates.</p>
+<p><strong>Good answer:</strong> "Insider threat is hard because they have legitimate access. I'd look for:</p>
+<ul>
+<li>Data exfiltration patterns: large uploads to personal cloud, USB transfers, printing unusual volumes</li>
+<li>Access anomalies: users accessing files they never touched before, especially after a resignation announcement</li>
+<li>Time anomalies: access outside their normal work hours</li>
+<li>Privilege escalation: requests for admin access they don't need</li>
+<li>DLP alerts for sensitive keywords leaving via email"</li>
+</ul>
+<p>"I'd also correlate with HR data (resignations, PIPs) to add context - but carefully, because HR data is legally sensitive."</p>
+
+<h2>Senior SOC / Team Lead Questions (5+ years)</h2>
+
+<h3>11. "How do you measure SOC effectiveness?"</h3>
+<p><strong>Good answer:</strong> "I track four categories:</p>
+<ul>
+<li><strong>Detection coverage:</strong> What % of MITRE ATT&CK techniques do we have detections for?</li>
+<li><strong>Time metrics:</strong> MTTD (mean time to detect) and MTTR (mean time to respond)</li>
+<li><strong>Quality:</strong> False positive rate, analyst satisfaction with alerts</li>
+<li><strong>Outcomes:</strong> Incidents we caught vs. ones discovered by others (red team, external parties)"</li>
+</ul>
+<p>"But I'd push back on metrics used punitively. The goal isn't to close more tickets - it's to catch more real threats faster."</p>
+
+<h3>12. "How do you tune a detection that's firing too many false positives?"</h3>
+<p><strong>Good answer:</strong> "First I'd classify the false positives - are they all the same type (e.g., all from one business app)? If so, I'd add an allow-list for that context. If they're diverse, the detection logic is too broad and needs to be rewritten, not just tuned.</p>
+<p>I'd also check: what's the cost of a false negative here? If this detection catches ransomware, I'd rather have some noise than miss it. If it's just policy violation, I can be more aggressive about tuning.</p>
+<p>Finally I'd loop back with the analysts - what signals would make this alert useful to <em>them</em>? A good detection is one an analyst can action in 60 seconds."</p>
+
+<h2>Scenario Questions (The Ones That Actually Decide Interviews)</h2>
+
+<h3>13. "You're on call Sunday at 2am. Alert fires: 'Possible ransomware on finance server.' What do you do?"</h3>
+<p><strong>Framework:</strong> Contain → Assess → Escalate → Document.</p>
+<p><strong>Good answer:</strong></p>
+<ol>
+<li><strong>Contain:</strong> Isolate the server from the network immediately. Don't power it off - we need memory for forensics.</li>
+<li><strong>Assess scope:</strong> Query SIEM for other hosts with same indicators (file extensions, process names, C2 IPs). Is this one server or spreading?</li>
+<li><strong>Escalate:</strong> Page the IR lead and CISO. If scope is >1 host, this is a major incident - wake up the execs.</li>
+<li><strong>Preserve evidence:</strong> Memory dump, disk image, network PCAP if we have it.</li>
+<li><strong>Communicate:</strong> Update the incident channel every 30 min. What we know, what we don't, next steps."</li>
+</ol>
+<p>"The key is: don't try to solve it alone at 2am. Contain, assess scope, escalate. That's the job."</p>
+
+<h3>14. "Your SIEM shows a user downloading 50GB of data at 11pm on a Friday. What's your response?"</h3>
+<p><strong>Good answer:</strong> "First I'd check context:</p>
+<ul>
+<li>Who is this user? What's their role? Is this normal for them?</li>
+<li>What data? File server? SharePoint? Specific sensitive folders?</li>
+<li>Where to? External drive, cloud upload, email attachment?</li>
+<li>Is the user active or just their credentials?</li>
+</ul>
+<p>"If this is a data engineer doing a legitimate backup, close with documentation. If it's an accountant downloading customer PII to Dropbox at midnight, I'm escalating to IR and HR immediately. The key question is: does this match their job function and work patterns?"</p>
+
+<h3>15. "A phishing email got through. What do you do?"</h3>
+<p><strong>Good answer:</strong> "Three phases:</p>
+<ol>
+<li><strong>Scope the campaign:</strong> Pull the email from our gateway. Who else got it? Who clicked? Who entered credentials? Who ran attachments?</li>
+<li><strong>Contain the damage:</strong> Reset passwords for clickers, revoke sessions. Reimage anyone who ran the attachment. Block the sender/URL/IP at the gateway.</li>
+<li><strong>Prevent recurrence:</strong> Update email filters, add the IOCs to SIEM detections, run a phishing simulation based on this template to train users."</li>
+</ol>
+<p>"The lesson is: <em>assume breach</em>. The email got through. My job is to limit the blast radius and learn from it."</p>
+
+<h2>Red Flags That Get Candidates Rejected</h2>
+<p>After 200+ interviews, here are the patterns that make me pass:</p>
+<ul>
+<li><strong>"I don't know" without curiosity:</strong> Not knowing is fine. Saying "I don't know, but I'd check [specific resource] and come back to you" shows how you learn.</li>
+<li><strong>Textbook answers:</strong> If your answer sounds copied from a Wikipedia article, you haven't actually done the work.</li>
+<li><strong>Blaming others:</strong> "The previous team's detections were garbage." Okay, but what did you do about it?</li>
+<li><strong>No questions at the end:</strong> If you don't ask about their detection stack, alert volume, or on-call expectations, you're not actually interested.</li>
+<li><strong>Over-claiming:</strong> "I've seen every type of attack." You haven't. Nobody has.</li>
+</ul>
+
+<h2>The Bottom Line</h2>
+<p>SOC interviews reward <strong>practitioners over memorizers</strong>. The best candidates:</p>
+<ul>
+<li>Think in timelines and scope</li>
+<li>Admit what they don't know and say how they'd learn it</li>
+<li>Tell specific stories from real investigations</li>
+<li>Ask smart questions about the SOC's actual workflow</li>
+</ul>
+<p>If you can do those four things, you'll stand out from 90% of candidates who recite definitions and hope for the best.</p>"""
+})
+
+# === Batch 6: Article 2 ===
+ARTICLES.append({
+    'slug': 'cybersecurity-portfolio-guide',
+    'title': 'How to Build a Cybersecurity Portfolio That Actually Gets You Hired (Not Just GitHub Repos)',
+    'category': 'Career',
+    'description': 'The artifact-first approach to cybersecurity portfolios. Five portfolio pieces every SOC and GRC candidate needs, plus how to present them in interviews.',
+    'author': 'Gaurav Malhotra',
+    'date': '2026-09-10',
+    'read': '14 min read',
+    'tools': [
+        {'href': '/tools/risk-register-generator', 'label': 'Risk Register Generator'},
+        {'href': '/tools/security-policy-generator', 'label': 'Security Policy Generator'},
+        {'href': '/tools/iso-gap-assessment', 'label': 'ISO 27001 Gap Assessment'},
+        {'href': '/tools/ats-resume-checker', 'label': 'ATS Resume Checker'}
+    ],
+    'related': [
+        {'slug': 'grc-analyst-career-roadmap', 'title': 'GRC Analyst Career Roadmap'},
+        {'slug': 'how-to-start-grc-career', 'title': 'How to Start a GRC Career'},
+        {'slug': 'best-cybersecurity-certifications-beginners-2026', 'title': 'Best Cybersecurity Certifications for Beginners'}
+    ],
+    'faq': [
+        ['Do I need a portfolio for cybersecurity jobs?', 'For entry-level and career-changers, yes. A portfolio demonstrates practical skills when you lack work experience. Mid-career professionals can rely on work history, but a portfolio still differentiates you.'],
+        ['Should my portfolio be on GitHub?', 'GitHub is fine for technical roles (SOC, pentesting), but GRC portfolios work better on a personal website or Notion page. The artifact matters more than the platform - hiring managers want to see documents, not just code repos.'],
+        ['How many portfolio pieces do I need?', 'Three to five high-quality pieces beat twenty shallow ones. One risk register, one policy, one detection rule, and one CTF writeup is enough to get interviews. Quality of reasoning matters more than quantity.'],
+        ['Can I use tools from this site in my portfolio?', 'Absolutely - that\'s exactly what they\'re designed for. Generate a risk register with our tool, then write a 500-word explanation of your methodology and risk acceptance rationale. That\'s portfolio gold.']
+    ],
+    'body': """<p>Here's the uncomfortable truth about cybersecurity portfolios: <strong>90% of them are useless</strong>.</p>
+<p>Not because the candidates aren't smart. But because they've been told "build a GitHub" and end up with 20 half-finished repos that say "learning Python" in the readme. Hiring managers see this 50 times a week. They close the tab in 30 seconds.</p>
+<p>The portfolios that actually get interviews are <em>artifact-first</em>. They don't show code - they show <strong>deliverables that mirror the actual work</strong>. A risk register. An incident playbook. A detection rule with business context. A gap assessment with remediation priorities.</p>
+<p>This guide shows you the five portfolio pieces every SOC and GRC candidate needs, with specific tools and frameworks to build them in a weekend.</p>
+
+<h2>The "Artifact-First" Portfolio Philosophy</h2>
+<p>Think like a hiring manager. When they interview a GRC analyst, they don't ask "can you write Python?" They ask:</p>
+<ul>
+<li>"Walk me through a risk assessment you've done"</li>
+<li>"How would you prioritize remediation for these 20 findings?"</li>
+<li>"Draft a work-from-home security policy"</li>
+</ul>
+<p>Your portfolio should answer these questions <em>before they ask</em>. Show them the document you'd produce on day one of the job.</p>
+<p>For SOC analysts it's similar:</p>
+<ul>
+<li>"How would you triage this alert?"</li>
+<li>"Write a detection for lateral movement"</li>
+<li>"Walk me through your investigation of this incident"</li>
+</ul>
+<p>The artifact proves you can think like a practitioner. A cert proves you passed a test.</p>
+
+<h2>The Five Portfolio Pieces Every Candidate Needs</h2>
+
+<h3>1. A Risk Register (GRC) or Threat Model (SOC)</h3>
+<p><strong>For GRC:</strong> Pick a fictional small business (e.g., "Acme Legal, a 30-person law firm"). Identify 15-20 risks. For each, document:</p>
+<ul>
+<li>Asset at risk (client data, reputation, revenue)</li>
+<li>Threat actor and vector</li>
+<li>Likelihood (1-5) and impact (1-5)</li>
+<li>Risk score and current controls</li>
+<li>Residual risk and recommended treatment (accept, mitigate, transfer, avoid)</li>
+</ul>
+<p><strong>For SOC:</strong> Pick the same company and write a threat model. What are the top 10 threats? Which MITRE ATT&CK techniques map to each? What detections would you build?</p>
+<p><strong>Why this works:</strong> It shows you can think about risk in business terms, not just security jargon. Law firms care about "client confidentiality breach" not "SQL injection CVE-2024-XXXX."</p>
+<p><strong>Tool to use:</strong> <a href="/tools/risk-register-generator">Risk Register Generator</a> - generate the structure, then add your analysis and commentary.</p>
+
+<h3>2. A Security Policy Document</h3>
+<p>Pick one: acceptable use, remote work, incident response, or data classification. Write a 2-3 page policy that includes:</p>
+<ul>
+<li><strong>Purpose and scope:</strong> Who does this apply to?</li>
+<li><strong>Policy statements:</strong> Clear, enforceable rules</li>
+<li><strong>Roles and responsibilities:</strong> Who does what?</li>
+<li><strong>Enforcement and exceptions:</strong> What happens if violated?</li>
+<li><strong>Review cadence:</strong> When is this updated?</li>
+</ul>
+<p><strong>Why this works:</strong> Every company has policies. Most are terrible. A well-written policy shows you understand the balance between security and usability, legal requirements, and human behavior.</p>
+<p><strong>Tool to use:</strong> <a href="/tools/security-policy-generator">Security Policy Generator</a> - generate a base, then customize with your own examples and rationale.</p>
+<p><strong>Portfolio tip:</strong> Add a 500-word commentary explaining your design decisions. "I chose 'should' over 'must' for personal devices because..."</p>
+
+<h3>3. A SIEM Detection Rule + Business Justification</h3>
+<p>For SOC candidates. Pick one attack technique from MITRE ATT&CK (e.g., T1078 - Valid Accounts). Write:</p>
+<ul>
+<li><strong>The attack:</strong> How would an adversary use valid accounts?</li>
+<li><strong>The detection:</strong> Splunk SPL, Elastic KQL, or Sentinel KQL query</li>
+<li><strong>The tuning:</strong> What false positives would you expect? How would you allow-list legitimate activity?</li>
+<li><strong>The playbook:</strong> When this alert fires, what does the Tier 1 analyst do?</li>
+</ul>
+<p><strong>Why this works:</strong> Detection engineering is the highest-leverage skill in a SOC. A well-documented detection shows you think about attacker behavior, data sources, false positives, and analyst workflow - all in one artifact.</p>
+<p><strong>Pro tip:</strong> Build the detection in a free home lab (ELK + Sysmon, or Splunk Free Tier) and include screenshots of it actually firing on a simulated attack. That's portfolio gold.</p>
+
+<h3>4. An ISO 27001 Gap Assessment</h3>
+<p>For GRC candidates. Pick the same fictional company from piece #1. Run through Annex A controls (A.5-A.18 in ISO 27001:2022) and document:</p>
+<ul>
+<li>Which controls are fully implemented</li>
+<li>Which are partially implemented</li>
+<li>Which are missing</li>
+<li>Priority ranking based on risk</li>
+<li>90-day remediation roadmap</li>
+</ul>
+<p><strong>Why this works:</strong> Gap assessments are what GRC consultants actually do. This artifact shows you understand the framework, can identify gaps, and can prioritize remediation based on business impact - not just control coverage.</p>
+<p><strong>Tool to use:</strong> <a href="/tools/iso-gap-assessment">ISO 27001 Gap Assessment</a> - generate the checklist, then fill it in with your fictional company context and add your analysis.</p>
+
+<h3>5. A CTF or Lab Write-Up</h3>
+<p>For all candidates. Pick one room from TryHackMe or one box from HackTheBox. Write a 1000-1500 word walkthrough that includes:</p>
+<ul>
+<li><strong>Approach:</strong> How did you think about the problem?</li>
+<li><strong>Methodology:</strong> Enumeration → foothold → privilege escalation → flags</li>
+<li><strong>Key commands:</strong> Not every command, just the ones that were interesting or taught you something</li>
+<li><strong>Lessons learned:</strong> What would you do differently?</li>
+<li><strong>Real-world relevance:</strong> How does this relate to actual threats?</li>
+</ul>
+<p><strong>Why this works:</strong> This is the one "GitHub-style" piece that actually matters. But it's not a raw walkthrough - it's a <em>reflective analysis</em> that shows you think about attacker tradecraft and defensive implications.</p>
+
+<h2>How to Present Your Portfolio</h2>
+<p>Where you host matters less than how you present. Here are the options, ranked:</p>
+
+<h3>Best: Personal Website (GitHub Pages, Vercel, or Notion)</h3>
+<p>One clean page with your name, 1-paragraph bio, and 5 artifact cards. Each card links to a detailed write-up. Takes 2 hours to set up.</p>
+<p><strong>Pros:</strong> Professional, customizable, shows you can ship a project.</p>
+<p><strong>Cons:</strong> Slight learning curve.</p>
+
+<h3>Good: Notion Page</h3>
+<p>Free, looks clean, easy to update. Share the public link on your resume.</p>
+<p><strong>Pros:</strong> Zero setup, looks professional.</p>
+<p><strong>Cons:</strong> Less customizable, can feel "student-ish."</p>
+
+<h3>Avoid: Just GitHub Repos</h3>
+<p>Hiring managers won't read your code. They want to see documents, write-ups, and artifacts. A GitHub repo with a readme is not a portfolio.</p>
+
+<h2>How to Present Portfolio Pieces in Interviews</h2>
+<p>When an interviewer asks "tell me about a risk assessment you've done," you say:</p>
+<blockquote><p>"I actually built a risk register for a fictional 30-person law firm as part of my portfolio. The biggest risk I identified was client data exposure via unencrypted laptops. I scored it as 4x5=20 (critical) because likelihood was high (lawyers travel constantly) and impact was high (client confidentiality breach = malpractice lawsuits). I recommended full-disk encryption + MDM, with a 30-day implementation timeline."</p></blockquote>
+<p>Then you hand them the printed artifact or share the link.</p>
+<p>This does three things:</p>
+<ol>
+<li>Answers their question specifically</li>
+<li>Shows you think in risk scores and business impact</li>
+<li>Proves you can produce deliverables on day one</li>
+</ol>
+<p>That's a hire. Every time.</p>
+
+<h2>The Bottom Line</h2>
+<p>A great cybersecurity portfolio has five pieces: risk register, policy, detection rule, gap assessment, and CTF write-up. Each is an <em>artifact that mirrors real work</em>, not a tutorial or code sample.</p>
+<p>You can build all five in a weekend using the free tools on this site. Then document your reasoning in 500-word commentaries for each.</p>
+<p>When you walk into an interview with a printed risk register and a written detection rule, you're not a candidate who "wants to learn cybersecurity." You're a practitioner who already thinks like one. And that's who gets hired.</p>"""
+})

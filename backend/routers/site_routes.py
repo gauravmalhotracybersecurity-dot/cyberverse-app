@@ -3,6 +3,8 @@ from fastapi import APIRouter, Request, HTTPException, Depends
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse, Response, RedirectResponse
 import sys
+from sqlalchemy.orm import Session
+from database import get_db
 
 router = APIRouter(tags=["site"])
 templates = Jinja2Templates(directory=os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "templates"))

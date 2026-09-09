@@ -136,6 +136,7 @@ def health():
 # present. This is what the Docker image does (see Dockerfile). Must be
 # mounted last, after all /api routes, so it only catches what they don't.
 if settings.frontend_dir and os.path.isdir(settings.frontend_dir):
+app.mount("/static", StaticFiles(directory="backend/static"), name="static")
     app.mount("/", StaticFiles(directory=settings.frontend_dir, html=True), name="frontend")
     logger.info("Serving frontend from %s", settings.frontend_dir)
 else:

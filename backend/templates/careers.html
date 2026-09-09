@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block title %}Cybersecurity Career Roadmaps | GRCWithGaurav{% endblock %}
+{% block description %}Step-by-step career roadmaps for SOC Analyst, GRC Analyst, and Penetration Tester roles. Skills, certifications, portfolio projects, and interview prep.{% endblock %}
+{% block content %}
+<div style="max-width:1000px;margin:0 auto;padding:2rem">
+ <h1 style="color:#fff">Cybersecurity Career Roadmaps</h1>
+ <p style="color:var(--muted);font-size:1.1rem;line-height:1.6">Three proven paths into cybersecurity. Pick the one that matches your background and follow it step by step.</p>
+
+ <div class="grid-3" style="margin-top:2rem">
+  <div class="card">
+   <h3>SOC Analyst Path</h3>
+   <p style="color:#c9c9c9;font-size:.9rem">Monitor, triage, and respond to security alerts. Best for: people who like fast-paced investigation and shift work.</p>
+   <ul style="color:#c9c9c9;font-size:.85rem;line-height:1.7;padding-left:1.2rem">
+    <li>Months 1-2: Network+ / Security+ fundamentals</li>
+    <li>Months 3-4: SIEM hands-on (Splunk free tier, ELK)</li>
+    <li>Months 5-6: Detection labs + CTF practice</li>
+    <li>Month 7+: Apply to Tier 1 SOC roles</li>
+   </ul>
+   <a href="/learn/what-does-soc-analyst-do" style="color:var(--accent);font-size:.9rem">Read the full SOC guide &rarr;</a>
+  </div>
+  <div class="card">
+   <h3>GRC Analyst Path</h3>
+   <p style="color:#c9c9c9;font-size:.9rem">Governance, risk, and compliance. Best for: detail-oriented people from audit, legal, finance, or ops backgrounds. No coding required.</p>
+   <ul style="color:#c9c9c9;font-size:.85rem;line-height:1.7;padding-left:1.2rem">
+    <li>Months 1-2: Learn GRC + ISO 27001 basics</li>
+    <li>Months 3-4: Build risk register + policy portfolio</li>
+    <li>Months 5-6: ISO 27001 Lead Implementer or Security+</li>
+    <li>Month 7+: Apply to GRC / compliance roles</li>
+   </ul>
+   <a href="/learn/grc-analyst-career-roadmap" style="color:var(--accent);font-size:.9rem">Read the full GRC guide &rarr;</a>
+  </div>
+  <div class="card">
+   <h3>Penetration Tester Path</h3>
+   <p style="color:#c9c9c9;font-size:.9rem">Offensive security testing. Best for: people who love breaking things and have strong networking + scripting skills. Longest path of the three.</p>
+   <ul style="color:#c9c9c9;font-size:.85rem;line-height:1.7;padding-left:1.2rem">
+    <li>Months 1-3: Networking + Linux + Python basics</li>
+    <li>Months 4-8: TryHackMe / HackTheBox grind</li>
+    <li>Months 9-12: OSCP prep + bug bounty practice</li>
+    <li>Year 2+: Apply to junior pentest roles</li>
+   </ul>
+   <a href="/learn/best-cybersecurity-certifications-beginners-2026" style="color:var(--accent);font-size:.9rem">See which certs matter &rarr;</a>
+  </div>
+ </div>
+
+ <div class="card" style="padding:2rem;margin-top:2.5rem;text-align:center;background:linear-gradient(135deg,#0d1a16,#0a0a0a);border:1px solid var(--accent)">
+  <h2 style="color:#fff;margin-top:0">Not sure which path fits you?</h2>
+  <p style="color:var(--muted);max-width:600px;margin:0 auto 1.5rem">CyberVerse AI assesses your current skills and builds a personalized 6-month roadmap based on your exact gaps - not a generic checklist.</p>
+  <a href="/app.html" class="btn-primary" style="display:inline-block">Get My Personalized Roadmap</a>
+ </div>
+
+ <div class="section" style="padding:2rem 0 0">
+  <h2 style="text-align:left">Supporting guides</h2>
+  <div class="grid-3">
+   <div class="card"><h3 style="font-size:1rem">How to Start a GRC Career</h3><p style="font-size:.85rem;color:#c9c9c9">The exact first 90 days for career changers.</p><a href="/learn/how-to-start-grc-career" style="font-size:.85rem">Read &rarr;</a></div>
+   <div class="card"><h3 style="font-size:1rem">Build a Portfolio That Gets Hired</h3><p style="font-size:.85rem;color:#c9c9c9">Five artifacts that beat 20 GitHub repos.</p><a href="/learn/cybersecurity-portfolio-guide" style="font-size:.85rem">Read &rarr;</a></div>
+   <div class="card"><h3 style="font-size:1rem">Salary Expectations 2026</h3><p style="font-size:.85rem;color:#c9c9c9">Real numbers by role and experience level.</p><a href="/learn/cybersecurity-salary-india-2026" style="font-size:.85rem">Read &rarr;</a></div>
+  </div>
+ </div>
+</div>
+{% endblock %}

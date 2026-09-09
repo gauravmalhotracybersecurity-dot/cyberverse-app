@@ -109,8 +109,7 @@ async def learn_article(request: Request, slug: str):
 
 @router.get("/careers", response_class=HTMLResponse)
 async def careers_page(request: Request):
-    # Redirects to homepage until Careers pages are built in a future phase
-    return RedirectResponse(url="/", status_code=302)
+    return templates.TemplateResponse("careers.html", {"request": request})
 
 @router.get("/c/{cred_id}", response_class=HTMLResponse)
 async def credential_page(cred_id: str):

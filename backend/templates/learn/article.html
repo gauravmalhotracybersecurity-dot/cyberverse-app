@@ -59,6 +59,15 @@
 </style>
 {% endblock %}
 {% block content %}
+<div id="progress-bar" style="position:fixed;top:0;left:0;height:3px;background:var(--accent);width:0%;z-index:1000"></div>
+<script>
+window.addEventListener('scroll', () => {
+  const h = document.documentElement;
+  const pct = (h.scrollTop / (h.scrollHeight - h.clientHeight)) * 100;
+  document.getElementById('progress-bar').style.width = pct + '%';
+});
+</script>
+
 <div class="wrap">
  <div class="crumbs"><a href="/">Home</a> / <a href="/learn">Learn</a> / {{ article.title }}</div>
  <h1>{{ article.title }}</h1>

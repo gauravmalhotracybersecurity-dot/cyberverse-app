@@ -307,3 +307,8 @@ If you believe this is an error, contact <a href="mailto:hello@mail.grcwithgaura
 </html>"""
     from fastapi.responses import HTMLResponse
     return HTMLResponse(content=html, status_code=200 if valid else 404)
+
+
+@router.get("/faq", response_class=HTMLResponse)
+async def faq_page(request: Request):
+    return templates.TemplateResponse("faq.html", {"request": request})

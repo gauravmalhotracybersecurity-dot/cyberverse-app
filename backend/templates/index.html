@@ -10,6 +10,31 @@
     </div>
 </section>
 
+
+<section class="section" style="background:linear-gradient(135deg,#0d1a16,#0a0a0a);border-radius:16px;border:1px solid var(--accent);margin:2rem auto;max-width:1100px;text-align:center;">
+    <h2 style="margin-bottom:.5rem">Get one GRC tip + tool every week</h2>
+    <p style="color:var(--muted);max-width:600px;margin:0 auto 1.5rem">Join cybersecurity professionals getting practical frameworks, tools, and career advice. No spam, just signal.</p>
+    <div style="display:flex;gap:.5rem;max-width:440px;margin:0 auto">
+      <input id="hero-nl-email" type="email" placeholder="you@company.com" style="flex:1;padding:.7rem 1rem;border-radius:8px;border:1px solid #333;background:#151515;color:#fff;font-size:1rem">
+      <button id="hero-nl-btn" style="background:var(--accent);color:#000;border:none;border-radius:8px;padding:.7rem 1.5rem;font-weight:700;cursor:pointer;font-size:1rem">Subscribe</button>
+    </div>
+    <p id="hero-nl-msg" style="font-size:.8rem;color:#666;margin-top:.5rem"></p>
+</section>
+<script>
+document.getElementById('hero-nl-btn')?.addEventListener('click', async () => {
+    const email = document.getElementById('hero-nl-email').value;
+    const msg = document.getElementById('hero-nl-msg');
+    if(!email || !email.includes('@')) { msg.textContent = 'Please enter a valid email.'; msg.style.color='#ff4444'; return; }
+    msg.textContent = 'Subscribing...'; msg.style.color='#888';
+    try {
+        const r = await fetch('/api/analytics/newsletter/subscribe', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({email})});
+        const d = await r.json();
+        if(d.ok || r.ok) { msg.textContent = 'Check your inbox to confirm!'; msg.style.color='var(--accent)'; }
+        else { msg.textContent = 'Please use the footer form to subscribe.'; msg.style.color='#ff4444'; }
+    } catch(e) { msg.textContent = 'Network error.'; msg.style.color='#ff4444'; }
+});
+</script>
+
 <section class="section">
     <h2>Free Cybersecurity & GRC Tools</h2>
     <div class="grid-3">

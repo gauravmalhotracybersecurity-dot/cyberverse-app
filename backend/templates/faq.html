@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %}Frequently Asked Questions | GRCWithGaurav{% endblock %}
+{% block description %}Answers to common questions about GRC careers, CyberVerse AI, ISO 27001, and breaking into cybersecurity.{% endblock %}
+{% block head %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    { "@type": "Question", "name": "What is GRC in cybersecurity?", "acceptedAnswer": { "@type": "Answer", "text": "GRC stands for Governance, Risk, and Compliance. It is the practice of aligning IT security with business goals, managing risks, and ensuring compliance with frameworks like ISO 27001, SOC 2, and HIPAA." } },
+    { "@type": "Question", "name": "Do I need coding skills for a GRC role?", "acceptedAnswer": { "@type": "Answer", "text": "No. GRC roles focus on policy, risk assessment, audits, and compliance. While basic technical understanding is helpful, you do not need to write code or configure firewalls." } },
+    { "@type": "Question", "name": "What is CyberVerse AI?", "acceptedAnswer": { "@type": "Answer", "text": "CyberVerse AI is an AI-powered mock interview and career coaching platform. It simulates real hiring manager interviews for SOC, GRC, and Infosec roles, grading your answers and providing actionable feedback." } },
+    { "@type": "Question", "name": "Are the tools on this site really free?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. The 10+ GRC tools (risk calculators, policy generators, resume checkers) are 100% free. CyberVerse AI offers a free tier, with Pro (499) and Premium (999) lifetime tiers for advanced features like AI mock interviews and verifiable certificates." } },
+    { "@type": "Question", "name": "How do I transition into cybersecurity from another field?", "acceptedAnswer": { "@type": "Answer", "text": "Focus on provable skills over just collecting certificates. Build a portfolio (GitHub, blog posts), use our free tools to create audit-ready artifacts, and practice explaining your reasoning out loud using CyberVerse AI." } }
+  ]
+}
+</script>
+{% endblock %}
+{% block content %}
+<div style="max-width:800px;margin:0 auto;padding:2rem">
+ <h1 style="color:#fff">Frequently Asked Questions</h1>
+ <p style="color:var(--muted);font-size:1.05rem">Quick answers about GRC, cybersecurity careers, and the platform.</p>
+ 
+ <div style="margin-top:2rem">
+  <details class="card" style="padding:1.2rem;margin-bottom:1rem;cursor:pointer">
+   <summary style="color:#fff;font-weight:600;font-size:1.1rem">What is GRC in cybersecurity?</summary>
+   <p style="color:#c9c9c9;margin-top:.8rem;line-height:1.6">GRC stands for Governance, Risk, and Compliance. It is the practice of aligning IT security with business goals, managing risks, and ensuring compliance with frameworks like ISO 27001, SOC 2, and HIPAA. It's less about configuring firewalls and more about managing business risk.</p>
+  </details>
+  <details class="card" style="padding:1.2rem;margin-bottom:1rem;cursor:pointer">
+   <summary style="color:#fff;font-weight:600;font-size:1.1rem">Do I need coding skills for a GRC role?</summary>
+   <p style="color:#c9c9c9;margin-top:.8rem;line-height:1.6">No. GRC roles focus on policy, risk assessment, audits, and compliance. While basic technical understanding (like knowing what a firewall does) is helpful, you do not need to write code, script, or configure infrastructure.</p>
+  </details>
+  <details class="card" style="padding:1.2rem;margin-bottom:1rem;cursor:pointer">
+   <summary style="color:#fff;font-weight:600;font-size:1.1rem">What is CyberVerse AI?</summary>
+   <p style="color:#c9c9c9;margin-top:.8rem;line-height:1.6">CyberVerse AI is an AI-powered mock interview and career coaching platform. It simulates real hiring manager interviews for SOC, GRC, and Infosec roles, grading your spoken/written answers and providing actionable feedback to help you improve.</p>
+  </details>
+  <details class="card" style="padding:1.2rem;margin-bottom:1rem;cursor:pointer">
+   <summary style="color:#fff;font-weight:600;font-size:1.1rem">Are the tools on this site really free?</summary>
+   <p style="color:#c9c9c9;margin-top:.8rem;line-height:1.6">Yes. The 10+ GRC tools (risk calculators, policy generators, resume checkers) are 100% free. CyberVerse AI offers a free tier, with Pro (499) and Premium (999) lifetime tiers for advanced features like unlimited AI mock interviews and verifiable certificates.</p>
+  </details>
+  <details class="card" style="padding:1.2rem;margin-bottom:1rem;cursor:pointer">
+   <summary style="color:#fff;font-weight:600;font-size:1.1rem">How do I transition into cybersecurity from another field?</summary>
+   <p style="color:#c9c9c9;margin-top:.8rem;line-height:1.6">Focus on provable skills over just collecting certificates. Build a portfolio (GitHub, blog posts), use our free tools to create audit-ready artifacts, and practice explaining your reasoning out loud using CyberVerse AI. Hiring managers want to see how you think, not just what exams you passed.</p>
+  </details>
+ </div>
+
+ <div class="card" style="padding:1.5rem;margin-top:2rem;text-align:center;background:linear-gradient(135deg,#0d1a16,#0a0a0a);border:1px solid var(--accent)">
+  <h3 style="color:#fff;margin-top:0">Still have questions?</h3>
+  <p style="color:var(--muted)">Reach out directly via our contact page.</p>
+  <a href="/contact" class="btn-primary" style="display:inline-block;margin-top:.5rem">Contact Gaurav</a>
+ </div>
+</div>
+{% endblock %}

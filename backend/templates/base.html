@@ -12,6 +12,25 @@
     <meta property="og:url" content="{% block og_url %}https://grcwithgaurav.com{{ request.url.path }}{% endblock %}">
     <meta property="og:image" content="{% block og_image %}https://grcwithgaurav.com/static/og-default.jpg{% endblock %}">
     <meta property="og:site_name" content="GRCWithGaurav">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "GRCWithGaurav",
+  "url": "https://grcwithgaurav.com",
+  "logo": "https://grcwithgaurav.com/static/og-default.jpg",
+  "description": "Practical cybersecurity, GRC, and AI tools for security teams and job seekers.",
+  "founder": {
+    "@type": "Person",
+    "name": "Gaurav Malhotra"
+  },
+  "sameAs": [
+    "https://linkedin.com/in/gauravmalhotracybersecurity",
+    "https://twitter.com/gauravmalhotra"
+  ]
+}
+</script>
+
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="{% block twitter_title %}{{ self.title() }}{% endblock %}">
     <meta name="twitter:description" content="{% block twitter_description %}{{ self.description() }}{% endblock %}">

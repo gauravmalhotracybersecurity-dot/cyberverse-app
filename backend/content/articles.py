@@ -1039,3 +1039,12 @@ ARTICLES.append({
 <p>Vendor risk is where modern breaches live. A working program is: inventory → tier → targeted questionnaire → score → remediate → monitor. Six steps, one register, and the discipline to reassess on triggers.</p>
 <p>Start this week: pull your accounts payable list, tier the top 20 vendors, and score them with the model above. You will find at least one Critical vendor with no evidence - and that is the one that would have been next quarter's headline.</p>"""
 })
+
+# De-duplicate articles by slug (keeps first occurrence)
+_seen = set()
+_deduped = []
+for _a in ARTICLES:
+    if _a["slug"] not in _seen:
+        _seen.add(_a["slug"])
+        _deduped.append(_a)
+ARTICLES = _deduped

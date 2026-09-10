@@ -195,16 +195,25 @@ for _old, _new in _REDIRECTS.items():
 # ================= SEO =================
 @router.get("/sitemap.xml")
 async def sitemap():
-    paths = ["/", "/tools", "/learn", "/about", "/resources", "/contact", "/b2b"] + TOOL_PATHS + ["/learn/" + a["slug"] for a in ARTICLES]
+    paths = ["/", "/tools", "/learn", "/about", "/resources", "/contact", "/b2b", "/careers", "/faq"] + TOOL_PATHS + ["/learn/" + a["slug"] for a in ARTICLES]
+    seen = set()
     items = ""
     for p in paths:
-        items += "<url><loc>" + BASE_URL + p + "</loc><lastmod>2026-09-03</lastmod><changefreq>weekly</changefreq></url>"
+        if p in seen:
+            continue
+        seen.add(p)
+        lm = "2026-09-11"
+        for a in ARTICLES:
+            if p == "/learn/" + a["slug"]:
+                lm = a.get("date", "2026-09-11")
+                break
+        items += "<url><loc>" + BASE_URL + p + "</loc><lastmod>" + lm + "</lastmod><changefreq>weekly</changefreq></url>"
     xml = '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' + items + "</urlset>"
     return Response(xml, media_type="application/xml")
 
 @router.get("/robots.txt")
 async def robots():
-    txt = "User-agent: *\nAllow: /\nDisallow: /api/\nDisallow: /admin.html\nDisallow: /app.html\n\nSitemap: " + BASE_URL + "/sitemap.xml\n"
+    txt = "User-agent: *\nAllow: /\nDisallow: /api/\nDisallow: /admin.html\nDisallow: /app.html\nDisallow: /admin-payments\nDisallow: /admin-leads\n\nSitemap: " + BASE_URL + "/sitemap.xml\n"
     return Response(txt, media_type="text/plain")
 
 

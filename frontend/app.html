@@ -91,6 +91,14 @@ h1,h2,h3,.view-title,.hero h1 { font-family:'Space Grotesk',Inter,sans-serif; le
             y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
         })(window, document, "clarity", "script", "xl9b4c7mdv");
     </script>
+
+<style>
+/*app-pricing-responsive*/
+.app-pricing-grid { display:grid; grid-template-columns:1fr 1fr; gap:1.5rem; max-width:750px; margin:0 auto; }
+@media (max-width: 860px) {
+  .app-pricing-grid { grid-template-columns:1fr; max-width:520px; margin:0 auto; }
+}
+</style>
 </head>
 <body>
   
@@ -111,7 +119,7 @@ h1,h2,h3,.view-title,.hero h1 { font-family:'Space Grotesk',Inter,sans-serif; le
     <p style="color:var(--muted);margin:.5rem 0 0">CyberVerse AI gives you real mock interviews with AI feedback - no credit card needed to start.</p>
   </div>
 
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;max-width:750px;margin:0 auto">
+  <div class="app-pricing-grid">
     <div style="padding:2rem;background:#151515;border:1px solid #333;border-radius:14px">
       <h4 style="color:#fff;margin:0 0 .5rem">Free</h4>
       <p style="color:var(--muted);font-size:.85rem;margin:0 0 1.5rem">Get started, no card needed</p>

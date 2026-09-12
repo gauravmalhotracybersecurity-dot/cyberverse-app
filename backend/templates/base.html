@@ -78,24 +78,22 @@
         })(window, document, "clarity", "script", "xl9b4c7mdv");
     </script>
 
-<style>
-@media (max-width: 900px) {
-  #nav-toggle { display:inline-block !important; }
-  #main-nav { display:none; position:fixed; top:64px; left:0; right:0; max-height:calc(100vh - 64px); overflow-y:auto; background:#0a0a0a; border-bottom:1px solid #222; flex-direction:column; align-items:stretch; padding:.5rem 1.2rem 1.2rem; z-index:300; gap:0 !important; }
-  #main-nav.open { display:flex; }
-  #main-nav a { padding:.8rem 0 !important; border-bottom:1px solid #1a1a1a; font-size:1rem; }
-  #main-nav a.nav-cta { margin-top:.8rem; text-align:center; border-bottom:none; }
-}
-</style>
+
+
+
 
 <style>
-/*mobile-nav-v2*/
+/*mobile-nav-v3*/
 @media (max-width: 900px) {
-  header { display:flex !important; align-items:center; justify-content:space-between; gap:1rem; }
-  #nav-toggle { display:inline-block !important; order:99; margin-left:auto; }
-  #main-nav, header nav { display:none; }
-  #main-nav.open, header nav.open { display:flex !important; position:fixed; top:64px; left:0; right:0; max-height:calc(100vh - 64px); overflow-y:auto; background:#0a0a0a; border-bottom:1px solid #222; flex-direction:column; padding:.5rem 1.2rem 1.2rem; z-index:300; }
-  #main-nav a, header nav.open a { padding:.8rem 0 !important; border-bottom:1px solid #1a1a1a; font-size:1rem; }
+  .nav { position:relative; }
+  .nav-links { display:none; position:fixed; top:64px; left:0; right:0; max-height:calc(100vh - 64px); overflow-y:auto; background:#0a0a0a; border-bottom:1px solid #222; flex-direction:column; padding:.5rem 1.2rem 1.2rem; z-index:300; gap:0 !important; }
+  .nav.open .nav-links { display:flex; }
+  .nav-links a { padding:.8rem 0 !important; border-bottom:1px solid #1a1a1a; font-size:1rem; }
+  .nav-links a.nav-cta { margin-top:.8rem; text-align:center; border-bottom:none; }
+  #nav-toggle { display:inline-block !important; }
+}
+@media (min-width: 901px) {
+  #nav-toggle { display:none !important; }
 }
 </style>
 </head>
@@ -167,12 +165,13 @@
 })();
 </script>
 
+
+
 <script>
 (function(){
   var t = document.getElementById("nav-toggle");
-  var n = document.getElementById("main-nav") || document.querySelector("header nav") || document.querySelector("nav");
+  var n = document.querySelector("nav.nav");
   if (!t || !n) return;
-  if (!n.id) n.id = "main-nav";
   t.addEventListener("click", function(e){ e.preventDefault(); e.stopPropagation(); n.classList.toggle("open"); });
   document.addEventListener("click", function(e){ if (!n.contains(e.target) && !t.contains(e.target)) n.classList.remove("open"); });
   n.addEventListener("click", function(e){ if (e.target.tagName === "A") n.classList.remove("open"); });

@@ -82,9 +82,10 @@ async def security_headers(request: Request, call_next):
     response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
     response.headers["Content-Security-Policy"] = (
         "default-src 'self'; "
-        "frame-src https://api.razorpay.com https://checkout.razorpay.com; script-src 'self' 'unsafe-inline' https://checkout.razorpay.com; "
+        "frame-src https://api.razorpay.com https://checkout.razorpay.com; script-src 'self' 'unsafe-inline' https://checkout.razorpay.com https://www.clarity.ms https://*.clarity.ms; "
         "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; "
         "font-src 'self' https://fonts.gstatic.com; "
+        "connect-src 'self' https://www.clarity.ms https://*.clarity.ms; "
         "img-src 'self' data: https://buildlist.io; "
         "connect-src 'self' https://api.razorpay.com https://checkout.razorpay.com; "
         "frame-ancestors 'self' https://www.grcwithgaurav.com https://grcwithgaurav.com"

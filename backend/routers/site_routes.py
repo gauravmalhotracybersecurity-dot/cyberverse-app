@@ -184,7 +184,7 @@ async def b2b_page(request: Request):
     return templates.TemplateResponse("b2b.html", {"request": request})
 
 # ================= 301 REDIRECT MAP =================
-_REDIRECTS = {"/books": "/resources", "/consulting": "/b2b", "/blog": "/learn", "/home": "/", "/about-us": "/about"}
+_REDIRECTS = {"/consulting": "/b2b", "/blog": "/learn", "/home": "/", "/about-us": "/about"}
 def _make_redir(target):
     async def _r(request: Request):
         return RedirectResponse(url=target, status_code=301)
@@ -193,9 +193,22 @@ for _old, _new in _REDIRECTS.items():
     router.add_api_route(_old, _make_redir(_new), methods=["GET"], include_in_schema=False)
 
 # ================= SEO =================
+
+
+@router.get("/books", response_class=HTMLResponse)
+async def books_page(request: Request):
+    import json, os
+    books_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "content", "books.json")
+    try:
+        with open(books_path, encoding="utf-8") as f:
+            books = json.load(f)
+    except Exception:
+        books = []
+    return templates.TemplateResponse("books.html", {"request": request, "books": books})
+
 @router.get("/sitemap.xml")
 async def sitemap():
-    paths = ["/", "/tools", "/learn", "/about", "/resources", "/contact", "/b2b", "/careers", "/faq"] + TOOL_PATHS + ["/learn/" + a["slug"] for a in ARTICLES]
+    paths = ["/", "/tools", "/learn", "/about", "/resources", "/contact", "/b2b", "/careers", "/faq", "/books"] + TOOL_PATHS + ["/learn/" + a["slug"] for a in ARTICLES]
     seen = set()
     items = ""
     for p in paths:

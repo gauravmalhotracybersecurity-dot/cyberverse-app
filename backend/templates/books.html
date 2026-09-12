@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block title %}Books & Playbooks | GRCWithGaurav{% endblock %}
+{% block description %}Practical GRC and cybersecurity career playbooks by Gaurav Malhotra - interview guides, roadmaps, and frameworks you can use immediately.{% endblock %}
+{% block canonical %}https://grcwithgaurav.com/books{% endblock %}
+{% block head %}
+<meta property="og:title" content="Books & Playbooks | GRCWithGaurav">
+<meta property="og:description" content="Practical GRC and cybersecurity career playbooks by Gaurav Malhotra - interview guides, roadmaps, and frameworks you can use immediately.">
+<meta property="og:image" content="https://grcwithgaurav.com/static/og-default.jpg">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://grcwithgaurav.com/books">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Books & Playbooks | GRCWithGaurav">
+<meta name="twitter:description" content="Practical GRC and cybersecurity career playbooks by Gaurav Malhotra.">
+<meta name="twitter:image" content="https://grcwithgaurav.com/static/og-default.jpg">
+{% endblock %}
+{% block content %}
+<div style="max-width:900px;margin:0 auto;padding:2rem">
+ <h1 style="color:#fff">Playbooks, not just theory.</h1>
+ <p style="color:var(--muted);font-size:1.1rem;line-height:1.6;max-width:700px">Everything I've learned about breaking into GRC and cybersecurity, written down so you don't have to learn it the hard way.</p>
+
+ <div style="display:grid;gap:1.5rem;margin-top:2.5rem">
+  {% for b in books %}
+  <div class="card" style="padding:1.8rem">
+   <h2 style="color:#fff;margin-top:0;font-size:1.5rem">{{ b.title }}</h2>
+   <p style="color:#c9c9c9;line-height:1.7;margin:.6rem 0 1rem">{{ b.desc }}</p>
+   <p style="margin:.4rem 0 .8rem">
+    <span style="background:var(--accent);color:#000;font-weight:700;border-radius:12px;padding:.2rem .8rem;font-size:.85rem">{{ b.price }}</span>
+    <span style="color:var(--muted);font-size:.85rem;margin-left:.4rem">by Gaurav Malhotra</span>
+   </p>
+   <a href="{{ b.link }}" target="_blank" rel="noopener" class="btn-primary" style="display:inline-block">Get It on Gumroad &rarr;</a>
+  </div>
+  {% endfor %}
+ </div>
+
+ <div class="card" style="padding:2rem;margin-top:2.5rem;text-align:center;background:linear-gradient(135deg,#0d1a16,#0a0a0a);border:1px solid var(--accent)">
+  <h2 style="color:#fff;margin-top:0">Better together: CyberVerse AI + the playbooks</h2>
+  <p style="color:var(--muted);max-width:600px;margin:0 auto 1rem">Upgrade to CyberVerse AI Pro this month and get any book free.</p>
+  <a href="/app.html" class="btn-primary" style="display:inline-block">Upgrade & Claim Your Free Book &rarr;</a>
+ </div>
+
+ <div class="card" style="padding:1.5rem;margin-top:2rem;text-align:center;background:#111;border:1px solid #222">
+  <p style="color:var(--muted);margin:0">All books come with Gumroad's standard refund policy. If it's not useful to you, you get your money back — no hard feelings.</p>
+ </div>
+</div>
+{% endblock %}

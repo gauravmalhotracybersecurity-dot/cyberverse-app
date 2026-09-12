@@ -74,6 +74,16 @@ window.addEventListener('scroll', () => {
  <div class="meta">By {{ article.author }} &middot; {{ article.date }} &middot; {{ article.read }}</div>
  <div class="prose">{{ article.body | safe }}</div>
 
+ {% if article.upsell_book %}
+ <div style="margin:2rem 0;padding:1.5rem;border-radius:12px;background:linear-gradient(135deg,#0d1a16,#0a0a0a);border:1px solid var(--accent)">
+  <p style="color:var(--accent);font-size:.85rem;font-weight:600;margin:0 0 .4rem;text-transform:uppercase;letter-spacing:.5px">Want the complete playbook?</p>
+  <h4 style="color:#fff;margin:.2rem 0 .5rem;font-size:1.2rem">{{ article.upsell_book.title }}</h4>
+  <p style="color:#c9c9c9;margin:0 0 1rem;line-height:1.6">{{ article.upsell_book.hook }}</p>
+  <a href="/books" style="display:inline-block;padding:.5rem 1.2rem;background:var(--accent);color:#000;border-radius:8px;font-weight:700;text-decoration:none;font-size:.9rem">Get the Guide &rarr;</a>
+ </div>
+ {% endif %}
+
+
  {% if article.tools %}
  <div class="side-box">
   <h3>Free tools for this guide</h3>

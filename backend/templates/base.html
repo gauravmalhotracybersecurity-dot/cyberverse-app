@@ -77,9 +77,19 @@
             y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
         })(window, document, "clarity", "script", "xl9b4c7mdv");
     </script>
+
+<style>
+@media (max-width: 900px) {
+  #nav-toggle { display:inline-block !important; }
+  #main-nav { display:none; position:fixed; top:64px; left:0; right:0; max-height:calc(100vh - 64px); overflow-y:auto; background:#0a0a0a; border-bottom:1px solid #222; flex-direction:column; align-items:stretch; padding:.5rem 1.2rem 1.2rem; z-index:300; gap:0 !important; }
+  #main-nav.open { display:flex; }
+  #main-nav a { padding:.8rem 0 !important; border-bottom:1px solid #1a1a1a; font-size:1rem; }
+  #main-nav a.nav-cta { margin-top:.8rem; text-align:center; border-bottom:none; }
+}
+</style>
 </head>
 <body>
-    <nav class="nav">
+    <button id="nav-toggle" aria-label="Open menu" style="display:none;background:none;border:1px solid #333;color:var(--accent);font-size:1.3rem;border-radius:8px;padding:2px 12px;cursor:pointer;margin-left:auto">&#9776;</button><nav id="main-nav" class="nav">
         <a href="/" class="nav-brand">GRC<span>WithGaurav</span></a>
         <div class="nav-links">
             <a href="/learn">Learn</a>
@@ -143,6 +153,16 @@
     var el = document.getElementById('free-cta');
     if (el) { el.style.display = 'block'; sessionStorage.setItem('cta_seen','1'); }
   }, 15000);
+})();
+</script>
+
+<script>
+(function(){
+  var t = document.getElementById("nav-toggle"), n = document.getElementById("main-nav");
+  if (!t || !n) return;
+  t.addEventListener("click", function(e){ e.stopPropagation(); n.classList.toggle("open"); });
+  document.addEventListener("click", function(e){ if (!n.contains(e.target) && e.target !== t) n.classList.remove("open"); });
+  n.addEventListener("click", function(e){ if (e.target.tagName === "A") n.classList.remove("open"); });
 })();
 </script>
 </body>

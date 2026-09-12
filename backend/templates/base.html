@@ -87,6 +87,17 @@
   #main-nav a.nav-cta { margin-top:.8rem; text-align:center; border-bottom:none; }
 }
 </style>
+
+<style>
+/*mobile-nav-v2*/
+@media (max-width: 900px) {
+  header { display:flex !important; align-items:center; justify-content:space-between; gap:1rem; }
+  #nav-toggle { display:inline-block !important; order:99; margin-left:auto; }
+  #main-nav, header nav { display:none; }
+  #main-nav.open, header nav.open { display:flex !important; position:fixed; top:64px; left:0; right:0; max-height:calc(100vh - 64px); overflow-y:auto; background:#0a0a0a; border-bottom:1px solid #222; flex-direction:column; padding:.5rem 1.2rem 1.2rem; z-index:300; }
+  #main-nav a, header nav.open a { padding:.8rem 0 !important; border-bottom:1px solid #1a1a1a; font-size:1rem; }
+}
+</style>
 </head>
 <body>
     <button id="nav-toggle" aria-label="Open menu" style="display:none;background:none;border:1px solid #333;color:var(--accent);font-size:1.3rem;border-radius:8px;padding:2px 12px;cursor:pointer;margin-left:auto">&#9776;</button><nav id="main-nav" class="nav">
@@ -158,10 +169,12 @@
 
 <script>
 (function(){
-  var t = document.getElementById("nav-toggle"), n = document.getElementById("main-nav");
+  var t = document.getElementById("nav-toggle");
+  var n = document.getElementById("main-nav") || document.querySelector("header nav") || document.querySelector("nav");
   if (!t || !n) return;
-  t.addEventListener("click", function(e){ e.stopPropagation(); n.classList.toggle("open"); });
-  document.addEventListener("click", function(e){ if (!n.contains(e.target) && e.target !== t) n.classList.remove("open"); });
+  if (!n.id) n.id = "main-nav";
+  t.addEventListener("click", function(e){ e.preventDefault(); e.stopPropagation(); n.classList.toggle("open"); });
+  document.addEventListener("click", function(e){ if (!n.contains(e.target) && !t.contains(e.target)) n.classList.remove("open"); });
   n.addEventListener("click", function(e){ if (e.target.tagName === "A") n.classList.remove("open"); });
 })();
 </script>

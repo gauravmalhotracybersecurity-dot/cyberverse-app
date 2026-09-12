@@ -87,7 +87,6 @@ h1,h2,h3,.view-title,.hero h1 { font-family:'Space Grotesk',Inter,sans-serif; le
   <div id="cv-overlay"></div>
 
 <!-- ============ AUTH SCREEN ============ -->
-<div 
 <div id="pricing-section" style="max-width:900px;margin:0 auto;padding:2rem;display:none">
   <div style="text-align:center;margin-bottom:2rem">
     <h2 style="color:#fff;margin:0">Start free. Upgrade when you're ready to go all in.</h2>
@@ -124,7 +123,7 @@ h1,h2,h3,.view-title,.hero h1 { font-family:'Space Grotesk',Inter,sans-serif; le
   </div>
 </div>
 
-id="auth-screen" class="auth-screen">
+<div id="auth-screen" class="auth-screen">
   <div class="auth-card">
     <div class="brand">
       <span class="brand-mark">&gt;_</span>
@@ -528,6 +527,7 @@ id="auth-screen" class="auth-screen">
           <li style="margin-bottom: 8px;">Daily Ops & AI Mentor</li>
         </ul>
         <a href="#" target="_blank" class="btn-secondary" style="text-align:center; text-decoration:none; padding: 12px;">Get Pro</a>
+<p style="text-align:center;margin-top:14px"><a href="#" onclick="document.getElementById('auth-screen').style.display='none';document.getElementById('pricing-section').style.display='block';return false" style="color:var(--accent);font-size:.9rem">View pricing first &rarr;</a></p>
       </div>
 
       <!-- Premium Card -->
@@ -961,7 +961,7 @@ id="auth-screen" class="auth-screen">
             btn.parentNode.insertBefore(linkedinBtn, btn.nextSibling);
             
             linkedinBtn.addEventListener("click", function(){
-              var caption = "Just completed " + data.length + " mock interviews on CyberVerse AI and scored " + score + "% average. Practicing out loud > just reading. #GRC #Cybersecurity #CareerGrowth";
+              var caption = "Just completed " + (JSON.parse(localStorage.getItem("cv_interviews_30d")||"[]").length || 1) + " mock interviews on CyberVerse AI and scored " + score + "% average. Practicing out loud > just reading. #GRC #Cybersecurity #CareerGrowth";
               var shareUrl = "https://www.linkedin.com/sharing/share-offsite/?url=" + encodeURIComponent(d.url);
               window.open(shareUrl, "_blank");
             });
@@ -1042,6 +1042,9 @@ id="auth-screen" class="auth-screen">
 })();
 </script>
 
+<script id="cv-score-watch">
+(function(){ var seen=false; setInterval(function(){ var m=document.getElementById('scorecard-modal'); if(!m) return; var vis = m.style.display!=='none' && getComputedStyle(m).display!=='none'; if(vis && !seen){ seen=true; var sc=((document.getElementById('sc-score')||{}).textContent||''); var num=parseInt(sc,10)||0; if(window.trackInterviewCompletion) window.trackInterviewCompletion(num); } if(!vis) seen=false; },1500); })();
+</script>
 </body>
 </html>
 

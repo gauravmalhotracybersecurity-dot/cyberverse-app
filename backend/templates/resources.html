@@ -1,17 +1,13 @@
 {% extends "base.html" %}
 {% block title %}Free Cybersecurity Resources & Starter Kit | GRCWithGaurav
 {% endblock %}
+
+{% block og_url %}https://grcwithgaurav.com/resources{% endblock %}
+{% block og_image %}https://grcwithgaurav.com/static/og-default.jpg{% endblock %}
+
 {% block description %}Free cybersecurity starter kit: ISO 27001 risk register, audit checklist, GRC interview questions, career roadmap and resume template - plus ebooks.{% endblock %}
 {% block canonical %}https://grcwithgaurav.com/resources{% endblock %}
-{% block head %}
-<meta property="og:image" content="{{ base_url }}/static/og-default.jpg">
-<meta property="og:type" content="website">
-<meta property="og:url" content="{{ base_url }}/resources">
-<meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="{{ base_url }}/static/og-default.jpg">
-<meta name="twitter:title" content="Free Cybersecurity Resources & Starter Kit | GRCWithGaurav">
-<meta name="twitter:description" content="Free cybersecurity starter kit: ISO 27001 risk register, audit checklist, GRC interview questions, career roadmap and resume template - plus ebooks.">
-{% endblock %}
+
 {% block content %}
 <div style="max-width:900px;margin:0 auto;padding:2rem">
  <h1 style="color:#fff">Resources</h1>

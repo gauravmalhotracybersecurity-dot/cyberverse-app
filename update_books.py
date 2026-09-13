@@ -1,4 +1,6 @@
-{% extends "base.html" %}
+﻿import subprocess
+
+new_books = '''{% extends "base.html" %}
 {% block title %}Books & Playbooks | GRCWithGaurav{% endblock %}
 {% block description %}Practical GRC and cybersecurity career playbooks by Gaurav Malhotra - interview guides, roadmaps, and frameworks you can use immediately.{% endblock %}
 {% block canonical %}https://grcwithgaurav.com/books{% endblock %}
@@ -89,3 +91,13 @@
  </div>
 </div>
 {% endblock %}
+'''
+
+open("backend/templates/books.html", "w", encoding="utf-8").write(new_books)
+print("[REWRITTEN] books.html with 5 books + $35 bundle card")
+
+subprocess.run(["git", "add", "-A"])
+r = subprocess.run(["git", "commit", "-m", "Books: 5 individual products + $35 bundle card with real Gumroad links"], capture_output=True, text=True)
+print(f"[COMMIT] {r.stdout.strip() if r.returncode == 0 else r.stderr.strip()}")
+r = subprocess.run(["git", "push", "origin", "main"], capture_output=True, text=True)
+print("[PUSHED]" if r.returncode == 0 else f"[PUSH FAILED] {r.stderr}")

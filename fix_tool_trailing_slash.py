@@ -12,7 +12,6 @@ for filename in tool_files:
         content = f.read()
     
     # Pattern: canonical href ending with / before the closing quote
-    # Example: href="https://grcwithgaurav.com/tools/cvss-calculator/" -> href="https://grcwithgaurav.com/tools/cvss-calculator"
     pattern = r'(<link[^>]*rel="canonical"[^>]*href="https://grcwithgaurav\.com/tools/[^"]+)/("[^>]*>)'
     
     if re.search(pattern, content):

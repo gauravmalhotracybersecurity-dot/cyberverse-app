@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}GRCWithGaurav | Cybersecurity, GRC & AI Platform{% endblock %}</title>
     <meta name="description" content="{% block description %}Learn cybersecurity, prepare for certifications, build your career and automate GRC tasks with practical guides and AI-powered tools.{% endblock %}">
-    <link rel="canonical" href="{% block canonical %}https://grcwithgaurav.com{{ request.url.path }}{% endblock %}">
+    <link rel="canonical" href="{% block canonical %}https://grcwithgaurav.com{{ request.url.path.rstrip("/") }}{% endblock %}">
     <meta property="og:type" content="{% block og_type %}website{% endblock %}">
     <meta property="og:title" content="{% block og_title %}{{ self.title() }}{% endblock %}">
     <meta property="og:description" content="{% block og_description %}{{ self.description() }}{% endblock %}">

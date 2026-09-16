@@ -1,0 +1,16 @@
+﻿import urllib.request
+req = urllib.request.Request("https://grcwithgaurav.com/resources", headers={"User-Agent": "Mozilla/5.0"})
+h = urllib.request.urlopen(req, timeout=25).read().decode("utf-8", "ignore")
+print("RESOURCES PAGE:")
+print("  'Ebooks' H2 gone:          ", ">Ebooks</h2>" not in h)
+print("  'Looking for ebooks' gone: ", "Looking for the ebooks" not in h)
+print("  old playbooks card gone:   ", "Ready for the full playbooks" not in h)
+print("  single thin pointer:       ", "Browse Books" in h)
+print("  free-identity line:        ", "Everything on this page is free" in h)
+
+req = urllib.request.Request("https://grcwithgaurav.com/books", headers={"User-Agent": "Mozilla/5.0"})
+h = urllib.request.urlopen(req, timeout=25).read().decode("utf-8", "ignore")
+print("\nBOOKS PAGE:")
+print("  commerce trust-line:       ", "Instant PDF download" in h)
+print("  price cards:               ", h.count("Get It on Gumroad"), "books")
+print("  bundle card:               ", "Get the Bundle" in h)
